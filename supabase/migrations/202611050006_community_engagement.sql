@@ -83,7 +83,7 @@ create table public.community_reports (
   details text not null default '' check (length(details) <= 1000),
   status text not null default 'open' check (status in ('open','reviewing','resolved','dismissed')),
   created_at timestamptz not null default now(),
-  check ((post_id is not null)::int + (comment_id is not null)::int = 1)
+  check ((post_id is not null and comment_id is null) or (post_id is null and comment_id is not null))
 );
 create index community_reports_status_created_idx
   on public.community_reports(status,created_at desc);
