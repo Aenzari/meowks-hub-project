@@ -33,4 +33,4 @@ values ('REPLACE-WITH-AUTH-USER-UUID', 'admin')
 on conflict (user_id) do update set role = excluded.role;
 ```
 
-Do not expose moderator-role writes to the browser. The migration grants authenticated users access only to their own role record and restricts report updates to the `status` column. The moderator review interface is a subsequent UI step; this migration establishes its secure database permissions first.
+Do not expose moderator-role writes to the browser. The migration grants authenticated users access only to their own role record and restricts report updates to the `status` column. The Community screen now includes a moderator-only report queue for viewing reported post/comment content and reporter details, then marking reports as reviewing, resolved, or dismissed. This workflow updates report status only; it does not automatically hide or delete reported content. Assign moderator roles manually and test with a dedicated moderator account.
