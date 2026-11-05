@@ -6,6 +6,7 @@ import { LearnWorkspace } from "./components/LearnWorkspace";
 import { CommunityWorkspace } from "./components/CommunityWorkspace";
 import { ProfileWorkspace, type StudentProfile } from "./components/ProfileWorkspace";
 import { NotificationWorkspace } from "./components/NotificationWorkspace";
+import { GamificationWorkspace } from "./components/GamificationWorkspace";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
 type Profile = StudentProfile;
@@ -227,7 +228,7 @@ export default function App() {
   const upcomingTasks = pendingTasks.slice(0, 5);
   const courseName = (id: string | null) => courses.find(course => course.id === id)?.title ?? "Personal";
   const dateLabel = (value: string | null) => value ? new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "No due date";
-  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "♧", label: "Notifications" }];
+  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "♧", label: "Notifications" }, { icon: "🐾", label: "My Space" }];
 
   return <div className="app-shell">
     <aside className="sidebar"><BrandMark/><div className="workspace-label">YOUR STUDENT SPACE</div>
@@ -261,6 +262,7 @@ export default function App() {
         {activeNav === "Notifications" && user && (
           <NotificationWorkspace userId={user.id} onUnreadCountChange={handleUnreadCountChange} onOpenCommunity={() => setActiveNav("Community")}/>
         )}
+        {activeNav === "My Space" && user && <GamificationWorkspace userId={user.id}/>}
         {activeNav === "My profile" && user && profile && (
           <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>
         )}
