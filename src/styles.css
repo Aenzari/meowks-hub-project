@@ -90,3 +90,19 @@
 .directory-interests span{border-radius:20px;background:#fff4df;color:#8b704c;padding:5px 8px;font-size:9px;font-weight:700}
 @media(max-width:850px){.profile-layout{grid-template-columns:1fr}}
 @media(max-width:520px){.profile-form-grid{grid-template-columns:1fr}}
+
+
+/* Phase 4.5 in-app notifications */
+.nav-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;margin-left:auto;border-radius:20px;background:#ff947a;color:#fff;font-size:9px;font-weight:850}
+.notification-workspace .feature-heading{align-items:center}
+.notification-list{display:grid;gap:10px;max-width:850px}
+.notification-item{width:100%;display:flex;align-items:center;gap:13px;padding:16px;text-align:left;color:var(--navy);cursor:pointer}
+.notification-item.is-unread{border-color:#b9e7da;background:#fbfefc}
+.notification-item.is-read{opacity:.78}
+.notification-dot{width:34px;height:34px;flex-shrink:0;border-radius:11px;background:#eaf8f4;color:#278d78;display:grid;place-items:center;font-size:20px;font-weight:850}
+.notification-item.is-read .notification-dot{background:#f0f3f1;color:#89968f;font-size:13px}
+.notification-copy{display:grid;gap:5px;flex:1;min-width:0}
+.notification-copy strong{font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.notification-copy small{font-size:9px;color:#89968f}
+.notification-new{border-radius:20px;background:#fff0ed;color:#b65e50;padding:5px 8px;font-size:9px;font-weight:800}
+@media(max-width:650px){.notification-workspace .feature-heading{align-items:flex-start}.notification-item{padding:13px;gap:9px}}
