@@ -6,6 +6,10 @@ type Course = { id: string; title: string };
 type Note = { id: string; title: string; content: string; course_id: string | null; updated_at: string };
 type Deck = { id: string; title: string; description: string | null; course_id: string | null };
 type Card = { id: string; front: string; back: string; position: number };
+type Quiz = { id: string; title: string; description: string; course_id: string | null };
+type Question = { id: string; prompt: string; options: string[]; correct_option: number; explanation: string; position: number };
+type DueCard = Card & { due_at: string };
+type Attempt = { id: string; score: number; total_questions: number; completed_at: string };
 
 export function LearnWorkspace({ userId, courses }: { userId: string; courses: Course[] }) {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -31,6 +35,21 @@ export function LearnWorkspace({ userId, courses }: { userId: string; courses: C
   const [seconds, setSeconds] = useState(1500);
   const [running, setRunning] = useState(false);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [quizTitle, setQuizTitle] = useState("");
+  const [quizCourse, setQuizCourse] = useState("");
+  const [questionPrompt, setQuestionPrompt] = useState("");
+  const [questionOptions, setQuestionOptions] = useState(["", "", "", ""]);
+  const [correctOption, setCorrectOption] = useState(0);
+  const [questionExplanation, setQuestionExplanation] = useState("");
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [dueCards, setDueCards] = useState<DueCard[]>([]);
+  const [reviewIndex, setReviewIndex] = useState(0);
+  const [reviewFlipped, setReviewFlipped] = useState(false);
+  const [analytics, setAnalytics] = useState({ seconds: 0, attempts: 0, correct: 0, reviews: 0 });
 
   async function refresh() {
     if (!supabase) return;
@@ -38,8 +57,28 @@ export function LearnWorkspace({ userId, courses }: { userId: string; courses: C
       supabase.from("study_notes").select("id,title,content,course_id,updated_at").eq("user_id", userId).order("updated_at", { ascending: false }),
       supabase.from("flashcard_decks").select("id,title,description,course_id").eq("user_id", userId).order("created_at", { ascending: false }),
     ]);
-    if (n.error || d.error) setError(n.error?.message || d.error?.message || "Unable to load study tools.");
-    else { setNotes((n.data || []) as Note[]); setDecks((d.data || []) as Deck[]); }
+    const [q, a, sessions, reviews, states] = await Promise.all([
+      supabase.from("quizzes").select("id,title,description,course_id").eq("user_id", userId).order("created_at", { ascending: false }),
+      supabase.from("quiz_attempts").select("id,score,total_questions,completed_at").eq("user_id", userId).order("completed_at", { ascending: false }).limit(30),
+      supabase.from("study_sessions").select("duration_seconds").eq("user_id", userId),
+      supabase.from("card_review_events").select("id,rating").eq("user_id", userId),
+      supabase.from("card_review_state").select("card_id,due_at").eq("user_id", userId).lte("due_at", new Date().toISOString()).limit(50),
+    ]);
+    if (n.error || d.error || q.error || a.error || sessions.error || reviews.error || states.error) {
+      setError(n.error?.message || d.error?.message || q.error?.message || a.error?.message || sessions.error?.message || reviews.error?.message || states.error?.message || "Unable to load study tools.");
+    } else {
+      setNotes((n.data || []) as Note[]); setDecks((d.data || []) as Deck[]); setQuizzes((q.data || []) as Quiz[]);
+      setAttempts((a.data || []) as Attempt[]);
+      const sessionRows = sessions.data || [];
+      const reviewRows = reviews.data || [];
+      setAnalytics({ seconds: sessionRows.reduce((sum, row) => sum + row.duration_seconds, 0), attempts: (a.data || []).length, correct: (a.data || []).reduce((sum, row) => sum + row.score, 0), reviews: reviewRows.length });
+      const dueIds = (states.data || []).map(row => row.card_id);
+      if (dueIds.length) {
+        const { data: dueData, error: dueError } = await supabase.from("flashcards").select("id,front,back,position").in("id", dueIds);
+        if (dueError) setError(dueError.message);
+        else setDueCards((dueData || []).map(card => ({ ...card, due_at: states.data?.find(state => state.card_id === card.id)?.due_at || "" })) as DueCard[]);
+      } else setDueCards([]);
+    }
   }
 
   useEffect(() => { void refresh(); }, [userId]);
@@ -120,6 +159,64 @@ export function LearnWorkspace({ userId, courses }: { userId: string; courses: C
     if (e) setError(e.message); else { setActiveDeck(null); setMessage("Deck deleted."); await refresh(); }
   }
 
+  async function createQuiz(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); if (!supabase) return;
+    setBusy(true); setError("");
+    const { data, error: e } = await supabase.from("quizzes").insert({ user_id: userId, title: quizTitle.trim(), course_id: quizCourse || null }).select("id,title,description,course_id").single();
+    setBusy(false);
+    if (e) { setError(e.message); return; }
+    setQuizTitle(""); setQuizCourse(""); setActiveQuiz(data as Quiz); setQuestions([]); setMessage("Quiz created. Add your first question."); await refresh();
+  }
+
+  async function openQuiz(quiz: Quiz) {
+    if (!supabase) return;
+    const { data, error: e } = await supabase.from("quiz_questions").select("id,prompt,options,correct_option,explanation,position").eq("quiz_id", quiz.id).order("position");
+    if (e) { setError(e.message); return; }
+    setActiveQuiz(quiz); setQuestions((data || []) as Question[]); setQuizAnswers({});
+  }
+
+  async function addQuestion(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); if (!supabase || !activeQuiz) return;
+    const options = questionOptions.map(option => option.trim()).filter(Boolean);
+    if (options.length < 2 || correctOption >= options.length) { setError("Add at least two answer options and select a valid correct answer."); return; }
+    setBusy(true); setError("");
+    const { error: e } = await supabase.from("quiz_questions").insert({
+      user_id: userId, quiz_id: activeQuiz.id, prompt: questionPrompt.trim(), options,
+      correct_option: correctOption, explanation: questionExplanation.trim(), position: questions.length,
+    });
+    setBusy(false);
+    if (e) { setError(e.message); return; }
+    setQuestionPrompt(""); setQuestionOptions(["", "", "", ""]); setCorrectOption(0); setQuestionExplanation("");
+    await openQuiz(activeQuiz); setMessage("Question added.");
+  }
+
+  async function submitQuiz() {
+    if (!supabase || !activeQuiz || !questions.length) return;
+    if (questions.some(question => quizAnswers[question.id] === undefined)) { setError("Answer every question before submitting."); return; }
+    setBusy(true); setError("");
+    const { data, error: e } = await supabase.rpc("submit_quiz_attempt", {
+      p_quiz_id: activeQuiz.id,
+      p_answers: questions.map(question => ({ question_id: question.id, selected_option: quizAnswers[question.id] })),
+    });
+    setBusy(false);
+    if (e) { setError(e.message); return; }
+    const result = Array.isArray(data) ? data[0] : data;
+    setMessage(`Quiz complete: ${result.score} / ${result.total_questions} correct.`);
+    setQuizAnswers({});
+    await refresh();
+  }
+
+  async function reviewCard(rating: number) {
+    if (!supabase || !dueCards[reviewIndex]) return;
+    setBusy(true); setError("");
+    const { error: e } = await supabase.rpc("review_flashcard", { p_card_id: dueCards[reviewIndex].id, p_rating: rating });
+    setBusy(false);
+    if (e) { setError(e.message); return; }
+    setReviewFlipped(false);
+    if (reviewIndex + 1 >= dueCards.length) { setReviewIndex(0); setMessage("Review session complete. Paw-some work!"); await refresh(); }
+    else setReviewIndex(index => index + 1);
+  }
+
   async function finishSession() {
     if (!supabase || !startedAt) return;
     const ended = Date.now();
@@ -165,6 +262,24 @@ export function LearnWorkspace({ userId, courses }: { userId: string; courses: C
         </div> : decks.length ? <div className="deck-list">{decks.map((deck) => <article className="deck-item" key={deck.id}><button className="deck-open" onClick={() => void selectDeck(deck)}><span className="deck-icon">▤</span><span><strong>{deck.title}</strong><small>{courseName(deck.course_id)} · Open deck</small></span><b>→</b></button><button className="danger-text deck-delete" onClick={() => void removeDeck(deck)}>Delete</button></article>)}</div> : <p className="empty-state">Create a deck to start practicing active recall.</p>}
       </section>
     </div>
+    <section className="panel learning-analytics">
+      <div className="panel-heading"><div><p className="eyebrow">YOUR LEARNING JOURNEY</p><h2>Progress snapshot</h2></div></div>
+      <div className="learning-metrics">
+        <div><strong>{Math.floor(analytics.seconds / 3600)}h {Math.floor((analytics.seconds % 3600) / 60)}m</strong><small>Recorded study time</small></div>
+        <div><strong>{analytics.attempts}</strong><small>Recent quiz attempts</small></div>
+        <div><strong>{analytics.correct}</strong><small>Correct quiz answers</small></div>
+        <div><strong>{analytics.reviews}</strong><small>Flashcard reviews</small></div>
+      </div>
+      {attempts.length > 0 && <div className="attempt-history"><strong>Recent quiz activity</strong>{attempts.slice(0,5).map(attempt=><div key={attempt.id}><span>{new Date(attempt.completed_at).toLocaleDateString()}</span><b>{attempt.score}/{attempt.total_questions} correct</b></div>)}</div>}
+    </section>
+    <section className="panel review-panel">
+      <div className="panel-heading"><div><p className="eyebrow">SPACED REPETITION</p><h2>Due for review</h2></div><span className="review-count">{dueCards.length} due</span></div>
+      {dueCards.length ? <><p className="focus-description">Rate how well you remembered the answer. Meowks will schedule your next review.</p><button className="flashcard-face" onClick={()=>setReviewFlipped(value=>!value)}><span>{reviewFlipped?"ANSWER":"QUESTION"}</span><strong>{reviewFlipped?dueCards[reviewIndex]?.back:dueCards[reviewIndex]?.front}</strong><small>Tap to reveal answer · Card {reviewIndex+1} of {dueCards.length}</small></button>{reviewFlipped && <div className="review-ratings"><button disabled={busy} onClick={()=>void reviewCard(0)}>Again</button><button disabled={busy} onClick={()=>void reviewCard(1)}>Hard</button><button disabled={busy} onClick={()=>void reviewCard(2)}>Good</button><button disabled={busy} onClick={()=>void reviewCard(3)}>Easy</button></div>}</> : <p className="empty-state">No cards due right now. Review a flashcard to start building your memory schedule.</p>}
+    </section>
+    <section className="panel quiz-panel">
+      <div className="panel-heading"><div><p className="eyebrow">CHECK YOUR UNDERSTANDING</p><h2>Practice quizzes</h2></div>{!activeQuiz && <button className="text-button" onClick={()=>setQuizTitle("New practice quiz")}>＋ New quiz</button>}</div>
+      {!activeQuiz ? <>{quizzes.length ? <div className="deck-list">{quizzes.map(quiz=><button className="quiz-list-item" key={quiz.id} onClick={()=>void openQuiz(quiz)}><span><strong>{quiz.title}</strong><small>{courseName(quiz.course_id)} · Practice quiz</small></span><b>→</b></button>)}</div> : <p className="empty-state">Create a quiz to test what you've learned.</p>}{quizTitle && <form className="quick-card-form" onSubmit={createQuiz}><input value={quizTitle} onChange={e=>setQuizTitle(e.target.value)} required maxLength={140} placeholder="Quiz title"/><select value={quizCourse} onChange={e=>setQuizCourse(e.target.value)}><option value="">Personal quiz</option>{courses.map(course=><option key={course.id} value={course.id}>{course.title}</option>)}</select><button className="primary-button" disabled={busy}>Create quiz</button></form>}</> : <div className="quiz-builder"><div className="practice-heading"><strong>{activeQuiz.title}</strong><button className="text-button" onClick={()=>setActiveQuiz(null)}>All quizzes</button></div>{questions.length>0 && <div className="quiz-question-list">{questions.map((question,index)=><article className="quiz-question" key={question.id}><strong>{index+1}. {question.prompt}</strong><div>{question.options.map((option,optionIndex)=><label key={optionIndex} className="quiz-option"><input type="radio" name={question.id} checked={quizAnswers[question.id]===optionIndex} onChange={()=>setQuizAnswers(value=>({...value,[question.id]:optionIndex}))}/>{option}</label>)}</div></article>)}<button className="primary-button" disabled={busy} onClick={()=>void submitQuiz()}>Submit answers</button></div>}<form className="quick-card-form" onSubmit={addQuestion}><strong>Add a question</strong><input value={questionPrompt} onChange={e=>setQuestionPrompt(e.target.value)} required placeholder="Write your question"/>{questionOptions.map((option,index)=><div className="option-editor" key={index}><input value={option} onChange={e=>setQuestionOptions(values=>values.map((v,i)=>i===index?e.target.value:v))} placeholder={`Answer option ${index+1}`}/><label><input type="radio" name="correct-answer" checked={correctOption===index} onChange={()=>setCorrectOption(index)}/> Correct</label></div>)}<input value={questionExplanation} onChange={e=>setQuestionExplanation(e.target.value)} placeholder="Explanation (optional)"/><button className="primary-button" disabled={busy}>＋ Add question</button></form></div>}
+    </section>
     <section className="panel timer-panel"><div><p className="eyebrow">FOCUS WITHOUT DISTRACTIONS</p><h2>Study timer</h2><p className="focus-description">A focused session is a small promise to yourself.</p></div><div className="timer-controls"><select aria-label="Study duration" value={minutes} disabled={running} onChange={(e) => { const value = Number(e.target.value); setMinutes(value); setSeconds(value * 60); }}><option value={15}>15 minutes</option><option value={25}>25 minutes</option><option value={45}>45 minutes</option><option value={60}>60 minutes</option></select><div className="timer-display">{String(Math.floor(seconds / 60)).padStart(2, "0")}:{String(seconds % 60).padStart(2, "0")}</div><div className="timer-buttons">{!running ? <button className="primary-button" onClick={startTimer}>Start focus</button> : <button className="primary-button" onClick={() => setRunning(false)}>Pause</button>}{startedAt && <button className="secondary-button" onClick={() => void stopTimer()}>Finish session</button>}</div></div></section>
     {noteOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setNoteOpen(false); }}><section className="modal-card" role="dialog" aria-modal="true"><div className="modal-heading"><div><p className="eyebrow">YOUR KNOWLEDGE SPACE</p><h2>{editingNote ? "Edit note" : "Create a note"}</h2></div><button className="modal-close" onClick={() => setNoteOpen(false)}>×</button></div><form className="auth-form" onSubmit={saveNote}><label>Note title<input value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)} required maxLength={140} placeholder="e.g. Week 1 lecture summary"/></label><label>Course <span className="optional-label">Optional</span><select value={noteCourse} onChange={(e) => setNoteCourse(e.target.value)}><option value="">Personal note</option>{courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label><label>Notes<textarea rows={9} value={noteContent} onChange={(e) => setNoteContent(e.target.value)} maxLength={20000} placeholder="Write your key ideas, explanations, and reminders…"/></label><button className="primary-button auth-submit" disabled={busy}>{busy ? "Saving…" : "Save note"}</button></form></section></div>}
     {deckOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setDeckOpen(false); }}><section className="modal-card" role="dialog" aria-modal="true"><div className="modal-heading"><div><p className="eyebrow">ACTIVE RECALL</p><h2>Create flashcard deck</h2></div><button className="modal-close" onClick={() => setDeckOpen(false)}>×</button></div><form className="auth-form" onSubmit={createDeck}><label>Deck name<input value={deckTitle} onChange={(e) => setDeckTitle(e.target.value)} required maxLength={120} placeholder="e.g. Biology — Cell Structure"/></label><label>Course <span className="optional-label">Optional</span><select value={deckCourse} onChange={(e) => setDeckCourse(e.target.value)}><option value="">Personal deck</option>{courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label><button className="primary-button auth-submit" disabled={busy}>{busy ? "Creating…" : "Create deck"}</button></form></section></div>}
