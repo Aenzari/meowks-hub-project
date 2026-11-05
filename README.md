@@ -38,3 +38,10 @@ Do not expose moderator-role writes to the browser. The migration grants authent
 ## Phase 4.4 — Student profiles
 
 After the earlier migrations, run `supabase/migrations/202611050008_student_profiles.sql`. The migration adds profile bio, major/program, year of study, interest tags, and a private/community visibility setting. Signed-in users can discover only community-visible profiles; profile owners retain the existing ability to edit their own profile. University affiliation and verification remain protected and cannot be self-assigned from the client. The My profile workspace includes profile editing and a searchable student directory. Profile photos and university verification workflows are not included in this phase yet.
+
+
+## Phase 4.5 — Community notifications
+
+Apply `supabase/migrations/202611050009_community_notifications.sql` after the previous migrations have succeeded. It creates private in-app notifications for post reactions, comments, replies, and new study-group members. Database triggers create notifications; authenticated users can only read their own notifications and update their own `read_at` field. Realtime delivery is enabled when the standard Supabase `supabase_realtime` publication is available.
+
+The app includes a Notifications navigation page, unread count, mark-as-read, and mark-all-as-read controls. Notifications do not expose email addresses or account credentials. Build and test the migration and notification flows before treating this phase as complete.
