@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { BrandMark } from "./components/BrandMark";
+import { LearnWorkspace } from "./components/LearnWorkspace";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
 type Profile = { display_name: string | null; student_status: string };
@@ -248,7 +249,8 @@ export default function App() {
           <div className="task-filters"><span>{tasks.length} total</span><span>{pendingTasks.length} open</span><span>{completedCount} completed</span></div>
           {dataLoading ? <p className="empty-state">Loading tasks…</p> : tasks.length ? <div className="panel full-task-list">{tasks.map(task=><article className="full-task-row" key={task.id}><input type="checkbox" aria-label={`Complete ${task.title}`} checked={task.status==="completed"} onChange={()=>void updateTaskStatus(task,task.status==="completed"?"todo":"completed")}/><div className="full-task-copy"><strong className={task.status==="completed"?"completed-title":""}>{task.title}</strong><p>{courseName(task.course_id)} · {task.task_type} · {dateLabel(task.due_at)}</p></div><span className={`status-pill status-${task.status}`}>{task.status.replace("_"," ")}</span><button className="icon-action" onClick={()=>openTask(task)} aria-label="Edit task">✎</button><button className="icon-action danger-text" onClick={()=>void deleteTask(task)} aria-label="Delete task">×</button></article>)}</div> : <div className="empty-card"><div className="empty-illustration">✍️</div><h2>A clear list, a clear mind.</h2><p>Add an assignment, exam, or task and Meowks will keep it organized.</p><button className="primary-button compact-action" onClick={()=>openTask()}>＋ Add your first task</button></div>}
         </section>}
-        {["Study tools","Community"].includes(activeNav) && <div className="empty-card feature-placeholder"><div className="empty-illustration">{activeNav==="Study tools"?"✦":"◎"}</div><h2>{activeNav} are coming next.</h2><p>We're building Meowks one dependable student feature at a time.</p></div>}
+        {activeNav === "Study tools" && user && <LearnWorkspace userId={user.id} courses={courses}/>}
+        {activeNav === "Community" && <div className="empty-card feature-placeholder"><div className="empty-illustration">◎</div><h2>Community is coming next.</h2><p>We are building Meowks one dependable student feature at a time.</p></div>}
         <footer>Made for students, with a little help from Meowky. <span>MEOWKS © 2026</span></footer>
       </section>
     </main>
