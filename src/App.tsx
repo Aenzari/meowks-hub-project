@@ -251,7 +251,9 @@ export default function App() {
           {dataLoading ? <p className="empty-state">Loading tasks…</p> : tasks.length ? <div className="panel full-task-list">{tasks.map(task=><article className="full-task-row" key={task.id}><input type="checkbox" aria-label={`Complete ${task.title}`} checked={task.status==="completed"} onChange={()=>void updateTaskStatus(task,task.status==="completed"?"todo":"completed")}/><div className="full-task-copy"><strong className={task.status==="completed"?"completed-title":""}>{task.title}</strong><p>{courseName(task.course_id)} · {task.task_type} · {dateLabel(task.due_at)}</p></div><span className={`status-pill status-${task.status}`}>{task.status.replace("_"," ")}</span><button className="icon-action" onClick={()=>openTask(task)} aria-label="Edit task">✎</button><button className="icon-action danger-text" onClick={()=>void deleteTask(task)} aria-label="Delete task">×</button></article>)}</div> : <div className="empty-card"><div className="empty-illustration">✍️</div><h2>A clear list, a clear mind.</h2><p>Add an assignment, exam, or task and Meowks will keep it organized.</p><button className="primary-button compact-action" onClick={()=>openTask()}>＋ Add your first task</button></div>}
         </section>}
         {activeNav === "Study tools" && user && <LearnWorkspace userId={user.id} courses={courses}/>}
-        {activeNav === "Community" && {user && <CommunityWorkspace userId={user.id} courses={courses} displayName={profile?.display_name || "Student"}/>}}
+        {activeNav === "Community" && user && (
+          <CommunityWorkspace userId={user.id} courses={courses} displayName={profile?.display_name || "Student"}/>
+        )}
         <footer>Made for students, with a little help from Meowky. <span>MEOWKS © 2026</span></footer>
       </section>
     </main>
