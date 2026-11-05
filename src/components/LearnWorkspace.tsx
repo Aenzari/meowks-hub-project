@@ -63,22 +63,24 @@ export function LearnWorkspace({ userId, courses }: { userId: string; courses: C
       supabase.from("quiz_attempts").select("id,score,total_questions,completed_at").eq("user_id", userId).order("completed_at", { ascending: false }).limit(30),
       supabase.from("study_sessions").select("duration_seconds").eq("user_id", userId),
       supabase.from("card_review_events").select("id,rating").eq("user_id", userId),
-      supabase.from("card_review_state").select("card_id,due_at").eq("user_id", userId).lte("due_at", new Date().toISOString()).limit(50),
+      supabase.from("card_review_state").select("card_id,due_at").eq("user_id", userId),
+      supabase.from("flashcards").select("id,front,back,position").eq("user_id", userId).order("position").limit(200),
     ]);
-    if (n.error || d.error || q.error || a.error || sessions.error || reviews.error || states.error) {
-      setError(n.error?.message || d.error?.message || q.error?.message || a.error?.message || sessions.error?.message || reviews.error?.message || states.error?.message || "Unable to load study tools.");
+    if (n.error || d.error || q.error || a.error || sessions.error || reviews.error || states.error || allCards.error) {
+      setError(n.error?.message || d.error?.message || q.error?.message || a.error?.message || sessions.error?.message || reviews.error?.message || states.error?.message || allCards.error?.message || "Unable to load study tools.");
     } else {
       setNotes((n.data || []) as Note[]); setDecks((d.data || []) as Deck[]); setQuizzes((q.data || []) as Quiz[]);
       setAttempts((a.data || []) as Attempt[]);
       const sessionRows = sessions.data || [];
       const reviewRows = reviews.data || [];
       setAnalytics({ seconds: sessionRows.reduce((sum, row) => sum + row.duration_seconds, 0), attempts: (a.data || []).length, correct: (a.data || []).reduce((sum, row) => sum + row.score, 0), reviews: reviewRows.length });
-      const dueIds = (states.data || []).map(row => row.card_id);
-      if (dueIds.length) {
-        const { data: dueData, error: dueError } = await supabase.from("flashcards").select("id,front,back,position").in("id", dueIds);
-        if (dueError) setError(dueError.message);
-        else setDueCards((dueData || []).map(card => ({ ...card, due_at: states.data?.find(state => state.card_id === card.id)?.due_at || "" })) as DueCard[]);
-      } else setDueCards([]);
+      const now = Date.now();
+      const due = (allCards.data || []).filter(card => {
+        const state = states.data?.find(item => item.card_id === card.id);
+        return !state || new Date(state.due_at).getTime() <= now;
+      }).slice(0, 50);
+      setDueCards(due.map(card => ({ ...card, due_at: states.data?.find(item => item.card_id === card.id)?.due_at || "" })) as DueCard[]);
+      setReviewIndex(0);
     }
   }
 
