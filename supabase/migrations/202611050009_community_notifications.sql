@@ -23,6 +23,20 @@ create index community_notifications_recipient_created_idx
 create index community_notifications_unread_idx
   on public.community_notifications(recipient_id, created_at desc)
   where read_at is null;
+-- Enable Supabase Realtime delivery when the standard publication exists.
+do $
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'community_notifications'
+     ) then
+    alter publication supabase_realtime add table public.community_notifications;
+  end if;
+end;
+$;
 
 alter table public.community_notifications enable row level security;
 create policy "users read own notifications"
