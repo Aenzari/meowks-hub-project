@@ -92,6 +92,11 @@ as $$
 declare v_today date := (now() at time zone 'UTC')::date; v_last date;
 begin
   if p_user_id is null or p_source_id is null or p_points < 1 or p_points > 100 then return; end if;
+  if p_source_type in ('community_post','community_comment') and (
+    select count(*) from public.gamification_events
+    where user_id=p_user_id and source_type=p_source_type
+      and created_at >= date_trunc('day',now())
+  ) >= 3 then return; end if;
   insert into public.gamification_events(user_id,source_type,source_id,xp_awarded)
   values(p_user_id,p_source_type,p_source_id,p_points)
   on conflict(user_id,source_type,source_id) do nothing;
@@ -160,8 +165,12 @@ create or replace function public.award_task_completion_xp()
 returns trigger language plpgsql security definer set search_path=public,pg_temp
 as $$
 begin
-  if new.status='completed' and (tg_op='INSERT' or old.status is distinct from 'completed') then
-    perform public.award_meowks_xp(new.user_id,'task_completion',new.id,5);
+  if new.status='completed' then
+    if tg_op='INSERT' then
+      perform public.award_meowks_xp(new.user_id,'task_completion',new.id,5);
+    elsif old.status is distinct from 'completed' then
+      perform public.award_meowks_xp(new.user_id,'task_completion',new.id,5);
+    end if;
   end if;
   return new;
 end;
@@ -169,6 +178,29 @@ $$;
 create trigger task_completion_award_xp
 after insert or update of status on public.tasks
 for each row execute function public.award_task_completion_xp();
+
+
+create or replace function public.award_community_post_xp()
+returns trigger language plpgsql security definer set search_path=public,pg_temp
+as $
+begin
+  perform public.award_meowks_xp(new.user_id,'community_post',new.id,3);
+  return new;
+end;
+$;
+create trigger community_post_award_xp after insert on public.community_posts
+for each row execute function public.award_community_post_xp();
+
+create or replace function public.award_community_comment_xp()
+returns trigger language plpgsql security definer set search_path=public,pg_temp
+as $
+begin
+  perform public.award_meowks_xp(new.user_id,'community_comment',new.id,2);
+  return new;
+end;
+$;
+create trigger community_comment_award_xp after insert on public.community_comments
+for each row execute function public.award_community_comment_xp();
 
 create or replace function public.meowks_leaderboard(p_limit integer default 20)
 returns table(user_id uuid,display_name text,xp bigint,level integer,current_streak integer,rank bigint)
