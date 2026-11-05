@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { BrandMark } from "./components/BrandMark";
 import { LearnWorkspace } from "./components/LearnWorkspace";
 import { CommunityWorkspace } from "./components/CommunityWorkspace";
 import { ProfileWorkspace, type StudentProfile } from "./components/ProfileWorkspace";
+import { NotificationWorkspace } from "./components/NotificationWorkspace";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
 type Profile = StudentProfile;
@@ -98,6 +99,8 @@ const emptyTask: TaskDraft = { title: "", details: "", task_type: "assignment", 
 
 export default function App() {
   const [activeNav, setActiveNav] = useState("Overview");
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const handleUnreadCountChange = useCallback((count: number) => setUnreadNotifications(count), []);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
@@ -224,11 +227,11 @@ export default function App() {
   const upcomingTasks = pendingTasks.slice(0, 5);
   const courseName = (id: string | null) => courses.find(course => course.id === id)?.title ?? "Personal";
   const dateLabel = (value: string | null) => value ? new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "No due date";
-  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }];
+  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "♧", label: "Notifications" }];
 
   return <div className="app-shell">
     <aside className="sidebar"><BrandMark/><div className="workspace-label">YOUR STUDENT SPACE</div>
-      <nav className="nav-list" aria-label="Main navigation">{nav.map(item=><button className={`nav-item ${activeNav===item.label?"active":""}`} key={item.label} onClick={()=>setActiveNav(item.label)}><span className="nav-icon">{item.icon}</span>{item.label}</button>)}</nav>
+      <nav className="nav-list" aria-label="Main navigation">{nav.map(item=><button className={`nav-item ${activeNav===item.label?"active":""}`} key={item.label} onClick={()=>setActiveNav(item.label)}><span className="nav-icon">{item.icon}</span>{item.label}{item.label === "Notifications" && unreadNotifications > 0 && <span className="nav-count">{unreadNotifications > 99 ? "99+" : unreadNotifications}</span>}</button>)}</nav>
       <div className="sidebar-bottom"><div className="mascot-mini">m.</div><div><strong>Meowky says</strong><p>Small steps still count. ✨</p></div></div>
     </aside>
     <main className="main-area"><header className="topbar"><div className="mobile-brand"><BrandMark compact/></div><div className="breadcrumb">My space <span>/</span> {activeNav}</div>
@@ -254,6 +257,9 @@ export default function App() {
         {activeNav === "Study tools" && user && <LearnWorkspace userId={user.id} courses={courses}/>}
         {activeNav === "Community" && user && (
           <CommunityWorkspace userId={user.id} courses={courses} displayName={profile?.display_name || "Student"}/>
+        )}
+        {activeNav === "Notifications" && user && (
+          <NotificationWorkspace userId={user.id} onUnreadCountChange={handleUnreadCountChange} onOpenCommunity={() => setActiveNav("Community")}/>
         )}
         {activeNav === "My profile" && user && profile && (
           <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>
