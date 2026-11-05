@@ -58,7 +58,7 @@ export function LearnWorkspace({ userId, courses }: { userId: string; courses: C
       supabase.from("study_notes").select("id,title,content,course_id,updated_at").eq("user_id", userId).order("updated_at", { ascending: false }),
       supabase.from("flashcard_decks").select("id,title,description,course_id").eq("user_id", userId).order("created_at", { ascending: false }),
     ]);
-    const [q, a, sessions, reviews, states] = await Promise.all([
+    const [q, a, sessions, reviews, states, allCards] = await Promise.all([
       supabase.from("quizzes").select("id,title,description,course_id").eq("user_id", userId).order("created_at", { ascending: false }),
       supabase.from("quiz_attempts").select("id,score,total_questions,completed_at").eq("user_id", userId).order("completed_at", { ascending: false }).limit(30),
       supabase.from("study_sessions").select("duration_seconds").eq("user_id", userId),
