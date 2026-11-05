@@ -106,3 +106,40 @@
 .notification-copy small{font-size:9px;color:#89968f}
 .notification-new{border-radius:20px;background:#fff0ed;color:#b65e50;padding:5px 8px;font-size:9px;font-weight:800}
 @media(max-width:650px){.notification-workspace .feature-heading{align-items:flex-start}.notification-item{padding:13px;gap:9px}}
+
+
+/* Phase 5 — My Space gamification */
+.gamification-workspace{display:grid;gap:18px}
+.gamification-level{display:flex;align-items:center;gap:8px;padding:12px 16px;border-radius:14px;background:#fff4df;color:#8c6840;font-size:12px}
+.gamification-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.paw-xp{background:#f0f8f5}
+.level-panel{display:grid;gap:12px}
+.level-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.level-panel-heading h2,.daily-paws h2,.leaderboard-panel h2,.achievements-panel h2{font-size:18px;margin:4px 0}
+.level-panel-heading>strong{font-size:12px;color:#348d78}
+.level-progress{height:11px}
+.level-panel .stat-foot{margin:0}
+.gamification-columns{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:16px;align-items:start}
+.daily-paws,.leaderboard-panel,.achievements-panel{display:grid;gap:12px}
+.daily-paws>p:not(.eyebrow),.leaderboard-note{font-size:11px;line-height:1.6;color:#74827c;margin:0}
+.daily-goal-row{display:flex;justify-content:space-between;align-items:center;color:var(--navy);font-size:12px}
+.daily-goal-row span{color:#368c78;font-weight:800}
+.daily-paws>small{font-size:10px;color:#8a9791}
+.leaderboard-toggle{display:flex;align-items:center;gap:8px;font-size:11px;color:#52645c;font-weight:700}
+.leaderboard-list{display:grid;gap:7px}
+.leaderboard-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;align-items:center;gap:9px;padding:10px;border-radius:10px;background:#f8faf9;font-size:10px}
+.leaderboard-row>span{font-weight:850;color:#3a927c}
+.leaderboard-row>strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--navy)}
+.leaderboard-row>small{color:#83918b}
+.leaderboard-row>b{color:#3b8c78;white-space:nowrap}
+.achievement-count{font-size:10px;color:#438b79;font-weight:800}
+.achievement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.achievement-card{display:flex;align-items:flex-start;gap:11px;padding:13px;border:1px solid #edf0ed;border-radius:12px;background:#fafbfa;opacity:.58}
+.achievement-card.unlocked{opacity:1;background:#fffaf0;border-color:#f0dfbd}
+.achievement-card>span{font-size:23px;line-height:1.2}
+.achievement-card strong{font-size:11px;color:var(--navy)}
+.achievement-card p{font-size:10px;line-height:1.5;color:#788780;margin:4px 0}
+.achievement-card small{font-size:9px;color:#398c78;font-weight:750}
+.gamification-footnote{font-size:10px;line-height:1.6;color:#8b9791;margin:0}
+@media(max-width:760px){.gamification-columns{grid-template-columns:1fr}}
+@media(max-width:560px){.gamification-stats{grid-template-columns:1fr}.achievement-grid{grid-template-columns:1fr}.level-panel-heading{align-items:flex-start;flex-direction:column}.leaderboard-row{grid-template-columns:28px minmax(0,1fr) auto}.leaderboard-row>b{grid-column:2/4}}
