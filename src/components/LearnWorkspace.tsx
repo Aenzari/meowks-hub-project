@@ -123,7 +123,7 @@ export function LearnWorkspace({ userId, courses }: { userId: string; courses: C
   async function finishSession() {
     if (!supabase || !startedAt) return;
     const ended = Date.now();
-    const duration = Math.floor((ended - startedAt) / 1000);
+    const duration = Math.max(0, minutes * 60 - seconds);
     if (duration >= 60) {
       const { error: e } = await supabase.from("study_sessions").insert({
         user_id: userId, started_at: new Date(startedAt).toISOString(),
