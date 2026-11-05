@@ -24,7 +24,7 @@ create index community_notifications_unread_idx
   on public.community_notifications(recipient_id, created_at desc)
   where read_at is null;
 -- Enable Supabase Realtime delivery when the standard publication exists.
-do $
+do $$
 begin
   if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
      and not exists (
