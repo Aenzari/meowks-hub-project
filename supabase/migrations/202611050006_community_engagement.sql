@@ -3,6 +3,7 @@ begin;
 
 -- Break the cross-table RLS recursion from Phase 4.1. Membership helper
 -- checks only the signed-in user's membership, never an arbitrary user.
+drop function if exists public.is_study_group_member(uuid, uuid);
 create or replace function public.is_study_group_member(p_group_id uuid)
 returns boolean
 language sql stable security definer
