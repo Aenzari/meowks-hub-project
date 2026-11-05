@@ -257,7 +257,6 @@ export default function App() {
         )}
         {activeNav === "My profile" && user && profile && (
           <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>
-        )}\n        {false && <></>}
         )}
         <footer>Made for students, with a little help from Meowky. <span>MEOWKS © 2026</span></footer>
       </section>
