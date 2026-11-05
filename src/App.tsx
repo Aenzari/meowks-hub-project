@@ -4,14 +4,6 @@ import type { User } from "@supabase/supabase-js";
 import { BrandMark } from "./components/BrandMark";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
-const navItems = [
-  { icon: "⌂", label: "Overview" },
-  { icon: "▤", label: "My courses" },
-  { icon: "✓", label: "Tasks & deadlines" },
-  { icon: "▧", label: "Study tools" },
-  { icon: "◎", label: "Community" },
-];
-
 type Profile = { display_name: string | null; student_status: string };
 
 function AuthScreen() {
