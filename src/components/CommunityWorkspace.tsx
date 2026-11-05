@@ -6,24 +6,27 @@ type Course = { id: string; title: string };
 type Post = { id: string; user_id: string; course_id: string | null; post_type: string; title: string; body: string; created_at: string };
 type Comment = { id: string; post_id: string; user_id: string; body: string; created_at: string };
 type Group = { id: string; created_by: string; course_id: string | null; name: string; description: string; created_at: string };
+type Reaction = { post_id: string; user_id: string; reaction: "like" | "love" | "helpful" };
 
 export function CommunityWorkspace({ userId, courses, displayName }: { userId: string; courses: Course[]; displayName: string }) {
   const [tab,setTab]=useState<"feed"|"groups">("feed"),[posts,setPosts]=useState<Post[]>([]),[groups,setGroups]=useState<Group[]>([]);
   const [joined,setJoined]=useState<string[]>([]),[expanded,setExpanded]=useState<string|null>(null);
   const [comments,setComments]=useState<Record<string,Comment[]>>({}),[drafts,setDrafts]=useState<Record<string,string>>({});
+  const [reactions,setReactions]=useState<Reaction[]>([]);
   const [title,setTitle]=useState(""),[body,setBody]=useState(""),[kind,setKind]=useState("discussion"),[course,setCourse]=useState("");
   const [groupName,setGroupName]=useState(""),[groupDesc,setGroupDesc]=useState(""),[groupCourse,setGroupCourse]=useState("");
   const [busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState("");
 
   async function refresh(){
     if(!supabase)return;
-    const [p,g,m]=await Promise.all([
+    const [p,g,m,r]=await Promise.all([
       supabase.from("community_posts").select("id,user_id,course_id,post_type,title,body,created_at").order("created_at",{ascending:false}).limit(50),
       supabase.from("study_groups").select("id,created_by,course_id,name,description,created_at").order("created_at",{ascending:false}).limit(50),
-      supabase.from("study_group_members").select("group_id").eq("user_id",userId)
+      supabase.from("study_group_members").select("group_id").eq("user_id",userId),
+      supabase.from("community_post_reactions").select("post_id,user_id,reaction")
     ]);
-    if(p.error||g.error||m.error){setError(p.error?.message||g.error?.message||m.error?.message||"Unable to load community.");return;}
-    setPosts((p.data||[]) as Post[]);setGroups((g.data||[]) as Group[]);setJoined((m.data||[]).map(x=>x.group_id));
+    if(p.error||g.error||m.error||r.error){setError(p.error?.message||g.error?.message||m.error?.message||r.error?.message||"Unable to load community.");return;}
+    setPosts((p.data||[]) as Post[]);setGroups((g.data||[]) as Group[]);setJoined((m.data||[]).map(x=>x.group_id));setReactions((r.data||[]) as Reaction[]);
   }
   useEffect(()=>{void refresh();},[userId]);
   async function loadComments(id:string){
@@ -45,6 +48,25 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     if(!supabase||post.user_id!==userId||!window.confirm("Delete this post and its comments?"))return;
     const {error:e}=await supabase.from("community_posts").delete().eq("id",post.id);if(e)setError(e.message);else await refresh();
   }
+  async function react(postId:string,reaction:"like"|"love"|"helpful"){
+    if(!supabase)return;setBusy(true);setError("");
+    const existing=reactions.find(r=>r.post_id===postId&&r.user_id===userId);
+    const result=existing?.reaction===reaction
+      ? await supabase.from("community_post_reactions").delete().eq("post_id",postId).eq("user_id",userId)
+      : await supabase.from("community_post_reactions").upsert({post_id:postId,user_id:userId,reaction},{onConflict:"post_id,user_id"});
+    setBusy(false);if(result.error)setError(result.error.message);else await refresh();
+  }
+  async function report(target:{post_id?:string;comment_id?:string}){
+    if(!supabase)return;
+    const reason=window.prompt("Report reason: spam, harassment, misinformation, copyright, inappropriate, or other");
+    if(!reason)return;
+    const allowed=["spam","harassment","misinformation","copyright","inappropriate","other"];
+    const normalized=reason.trim().toLowerCase();
+    if(!allowed.includes(normalized)){setError("Please use one of the listed report reasons.");return;}
+    const details=window.prompt("Optional details (do not include private information).")||"";
+    const {error:e}=await supabase.from("community_reports").insert({reporter_id:userId,...target,reason:normalized,details:details.slice(0,1000)});
+    if(e)setError(e.message);else setNotice("Thanks. Your report was submitted for review.");
+  }
   async function makeGroup(e:FormEvent<HTMLFormElement>){
     e.preventDefault();if(!supabase)return;setBusy(true);const {error:e2}=await supabase.from("study_groups").insert({created_by:userId,name:groupName.trim(),description:groupDesc.trim(),course_id:groupCourse||null,visibility:"public"});setBusy(false);
     if(e2)setError(e2.message);else{setGroupName("");setGroupDesc("");setGroupCourse("");setNotice("Study group created.");await refresh();}
@@ -59,6 +81,8 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
   }
   const courseLabel=(id:string|null)=>courses.find(c=>c.id===id)?.title||"Open community";
   const initial=displayName.trim().slice(0,1).toUpperCase()||"M";
+  const reactionCount=(postId:string,type:string)=>reactions.filter(r=>r.post_id===postId&&r.reaction===type).length;
+  const myReaction=(postId:string)=>reactions.find(r=>r.post_id===postId&&r.user_id===userId)?.reaction;
   return <section className="feature-page community-workspace">
     <div className="feature-heading"><div><p className="eyebrow">BETTER TOGETHER</p><h1>Community<span className="coral">.</span></h1><p className="subheading">Ask questions, share what you know, and find your study people.</p></div></div>
     {notice&&<div className="inline-notice" role="status">{notice}<button onClick={()=>setNotice("")}>×</button></div>}
@@ -73,8 +97,13 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
       <div className="community-post-list">{posts.length?posts.map(p=><article className="panel community-post" key={p.id}>
         <div className="community-post-meta"><span className="community-avatar">{p.user_id===userId?initial:"M"}</span><div><strong>{p.user_id===userId?(displayName||"You"):"Meowks student"}</strong><small>{new Date(p.created_at).toLocaleString()} · {courseLabel(p.course_id)}</small></div><span className="post-type">{p.post_type}</span></div>
         <h2>{p.title}</h2><p className="community-post-body">{p.body}</p>
-        <div className="post-actions"><button onClick={()=>{const next=expanded===p.id?null:p.id;setExpanded(next);if(next)void loadComments(p.id);}}>💬 {comments[p.id]?.length??"Comments"}</button>{p.user_id===userId&&<button className="danger-text" onClick={()=>void removePost(p)}>Delete post</button>}</div>
-        {expanded===p.id&&<div className="comment-thread"><form onSubmit={e=>void reply(e,p.id)}><input value={drafts[p.id]||""} onChange={e=>setDrafts(v=>({...v,[p.id]:e.target.value}))} maxLength={3000} required placeholder="Write a thoughtful reply…"/><button className="primary-button" disabled={busy}>Reply</button></form>{(comments[p.id]||[]).map(c=><div className="comment-item" key={c.id}><strong>{c.user_id===userId?(displayName||"You"):"Meowks student"}</strong><small>{new Date(c.created_at).toLocaleString()}</small><p>{c.body}</p></div>)}</div>}
+        <div className="post-actions"><button onClick={()=>{const next=expanded===p.id?null:p.id;setExpanded(next);if(next)void loadComments(p.id);}}>💬 {comments[p.id]?.length??"Comments"}</button>{p.user_id===userId?<button className="danger-text" onClick={()=>void removePost(p)}>Delete post</button>:<button onClick={()=>void report({post_id:p.id})}>Report</button>}</div>
+        <div className="post-reactions" aria-label="Post reactions">
+          <button className={myReaction(p.id)==="like"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"like")}>👍 Like <b>{reactionCount(p.id,"like")}</b></button>
+          <button className={myReaction(p.id)==="love"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"love")}>💚 Love <b>{reactionCount(p.id,"love")}</b></button>
+          <button className={myReaction(p.id)==="helpful"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"helpful")}>✨ Helpful <b>{reactionCount(p.id,"helpful")}</b></button>
+        </div>
+        {expanded===p.id&&<div className="comment-thread"><form onSubmit={e=>void reply(e,p.id)}><input value={drafts[p.id]||""} onChange={e=>setDrafts(v=>({...v,[p.id]:e.target.value}))} maxLength={3000} required placeholder="Write a thoughtful reply…"/><button className="primary-button" disabled={busy}>Reply</button></form>{(comments[p.id]||[]).map(c=><div className="comment-item" key={c.id}><div><strong>{c.user_id===userId?(displayName||"You"):"Meowks student"}</strong><small>{new Date(c.created_at).toLocaleString()}</small></div><p>{c.body}</p>{c.user_id!==userId&&<button className="comment-report" onClick={()=>void report({comment_id:c.id})}>Report comment</button>}</div>)}</div>}
       </article>):<div className="empty-card"><div className="empty-illustration">🐾</div><h2>Be the first to start a conversation.</h2><p>Share a question or a study tip to get things going.</p></div>}</div>
     </>}
     {tab==="groups"&&<>
