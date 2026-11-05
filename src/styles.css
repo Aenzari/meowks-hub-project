@@ -57,3 +57,36 @@
 .moderation-actions{display:flex;gap:8px;flex-wrap:wrap}
 .moderation-actions button{width:auto;min-width:100px}
 @media(max-width:650px){.moderation-actions{display:grid;grid-template-columns:1fr}.moderation-actions button{width:100%}}
+
+
+/* Phase 4.4 student profile and directory */
+.profile-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:18px;align-items:start}
+.profile-editor{display:grid;gap:15px}
+.profile-preview{display:flex;align-items:center;gap:13px;padding-bottom:17px;border-bottom:1px solid var(--line)}
+.profile-avatar,.directory-avatar{width:54px;height:54px;flex-shrink:0;border-radius:17px;background:#eaf8f4;color:var(--navy);display:grid;place-items:center;font-size:22px;font-weight:850}
+.profile-preview strong,.directory-person strong{display:block;font-size:14px;color:var(--navy)}
+.profile-preview small,.directory-person small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.profile-status{display:inline-block;margin-top:6px;color:#438b79;font-size:9px;font-weight:750}
+.profile-editor label,.directory-heading label{display:grid;gap:7px;color:#53645e;font-size:11px;font-weight:700}
+.profile-editor input,.profile-editor textarea,.profile-editor select,.directory-heading input{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;padding:11px 12px;color:var(--navy);font:inherit;font-size:12px;outline:none}
+.profile-editor input:focus,.profile-editor textarea:focus,.profile-editor select:focus,.directory-heading input:focus{border-color:var(--mint);box-shadow:0 0 0 3px #42bfa71c}
+.profile-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.interest-picker{border:0;padding:0;margin:0;min-width:0}
+.interest-picker legend{font-size:11px;font-weight:750;color:#53645e;margin-bottom:9px}
+.interest-options{display:flex;gap:7px;flex-wrap:wrap}
+.interest-chip{border:1px solid var(--line);background:white;color:#66766f;border-radius:20px;padding:7px 10px;font-size:10px}
+.interest-chip.selected{background:#eaf8f4;border-color:#b9e7da;color:#237d6c;font-weight:750}
+.profile-privacy-note{margin:0;color:#83918b;font-size:10px;line-height:1.6}
+.profile-editor>.primary-button{width:100%}
+.profile-directory{display:grid;gap:12px}
+.directory-heading{display:grid;gap:9px}
+.directory-heading h2{font-size:19px;margin:0}
+.directory-heading p:not(.eyebrow){font-size:11px;line-height:1.6;color:#788780;margin:0}
+.directory-card{display:flex;align-items:flex-start;gap:12px;padding:16px}
+.directory-avatar{width:42px;height:42px;border-radius:13px;font-size:17px}
+.directory-person{min-width:0;flex:1}
+.directory-person p{font-size:11px;line-height:1.55;color:#64746d;margin:8px 0 0;overflow-wrap:anywhere}
+.directory-interests{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.directory-interests span{border-radius:20px;background:#fff4df;color:#8b704c;padding:5px 8px;font-size:9px;font-weight:700}
+@media(max-width:850px){.profile-layout{grid-template-columns:1fr}}
+@media(max-width:520px){.profile-form-grid{grid-template-columns:1fr}}
