@@ -49,7 +49,7 @@ The app includes a Notifications navigation page, unread count, mark-as-read, an
 
 ## Phase 5 — Gamification
 
-After Phases 4.1–4.5 have been applied successfully, run `supabase/migrations/202611050010_gamification.sql`. Paw Points are awarded by database triggers for study sessions of at least 10 minutes, completed practice quizzes, flashcard reviews, and task completion. Awards are idempotent per activity, and browser clients cannot write XP or achievement records directly. Levels advance every 250 Paw Points.
+After Phases 4.1–4.5 have been applied successfully, run `supabase/migrations/202611050010_gamification.sql`. Paw Points are awarded by database triggers for study sessions of at least 10 minutes, completed practice quizzes, flashcard reviews, task completion, and community posts/comments (capped at three rewards per activity type per day). Awards are idempotent per activity, and browser clients cannot write XP or achievement records directly. Levels advance every 250 Paw Points.
 
 The migration seeds Pawchievements for first study session, 60 focused study minutes, quiz milestones, flashcard reviews, a seven-day activity streak, and 500 Paw Points. The My Space screen displays XP, level progress, streaks, today's study minutes, achievements, and an opt-in leaderboard. Leaderboard participation is off by default; students can opt in or out from My Space. Streak dates currently use UTC. The 30-minute Daily Paws target is a suggested in-app goal, not a punitive requirement or a separate reward.
 
