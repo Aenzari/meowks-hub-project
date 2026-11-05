@@ -253,7 +253,11 @@ export default function App() {
         </section>}
         {activeNav === "Study tools" && user && <LearnWorkspace userId={user.id} courses={courses}/>}
         {activeNav === "Community" && user && (
-          <CommunityWorkspace userId={user.id} courses={courses} displayName={profile?.display_name || "Student"}/>}\n        {activeNav === "My profile" && user && profile && (\n          <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>\n        )}\n        {false && <></>}
+          <CommunityWorkspace userId={user.id} courses={courses} displayName={profile?.display_name || "Student"}/>
+        )}
+        {activeNav === "My profile" && user && profile && (
+          <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>
+        )}\n        {false && <></>}
         )}
         <footer>Made for students, with a little help from Meowky. <span>MEOWKS © 2026</span></footer>
       </section>
