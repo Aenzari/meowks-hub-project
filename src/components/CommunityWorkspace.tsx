@@ -10,7 +10,7 @@ type Reaction = { post_id: string; user_id: string; reaction: "like" | "love" | 
 type Report = { id: string; reporter_id: string; post_id: string | null; comment_id: string | null; reason: string; details: string; status: "open" | "reviewing" | "resolved" | "dismissed"; created_at: string };
 
 export function CommunityWorkspace({ userId, courses, displayName }: { userId: string; courses: Course[]; displayName: string }) {
-  const [tab,setTab]=useState<"feed"|"groups">("feed"),[posts,setPosts]=useState<Post[]>([]),[groups,setGroups]=useState<Group[]>([]);
+  const [tab,setTab]=useState<"feed"|"groups"|"moderation">("feed"),[posts,setPosts]=useState<Post[]>([]),[groups,setGroups]=useState<Group[]>([]);
   const [joined,setJoined]=useState<string[]>([]),[expanded,setExpanded]=useState<string|null>(null);
   const [comments,setComments]=useState<Record<string,Comment[]>>({}),[drafts,setDrafts]=useState<Record<string,string>>({});
   const [reactions,setReactions]=useState<Reaction[]>([]);
