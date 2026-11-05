@@ -9,7 +9,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-The frontend currently uses demo data until authentication and feature screens are wired to Supabase. Create a Supabase project, run `supabase/migrations/202611050001_initial_foundation.sql`, then `supabase/seed.sql`, and add the project URL and public anon/publishable key to `.env.local`.
+The app now includes Supabase email/password registration, login, logout, persistent sessions, and first-time display-name onboarding. Create a Supabase project, run `supabase/migrations/202611050001_initial_foundation.sql` in the SQL Editor, then run `supabase/seed.sql`. Add the project URL and public anon/publishable key to `.env.local` (or Codespaces secrets/environment). Restart the Vite dev server after changing environment values. If email confirmation is enabled in Supabase Auth, new users must confirm their email before logging in.
 
 Never commit `.env.local` or expose a Supabase service-role/secret key in browser code.
 
