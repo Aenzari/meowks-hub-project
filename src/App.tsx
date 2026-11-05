@@ -4,9 +4,10 @@ import type { User } from "@supabase/supabase-js";
 import { BrandMark } from "./components/BrandMark";
 import { LearnWorkspace } from "./components/LearnWorkspace";
 import { CommunityWorkspace } from "./components/CommunityWorkspace";
+import { ProfileWorkspace, type StudentProfile } from "./components/ProfileWorkspace";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
-type Profile = { display_name: string | null; student_status: string };
+type Profile = StudentProfile;
 
 function AuthScreen() {
   const [mode, setMode] = useState<"login" | "signup">("signup");
@@ -73,7 +74,7 @@ function Onboarding({ user, onComplete }: { user: User; onComplete: (profile: Pr
     const { data, error: updateError } = await supabase.from("profiles")
       .update({ display_name: displayName.trim() })
       .eq("id", user.id)
-      .select("display_name,student_status").single();
+      .select("id,display_name,avatar_url,student_status,bio,major,year_of_study,interests,profile_visibility").single();
     setBusy(false);
     if (updateError) { setError(updateError.message); return; }
     onComplete(data as Profile);
@@ -134,7 +135,7 @@ export default function App() {
     if (!supabase || !user) { setProfile(null); return; }
     let mounted = true;
     setProfileError("");
-    supabase.from("profiles").select("display_name,student_status").eq("id", user.id).maybeSingle()
+    supabase.from("profiles").select("id,display_name,avatar_url,student_status,bio,major,year_of_study,interests,profile_visibility").eq("id", user.id).maybeSingle()
       .then(({ data, error }) => {
         if (!mounted) return;
         if (error) setProfileError(error.message);
@@ -223,7 +224,7 @@ export default function App() {
   const upcomingTasks = pendingTasks.slice(0, 5);
   const courseName = (id: string | null) => courses.find(course => course.id === id)?.title ?? "Personal";
   const dateLabel = (value: string | null) => value ? new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "No due date";
-  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }];
+  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }];
 
   return <div className="app-shell">
     <aside className="sidebar"><BrandMark/><div className="workspace-label">YOUR STUDENT SPACE</div>
@@ -252,7 +253,7 @@ export default function App() {
         </section>}
         {activeNav === "Study tools" && user && <LearnWorkspace userId={user.id} courses={courses}/>}
         {activeNav === "Community" && user && (
-          <CommunityWorkspace userId={user.id} courses={courses} displayName={profile?.display_name || "Student"}/>
+          <CommunityWorkspace userId={user.id} courses={courses} displayName={profile?.display_name || "Student"}/>}\n        {activeNav === "My profile" && user && profile && (\n          <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>\n        )}\n        {false && <></>}
         )}
         <footer>Made for students, with a little help from Meowky. <span>MEOWKS © 2026</span></footer>
       </section>
