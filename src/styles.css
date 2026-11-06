@@ -448,3 +448,15 @@ Organization experience — connected course, task, and overview surfaces */
 .timer-buttons{display:flex;gap:9px;flex-wrap:wrap}
 .timer-display{font-variant-numeric:tabular-nums}
 @media(max-width:560px){.note-tools{grid-template-columns:1fr}.timer-buttons>*{flex:1}}
+
+
+/* Product-wide accessibility and responsive interaction polish */
+.skip-link{position:fixed;z-index:100;top:12px;left:12px;transform:translateY(-160%);padding:11px 15px;border-radius:10px;background:#172b42;color:#fff;font-size:12px;font-weight:800;box-shadow:0 8px 24px rgba(23,43,66,.2)}
+.skip-link:focus{transform:translateY(0);outline:3px solid #42bfa7;outline-offset:3px}
+#main-content:focus{outline:none}
+button:disabled,[role=button][aria-disabled=true]{cursor:not-allowed;opacity:.58;transform:none!important;box-shadow:none!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #278f7c;outline-offset:3px}
+input[type=checkbox],input[type=radio]{accent-color:#278f7c}
+::selection{background:rgba(66,191,167,.22);color:#172b42}
+@media(max-width:650px){.mobile-nav{padding-bottom:max(10px,env(safe-area-inset-bottom));min-height:64px}.mobile-nav button{min-height:42px}.main-area{padding-bottom:calc(76px + env(safe-area-inset-bottom))}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
