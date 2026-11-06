@@ -493,3 +493,44 @@ input[type=checkbox],input[type=radio]{accent-color:#278f7c}
 .modal-card{animation:meowks-card-enter .28s cubic-bezier(.2,.7,.2,1) both}
 @media(hover:none){.panel:hover,.course-card:hover,.study-group-card:hover,.directory-card:hover,.notification-item:hover,.stat-card:hover{transform:none;box-shadow:none}}
 @media(prefers-reduced-motion:reduce){.feature-page,.feature-heading,.course-grid .course-card,.study-group-grid .study-group-card,.notification-list .notification-item,.modal-backdrop,.modal-card{animation:none!important}.panel,.course-card,.study-group-card,.directory-card,.notification-item,.stat-card,.task-row,.nav-item{transition:none!important}}
+
+/* Tonight's product pass — shared feature hierarchy and mobile-first finishing */
+.feature-page{min-width:0}
+.feature-page>.feature-heading{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 0 24px;padding:0 0 19px;border-bottom:1px solid rgba(218,231,224,.9)}
+.feature-page>.feature-heading>div{min-width:0}
+.feature-page>.feature-heading .eyebrow{display:flex;align-items:center;gap:8px;margin:0 0 9px;color:#328c79;font-size:9px;font-weight:850;letter-spacing:1.45px}
+.feature-page>.feature-heading .eyebrow:before{content:"";width:17px;height:2px;border-radius:2px;background:#42bfa7}
+.feature-page>.feature-heading h1{margin:0;color:#172b42;font-size:clamp(27px,3vw,36px);line-height:1.12;letter-spacing:-1.35px}
+.feature-page>.feature-heading .subheading{max-width:560px;margin:9px 0 0;color:#84928d;font-size:12px;line-height:1.65}
+.feature-page>.feature-heading .compact-action{flex:0 0 auto;white-space:nowrap}
+.feature-page .panel{min-width:0;border-color:#e5eee8;box-shadow:0 8px 24px rgba(23,43,66,.035)}
+.feature-page .panel-heading{gap:12px}
+.feature-page :is(input,select,textarea){max-width:100%}
+.learn-workspace .learn-grid,.community-workspace .community-layout,.profile-workspace .profile-layout,.schedule-page .schedule-layout{align-items:start}
+.learn-workspace .learn-panel,.community-workspace .community-panel,.profile-workspace .profile-panel{min-width:0}
+.feature-page :is(.inline-notice,.inline-error){overflow-wrap:anywhere}
+.feature-page :is(button,a,input,select,textarea){-webkit-tap-highlight-color:transparent}
+.feature-page button{touch-action:manipulation}
+.feature-page :is(.community-tabs,.profile-section-tabs,.notification-filters,.task-filter-tabs,.community-filter-tabs){scrollbar-width:thin;scrollbar-color:#cbded5 transparent}
+@media(max-width:760px){
+.feature-page>.feature-heading{align-items:flex-start;flex-direction:column;gap:14px;margin-bottom:19px;padding-bottom:16px}
+.feature-page>.feature-heading .compact-action{width:100%;min-height:44px}
+.feature-page .panel{border-radius:16px}
+.feature-page :is(.community-tabs,.profile-section-tabs,.notification-filters){flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;padding-bottom:9px}
+.feature-page :is(.community-tabs,.profile-section-tabs,.notification-filters) button{flex:0 0 auto;min-height:40px}
+}
+@media(max-width:520px){
+.feature-page>.feature-heading h1{font-size:29px;letter-spacing:-1px}
+.feature-page>.feature-heading .subheading{font-size:11px}
+.feature-page .panel{padding:16px}
+.feature-page :is(.panel-heading,.directory-heading,.calendar-toolbar){align-items:flex-start}
+.feature-page :is(.text-button,.panel-heading button){min-height:40px}
+.feature-page :is(input:not([type=checkbox]),select,textarea){font-size:16px}
+.feature-page :is(.post-actions button,.post-reactions button,.task-filter-tabs button,.community-filter-tabs button){min-height:40px}
+}
+@supports(padding:max(0px)){
+.app-shell{padding-bottom:env(safe-area-inset-bottom)}
+.sidebar{padding-top:max(18px,env(safe-area-inset-top))}
+.topbar{padding-top:max(0px,env(safe-area-inset-top))}
+}
+@media(prefers-reduced-motion:reduce){.feature-page>.feature-heading{animation:none!important}}
