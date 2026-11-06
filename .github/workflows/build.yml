@@ -1,0 +1,28 @@
+name: Build verification
+
+on:
+  push:
+    branches:
+      - phase-1-4-audit-ui-refresh
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  production-build:
+    name: TypeScript and Vite production build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install locked dependencies
+        run: npm install
+      - name: Build production application
+        run: npm run build
