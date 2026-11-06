@@ -31,8 +31,10 @@ export function NotificationWorkspace({
   const [items, setItems] = useState<Notification[]>([]);
   const [people, setPeople] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [filter,setFilter] = useState<"all"|"unread"|"reactions"|"comments"|"groups">("all");
   const [error, setError] = useState("");
   const unreadCount = items.filter(item => !item.read_at).length;
+  const visibleItems = items.filter(item => filter==="all" || (filter==="unread" && !item.read_at) || (filter==="reactions" && item.notification_type==="post_reaction") || (filter==="comments" && (item.notification_type==="post_comment" || item.notification_type==="comment_reply")) || (filter==="groups" && item.notification_type==="group_member"));
 
   const refresh = useCallback(async () => {
     if (!supabase) return;
@@ -101,8 +103,9 @@ export function NotificationWorkspace({
       <button className="secondary-button" disabled={busy || unreadCount === 0} onClick={() => void markAllRead()}>Mark all as read</button>
     </div>
     {error && <div className="inline-error" role="alert">{error}<button onClick={() => setError("")} aria-label="Dismiss">×</button></div>}
+    <div className="notification-toolbar"><div className="notification-filters" role="tablist" aria-label="Filter notifications">{([{value:"all",label:"All"},{value:"unread",label:"Unread"},{value:"reactions",label:"Reactions"},{value:"comments",label:"Comments"},{value:"groups",label:"Groups"}] as const).map(option=><button type="button" role="tab" aria-selected={filter===option.value} className={filter===option.value?"active":""} key={option.value} onClick={()=>setFilter(option.value)}>{option.label}{option.value==="unread"&&unreadCount>0?" "+unreadCount:""}</button>)}</div><span>{items.length} recent updates</span></div>
     <div className="notification-list">
-      {items.length ? items.map(item => <button
+      {visibleItems.length ? visibleItems.map(item => <button
         type="button" className={`panel notification-item ${item.read_at ? "is-read" : "is-unread"}`}
         key={item.id} onClick={() => openItem(item)} disabled={busy}
       >
