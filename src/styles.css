@@ -362,3 +362,30 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
  .agenda-item{gap:8px}.agenda-item .status-pill{display:none}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+
+/* Organization experience — connected course, task, and overview surfaces */
+.overdue-card{background:linear-gradient(145deg,#fff3ef,#fffaf7);border-color:#f6ddd4}
+.overdue-card::after{background:rgba(255,148,122,.17)}
+.organization-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:16px 0 18px}
+.organization-toolbar>span{flex-shrink:0;color:#89969a;font-size:10px;font-weight:700}
+.search-field{display:flex;align-items:center;gap:9px;min-width:0;max-width:420px;flex:1;border:1px solid #dfe8e3;border-radius:12px;background:#fff;padding:0 12px;color:#87968f}
+.search-field>span{font-size:18px;line-height:1}
+.search-field input{width:100%;min-width:0;border:0!important;outline:0!important;box-shadow:none!important;padding:11px 0;background:transparent;font:inherit;font-size:11px;color:var(--navy)}
+.search-field:focus-within{border-color:var(--mint);box-shadow:0 0 0 4px rgba(66,191,167,.11)}
+.course-card-summary{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:16px 0 4px;padding-top:12px;border-top:1px solid #edf2ee;color:#7d8b85;font-size:10px;font-weight:700}
+.course-card-summary span:last-child{color:#328c79}
+.compact-empty{padding:25px 18px}
+.compact-empty h2{margin:0 0 6px;font-size:16px}
+.compact-empty p{margin:0;color:#83918b;font-size:11px}
+.task-toolbar{align-items:center}
+.task-filter-tabs{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.task-filter-tabs button{border:1px solid #e6eeea;border-radius:999px;background:#fff;color:#82918a;padding:8px 12px;font-size:10px;font-weight:750}
+.task-filter-tabs button.active{background:#172b42;border-color:#172b42;color:#fff}
+.overdue-text{color:#c66f58!important}
+.full-task-row{gap:12px}
+.full-task-copy{min-width:0;flex:1}
+.full-task-copy p{overflow-wrap:anywhere}
+.status-overdue{color:#b65e50;background:#fff0eb}
+@media(max-width:760px){.organization-toolbar{align-items:stretch;flex-direction:column}.organization-toolbar .search-field{max-width:none;width:100%}.organization-toolbar>span{align-self:flex-end}.task-filter-tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px}.task-filter-tabs button{white-space:nowrap}.course-card-summary{margin-top:12px}}
+@media(max-width:520px){.task-filters{gap:7px;flex-wrap:wrap}.task-filters span{font-size:9px}.full-task-row{flex-wrap:wrap}.full-task-row .full-task-copy{flex-basis:calc(100% - 48px)}.full-task-row .status-pill{margin-left:30px}}
