@@ -23,6 +23,7 @@ export function ProfileWorkspace({ userId, profile, onProfileUpdated }: {
   profile: StudentProfile;
   onProfileUpdated: (profile: StudentProfile) => void;
 }) {
+  const [profileTab,setProfileTab]=useState<"profile"|"discover">("profile");
   const [displayName,setDisplayName]=useState(profile.display_name||"");
   const [bio,setBio]=useState(profile.bio||"");
   const [major,setMajor]=useState(profile.major||"");
@@ -79,8 +80,9 @@ export function ProfileWorkspace({ userId, profile, onProfileUpdated }: {
     <div className="feature-heading"><div><p className="eyebrow">YOUR MEOWKS IDENTITY</p><h1>My profile<span className="coral">.</span></h1><p className="subheading">Introduce yourself, find your people, and shape your student space.</p></div></div>
     {notice&&<div className="inline-notice" role="status">{notice}</div>}
     {error&&<div className="inline-error" role="alert">{error}</div>}
+    <div className="profile-section-tabs" role="tablist" aria-label="Profile sections"><button role="tab" aria-selected={profileTab==="profile"} className={profileTab==="profile"?"active":""} onClick={()=>setProfileTab("profile")}>My profile</button><button role="tab" aria-selected={profileTab==="discover"} className={profileTab==="discover"?"active":""} onClick={()=>setProfileTab("discover")}>Discover students</button></div>
     <div className="profile-layout">
-      <form className="panel profile-editor" onSubmit={save}>
+      {profileTab==="profile"&&<form className="panel profile-editor" onSubmit={save}>
         <div className="profile-preview"><div className="profile-avatar">{(displayName.trim()[0]||"M").toUpperCase()}</div><div><strong>{displayName||"Your name"}</strong><small>{major||"Add your field of study"}</small><span className="profile-status">{profile.student_status==="verified"?"Verified university status":profile.student_status==="unverified"?"University status unverified":"Independent student"}</span></div></div>
         <label>Display name<input value={displayName} onChange={e=>setDisplayName(e.target.value)} required minLength={2} maxLength={60} placeholder="How classmates know you"/></label>
         <label>About me <span className="optional-label">Optional · 280 characters</span><textarea value={bio} onChange={e=>setBio(e.target.value)} maxLength={280} rows={4} placeholder="A little about what you're learning or working toward…"/></label>
@@ -89,11 +91,11 @@ export function ProfileWorkspace({ userId, profile, onProfileUpdated }: {
         <label>Profile visibility<select value={visibility} onChange={e=>setVisibility(e.target.value as "private"|"community")}><option value="community">Visible to signed-in Meowks students</option><option value="private">Private — only me</option></select></label>
         <p className="profile-privacy-note">Your email, university verification details, and account credentials are never shown in the student directory. University affiliation and verification cannot be edited here.</p>
         <button className="primary-button" disabled={busy}>{busy?"Saving profile…":"Save profile"}</button>
-      </form>
-      <section className="profile-directory">
+      </form>}
+      {profileTab==="discover"&&<section className="profile-directory">
         <div className="panel directory-heading"><p className="eyebrow">MEET THE COMMUNITY</p><h2>Student directory</h2><p>Find classmates who share your interests. Only profiles set to community visibility appear here.</p><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search names, majors, interests…"/></div>
         {visibleDirectory.length?visibleDirectory.map(person=><article className="panel directory-card" key={person.id}><div className="directory-avatar">{(person.display_name?.[0]||"M").toUpperCase()}</div><div className="directory-person"><strong>{person.display_name||"Meowks student"}</strong><small>{[person.major,person.year_of_study].filter(Boolean).join(" · ")||"Student"}</small>{person.bio&&<p>{person.bio}</p>}{person.interests?.length>0&&<div className="directory-interests">{person.interests.slice(0,5).map(tag=><span key={tag}>{tag}</span>)}</div>}</div></article>):<div className="empty-card"><div className="empty-illustration">🐾</div><h2>No classmates found yet.</h2><p>Try another search, or invite classmates to complete their profiles.</p></div>}
-      </section>
+      </section>}
     </div>
   </section>;
 }
