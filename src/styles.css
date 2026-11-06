@@ -469,3 +469,27 @@ input[type=checkbox],input[type=radio]{accent-color:#278f7c}
 @media(max-width:900px){.signature-hero{grid-template-columns:minmax(0,1.05fr) minmax(220px,.8fr);gap:8px;padding:30px 27px}.hero-mascot-plinth{width:185px;height:185px}.hero-meowky-art{width:165px;height:165px}.hero-orbit-back{width:240px;height:135px}.hero-orbit-front{width:210px;height:110px}.hero-note{right:-12px}}
 @media(max-width:650px){.signature-hero{grid-template-columns:1fr;gap:0;min-height:0;padding:26px 22px 20px;border-radius:20px}.hero-copy{max-width:none}.signature-hero h1{font-size:36px}.hero-subtitle{max-width:310px;margin:10px 0 18px}.hero-metrics{gap:13px;margin-bottom:18px}.hero-metrics strong{font-size:18px}.hero-metrics span{font-size:8px}.hero-art{min-height:205px;margin-top:3px}.hero-mascot-plinth{width:174px;height:174px}.hero-meowky-art{width:153px;height:153px}.hero-orbit-back{width:225px;height:120px}.hero-orbit-front{width:195px;height:100px}.hero-note{right:0;bottom:0}.hero-spark-a{right:17%;top:8%}.hero-spark-b{left:18%;bottom:9%}}
 @media(prefers-reduced-motion:reduce){.hero-mascot-plinth,.hero-note{animation:none!important}}
+
+
+/* Phase 10 — consistent page entrances and tactile feature interactions */
+@keyframes meowks-page-enter{from{opacity:0;transform:translate3d(0,9px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes meowks-card-enter{from{opacity:0;transform:translate3d(0,12px,0) scale(.99)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+.feature-page{animation:meowks-page-enter .42s cubic-bezier(.2,.7,.2,1) both}
+.feature-heading{animation:meowks-page-enter .38s ease-out both}
+.panel,.course-card,.study-group-card,.directory-card,.notification-item,.empty-card{transition:transform .24s cubic-bezier(.2,.7,.2,1),box-shadow .24s ease,border-color .24s ease}
+.panel:hover,.course-card:hover,.study-group-card:hover,.directory-card:hover,.notification-item:hover{transform:translateY(-3px);box-shadow:0 15px 34px rgba(23,43,66,.075);border-color:#d7e8e0}
+.course-grid .course-card,.study-group-grid .study-group-card,.notification-list .notification-item{animation:meowks-card-enter .42s cubic-bezier(.2,.7,.2,1) both}
+.course-grid .course-card:nth-child(2),.study-group-grid .study-group-card:nth-child(2),.notification-list .notification-item:nth-child(2){animation-delay:45ms}
+.course-grid .course-card:nth-child(3),.study-group-grid .study-group-card:nth-child(3),.notification-list .notification-item:nth-child(3){animation-delay:90ms}
+.course-grid .course-card:nth-child(4),.study-group-grid .study-group-card:nth-child(4),.notification-list .notification-item:nth-child(4){animation-delay:135ms}
+.course-card-actions button:hover,.note-actions button:hover,.post-actions button:hover,.text-button:hover{color:#172b42;transform:translateY(-1px)}
+.nav-item{transition:background-color .2s ease,color .2s ease,transform .2s ease}
+.nav-item:hover{transform:translateX(3px)}
+.stat-card{transition:transform .24s ease,box-shadow .24s ease}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 13px 28px rgba(23,43,66,.07)}
+.task-row{transition:background-color .2s ease,padding .2s ease}
+.task-row:hover{background:#f8fbf9;padding-left:7px;padding-right:7px}
+.modal-backdrop{animation:meowks-page-enter .2s ease-out both}
+.modal-card{animation:meowks-card-enter .28s cubic-bezier(.2,.7,.2,1) both}
+@media(hover:none){.panel:hover,.course-card:hover,.study-group-card:hover,.directory-card:hover,.notification-item:hover,.stat-card:hover{transform:none;box-shadow:none}}
+@media(prefers-reduced-motion:reduce){.feature-page,.feature-heading,.course-grid .course-card,.study-group-grid .study-group-card,.notification-list .notification-item,.modal-backdrop,.modal-card{animation:none!important}.panel,.course-card,.study-group-card,.directory-card,.notification-item,.stat-card,.task-row,.nav-item{transition:none!important}}
