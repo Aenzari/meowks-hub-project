@@ -233,7 +233,7 @@ export default function App() {
   const overdueTasks = pendingTasks.filter(task => task.due_at && new Date(task.due_at).getTime() < now);
   const dueTodayTasks = pendingTasks.filter(task => task.due_at && new Date(task.due_at).toDateString() === new Date().toDateString());
   const visibleTasks = tasks.filter(task => {
-    const matchesSearch = `${task.title} ${task.details ?? ""} ${courseName(task.course_id)} ${task.task_type}`.toLowerCase().includes(taskSearch.trim().toLowerCase());
+    const matchesSearch = `${task.title} ${task.details ?? ""} ${courses.find(course => course.id === task.course_id)?.title ?? "Personal"} ${task.task_type}`.toLowerCase().includes(taskSearch.trim().toLowerCase());
     const isOverdue = task.status !== "completed" && !!task.due_at && new Date(task.due_at).getTime() < now;
     const matchesFilter = taskFilter === "all" || (taskFilter === "open" && task.status !== "completed") || (taskFilter === "completed" && task.status === "completed") || (taskFilter === "overdue" && isOverdue);
     return matchesSearch && matchesFilter;
