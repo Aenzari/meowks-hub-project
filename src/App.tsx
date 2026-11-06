@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import type { User } from "@supabase/supabase-js";
 import { BrandMark } from "./components/BrandMark";
+import { Meowky } from "./components/Meowky";
 import { LearnWorkspace } from "./components/LearnWorkspace";
 import { CommunityWorkspace } from "./components/CommunityWorkspace";
 import { ProfileWorkspace, type StudentProfile } from "./components/ProfileWorkspace";
@@ -60,7 +61,7 @@ function AuthScreen() {
       </form>
       <p className="auth-legal">By continuing, you agree to use Meowks respectfully and protect your account credentials.</p>
     </section>
-    <div className="auth-mascot"><span>🐱</span><strong>A little progress adds up.</strong><p>Meowky is saving you a spot.</p></div>
+    <div className="auth-mascot"><Meowky className="auth-meowky-art" /><strong>A little progress adds up.</strong><p>Meowky is saving you a spot.</p></div>
   </main>;
 }
 
@@ -256,7 +257,7 @@ export default function App() {
         {notice && <div className="inline-notice" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="Dismiss">×</button></div>}
         {dataError && <div className="inline-error" role="alert">{dataError}<button onClick={()=>setDataError("")} aria-label="Dismiss">×</button></div>}
         {activeNav === "Overview" && <>
-          <div className="welcome-row"><div><p className="eyebrow">YOUR DAY IS WAITING</p><h1>Hey, {profile?.display_name?.split(" ")[0] ?? "student"}<span className="coral">.</span></h1><p className="subheading">A little progress today goes a long way.</p></div><div className="mascot-card"><div className="mascot-face">🐱</div><div><strong>Meowky</strong><p>Your study buddy</p></div></div></div>
+          <div className="welcome-row"><div><p className="eyebrow">YOUR DAY IS WAITING</p><h1>Hey, {profile?.display_name?.split(" ")[0] ?? "student"}<span className="coral">.</span></h1><p className="subheading">A little progress today goes a long way.</p></div><div className="mascot-card"><div className="mascot-face"><Meowky className="dashboard-meowky-art" /></div><div><strong>Meowky</strong><p>Your study buddy</p></div></div></div>
           <div className="stats-grid"><article className="stat-card"><span className="stat-label">Tasks completed</span><strong>{completedCount} <small>/ {tasks.length}</small></strong><div className="progress-track"><span style={{width:tasks.length ? `${completedCount/tasks.length*100}%` : "0%"}}/></div><span className="stat-foot">Your personal task progress</span></article><article className="stat-card mint-card"><span className="stat-label">My courses</span><strong>{courses.length}</strong><span className="stat-foot">Courses in your space</span></article><article className="stat-card peach-card"><span className="stat-label">Open tasks</span><strong>{pendingTasks.length}</strong><span className="stat-foot">{dueTodayTasks.length} due today</span></article><article className="stat-card overdue-card"><span className="stat-label">Overdue</span><strong>{overdueTasks.length}</strong><span className="stat-foot">Needs your attention</span></article></div>
           <div className="content-grid"><section className="panel tasks-panel"><div className="panel-heading"><div><p className="eyebrow">STAY ON TRACK</p><h2>Upcoming tasks</h2></div><button className="text-button" onClick={()=>setActiveNav("Tasks & deadlines")}>View all ↗</button></div>
             {dataLoading ? <p className="empty-state" role="status">Loading your tasks…</p> : upcomingTasks.length ? <div className="task-list">{upcomingTasks.map(task=><div className={`task-row ${task.status==="completed"?"task-done":""}`} key={task.id}><input aria-label={`Complete ${task.title}`} type="checkbox" checked={task.status==="completed"} onChange={()=>void updateTaskStatus(task,task.status==="completed"?"todo":"completed")}/><span className="task-copy"><strong>{task.title}</strong><small>{courseName(task.course_id)} · {task.task_type}</small></span><span className="task-due">{dateLabel(task.due_at)}</span></div>)}</div> : <p className="empty-state">No tasks yet. Add one to get started.</p>}
