@@ -6,6 +6,7 @@ import { LearnWorkspace } from "./components/LearnWorkspace";
 import { CommunityWorkspace } from "./components/CommunityWorkspace";
 import { ProfileWorkspace, type StudentProfile } from "./components/ProfileWorkspace";
 import { NotificationWorkspace } from "./components/NotificationWorkspace";
+import { ScheduleWorkspace } from "./components/ScheduleWorkspace";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
 type Profile = StudentProfile;
@@ -227,7 +228,7 @@ export default function App() {
   const upcomingTasks = pendingTasks.slice(0, 5);
   const courseName = (id: string | null) => courses.find(course => course.id === id)?.title ?? "Personal";
   const dateLabel = (value: string | null) => value ? new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "No due date";
-  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "♧", label: "Notifications" }];
+  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▦", label: "Calendar" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "♧", label: "Notifications" }];
 
   return <div className="app-shell">
     <aside className="sidebar"><BrandMark/><div className="workspace-label">YOUR STUDENT SPACE</div>
@@ -236,6 +237,7 @@ export default function App() {
     </aside>
     <main className="main-area"><header className="topbar"><div className="mobile-brand"><BrandMark compact/></div><div className="breadcrumb">My space <span>/</span> {activeNav}</div>
       <div className="topbar-right"><span className="streak-pill">✦ Meowks</span>{user && <button className="avatar" aria-label="Sign out" title="Sign out" onClick={()=>supabase?.auth.signOut()}>{(profile?.display_name ?? user.email ?? "S").charAt(0).toUpperCase()}</button>}</div></header>
+      <nav className="mobile-nav" aria-label="Main navigation">{nav.map(item=><button key={item.label} className={activeNav===item.label?"active":""} onClick={()=>setActiveNav(item.label)} aria-label={item.label}><span>{item.icon}</span><small>{item.label==="Tasks & deadlines"?"Tasks":item.label==="My courses"?"Courses":item.label==="Study tools"?"Learn":item.label==="My profile"?"Profile":item.label}</small>{item.label==="Notifications"&&unreadNotifications>0&&<i/>}</button>)}</nav>
       <section className="page-content">
         {notice && <div className="inline-notice" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="Dismiss">×</button></div>}
         {dataError && <div className="inline-error" role="alert">{dataError}<button onClick={()=>setDataError("")} aria-label="Dismiss">×</button></div>}
@@ -247,6 +249,7 @@ export default function App() {
             <button className="add-task" onClick={()=>openTask()}>＋ Add a task</button>
           </section><section className="panel focus-panel"><p className="eyebrow">BUILD YOUR ROUTINE</p><h2>Your courses</h2><p className="focus-description">{courses.length ? `You're organizing ${courses.length} course${courses.length===1?"":"s"} in Meowks.` : "Add your first course to keep classes and deadlines together."}</p><div className="course-count">{courses.length}</div><button className="primary-button" onClick={()=>{setActiveNav("My courses");}}>Manage courses</button></section></div>
         </>}
+        {activeNav === "Calendar" && <ScheduleWorkspace tasks={tasks} onAddEvent={(date)=>{setTaskEditing(null);setTaskDraft({...emptyTask,task_type:"event",due_at:`${date}T09:00`});setDataError("");setTaskModal(true);}} onOpenTasks={()=>setActiveNav("Tasks & deadlines")}/>}
         {activeNav === "My courses" && <section className="feature-page"><div className="feature-heading"><div><p className="eyebrow">ORGANIZE YOUR SEMESTER</p><h1>My courses<span className="coral">.</span></h1><p className="subheading">Keep your classes together in one place.</p></div><button className="primary-button compact-action" onClick={()=>openCourse()}>＋ Add course</button></div>
           {dataLoading ? <p className="empty-state">Loading courses…</p> : courses.length ? <div className="course-grid">{courses.map(course=><article className="course-card" key={course.id}><div className="course-card-top"><span className="course-symbol">▤</span><span className="course-code">{course.code || "PERSONAL"}</span></div><h2>{course.title}</h2><p>{course.description || "No course description yet."}</p><div className="course-card-actions"><button onClick={()=>openCourse(course)}>Edit</button><button className="danger-text" onClick={()=>void deleteCourse(course)}>Delete</button></div></article>)}</div> : <div className="empty-card"><div className="empty-illustration">📚</div><h2>Your semester starts here.</h2><p>Add your first course. You can keep courses private to your own student space.</p><button className="primary-button compact-action" onClick={()=>openCourse()}>＋ Create your first course</button></div>}
         </section>}
