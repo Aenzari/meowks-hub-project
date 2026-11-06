@@ -1,0 +1,32 @@
+/* Original Meowky illustration styling */
+.auth-mascot { position: relative; }
+.auth-mascot .auth-meowky-art {
+  display:block;
+  width:min(100%, 230px);
+  height:auto;
+  margin:0 auto 12px;
+  overflow:visible;
+  filter:drop-shadow(0 18px 18px rgba(23,43,66,.10));
+  animation:mk-mascot-float 5.2s ease-in-out infinite;
+}
+.mascot-face {
+  overflow:visible;
+  background:transparent;
+  box-shadow:none;
+  border-radius:0;
+}
+.dashboard-meowky-art {
+  display:block;
+  width:66px;
+  height:62px;
+  margin:-10px -10px -8px;
+  overflow:visible;
+  filter:drop-shadow(0 5px 5px rgba(23,43,66,.12));
+}
+.mascot-card:hover .dashboard-meowky-art { animation:mk-mascot-bob 1.5s ease-in-out infinite; }
+@media(max-width:760px) {
+  .auth-mascot .auth-meowky-art { width:190px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .auth-mascot .auth-meowky-art,.mascot-card:hover .dashboard-meowky-art { animation:none!important; }
+}
