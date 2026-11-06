@@ -1,0 +1,177 @@
+/* Meowks premium depth + motion system
+   Lightweight CSS-only depth. No WebGL dependency; respects touch and reduced-motion. */
+:root {
+  --mk-ink: #172b42;
+  --mk-mint: #42bfa7;
+  --mk-coral: #ff947a;
+  --mk-cream: #fff4df;
+  --mk-shadow-rest: 0 10px 28px rgba(23,43,66,.055), 0 2px 6px rgba(23,43,66,.035);
+  --mk-shadow-float: 0 24px 55px rgba(23,43,66,.12), 0 8px 18px rgba(23,43,66,.06);
+  --mk-ease: cubic-bezier(.2,.75,.25,1);
+}
+body {
+  background:
+    radial-gradient(ellipse at 82% 2%, rgba(66,191,167,.075), transparent 31rem),
+    radial-gradient(ellipse at 8% 42%, rgba(255,148,122,.045), transparent 28rem),
+    #f7f8f6;
+}
+.app-shell { isolation: isolate; }
+.sidebar {
+  background: linear-gradient(165deg, rgba(255,255,255,.98), rgba(250,253,251,.96));
+  box-shadow: 8px 0 34px rgba(23,43,66,.025);
+}
+.brand-symbol {
+  filter: drop-shadow(0 5px 5px rgba(23,43,66,.14));
+  transform: translateZ(0);
+  transition: transform .45s var(--mk-ease), filter .45s var(--mk-ease);
+}
+.brand-lockup:hover .brand-symbol {
+  transform: translateY(-3px) rotate(-5deg) scale(1.06);
+  filter: drop-shadow(0 9px 8px rgba(23,43,66,.18));
+}
+.topbar {
+  background: rgba(255,255,255,.76);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+}
+.page-content { animation: mk-page-enter .48s var(--mk-ease) both; }
+.welcome-row { perspective: 900px; }
+.welcome-row > div:first-child { animation: mk-copy-enter .58s var(--mk-ease) both; }
+.mascot-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(145deg, #fff 12%, #fff9ef 100%);
+  border-color: rgba(232,220,198,.8);
+  box-shadow: 0 12px 28px rgba(23,43,66,.07), inset 0 1px rgba(255,255,255,.95);
+  transform: perspective(700px) rotateY(-5deg) rotateX(2deg);
+  transition: transform .45s var(--mk-ease), box-shadow .45s var(--mk-ease);
+}
+.mascot-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 90px; height: 90px;
+  right: -28px; top: -38px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff 0, #ffe8cf 54%, #ffd8c3 100%);
+  opacity: .8;
+}
+.mascot-card:hover {
+  transform: perspective(700px) rotateY(0) rotateX(0) translateY(-5px);
+  box-shadow: var(--mk-shadow-float);
+}
+.mascot-face {
+  position: relative;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.9), inset 0 -5px 10px rgba(220,171,125,.16), 0 7px 12px rgba(23,43,66,.12);
+  transform: translateZ(18px);
+  animation: mk-mascot-bob 4.8s ease-in-out infinite;
+}
+.mascot-mini {
+  box-shadow: inset 0 2px 2px rgba(255,255,255,.35), inset 0 -5px 9px rgba(146,69,52,.15), 0 5px 10px rgba(23,43,66,.1);
+}
+.stats-grid { perspective: 1100px; }
+.stat-card, .panel, .course-card {
+  position: relative;
+  box-shadow: var(--mk-shadow-rest);
+  transform: translateZ(0);
+  transition: transform .32s var(--mk-ease), box-shadow .32s var(--mk-ease), border-color .32s ease, background .32s ease;
+}
+.stat-card::after, .course-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.56), transparent 38%);
+  opacity: .5;
+}
+.stat-card:hover, .course-card:hover {
+  transform: perspective(900px) translateY(-5px) rotateX(1deg);
+  box-shadow: var(--mk-shadow-float);
+  border-color: rgba(66,191,167,.34);
+}
+.panel:hover { box-shadow: 0 16px 38px rgba(23,43,66,.075); }
+.focus-panel {
+  background: radial-gradient(circle at 92% 10%, rgba(66,191,167,.18), transparent 42%), linear-gradient(145deg,#f2fbf7,#eaf7f1);
+  box-shadow: inset 0 1px rgba(255,255,255,.9), 0 12px 28px rgba(66,191,167,.07);
+}
+.primary-button {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 5px 0 #0e1f30, 0 9px 18px rgba(23,43,66,.15);
+  transition: transform .22s var(--mk-ease), box-shadow .22s var(--mk-ease), background .22s ease;
+}
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #0e1f30, 0 14px 24px rgba(23,43,66,.19);
+}
+.primary-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #0e1f30, 0 4px 9px rgba(23,43,66,.12);
+}
+.nav-item { position: relative; overflow: hidden; }
+.nav-item.active { box-shadow: inset 3px 0 var(--mk-mint), 0 5px 14px rgba(66,191,167,.08); }
+.nav-icon { transition: transform .25s var(--mk-ease); }
+.nav-item:hover .nav-icon { transform: translateY(-2px) scale(1.12); }
+.auth-page {
+  background:
+    radial-gradient(ellipse at 80% 16%, rgba(66,191,167,.19), transparent 31rem),
+    radial-gradient(ellipse at 14% 88%, rgba(255,148,122,.13), transparent 26rem),
+    linear-gradient(145deg,#f8faf8,#f1f7f3);
+}
+.auth-card {
+  box-shadow: 0 28px 80px rgba(23,43,66,.1), 0 4px 12px rgba(23,43,66,.035), inset 0 1px rgba(255,255,255,.95);
+  animation: mk-card-arrive .65s var(--mk-ease) both;
+}
+.auth-mascot span {
+  position: relative;
+  background: radial-gradient(circle at 32% 22%, #fff 0, #fff8e9 35%, #ffe4c8 100%);
+  box-shadow: inset 0 3px 4px rgba(255,255,255,.9), inset 0 -9px 15px rgba(224,168,112,.18), 0 20px 30px rgba(23,43,66,.11), 12px 14px 0 rgba(66,191,167,.12);
+  transform: perspective(600px) rotateY(-9deg) rotateX(5deg);
+  animation: mk-mascot-float 5s ease-in-out infinite;
+}
+.modal-backdrop { backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
+.modal-card {
+  box-shadow: 0 35px 100px rgba(13,31,47,.28), 0 5px 16px rgba(13,31,47,.1);
+  animation: mk-modal-in .28s var(--mk-ease) both;
+}
+button, a, .course-card, .stat-card, .panel { -webkit-tap-highlight-color: transparent; }
+@keyframes mk-page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mk-copy-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mk-card-arrive {
+  from { opacity: 0; transform: translateY(14px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes mk-modal-in {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes mk-mascot-bob {
+  0%,100% { transform: translateY(0) translateZ(18px); }
+  50% { transform: translateY(-3px) translateZ(18px); }
+}
+@keyframes mk-mascot-float {
+  0%,100% { transform: perspective(600px) rotateY(-9deg) rotateX(5deg) translateY(0); }
+  50% { transform: perspective(600px) rotateY(5deg) rotateX(1deg) translateY(-8px); }
+}
+@media (hover: none) {
+  .mascot-card, .auth-mascot span { transform: none; }
+  .stat-card:hover, .course-card:hover, .panel:hover { transform: none; box-shadow: var(--mk-shadow-rest); }
+}
+@media (max-width: 650px) {
+  .mascot-card { transform: none; }
+  .stat-card, .panel, .course-card { box-shadow: 0 5px 18px rgba(23,43,66,.045); }
+  .primary-button { box-shadow: 0 3px 0 #0e1f30, 0 6px 12px rgba(23,43,66,.12); }
+  .auth-mascot span { animation-duration: 6s; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-content, .welcome-row > div:first-child, .auth-card, .auth-mascot span, .mascot-face, .modal-card { animation: none !important; }
+  .mascot-card, .stat-card, .panel, .course-card, .primary-button, .nav-icon, .brand-symbol { transition: none !important; transform: none !important; }
+}
