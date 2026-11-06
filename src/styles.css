@@ -437,3 +437,14 @@ Organization experience — connected course, task, and overview surfaces */
 .status-overdue{color:#b65e50;background:#fff0eb}
 @media(max-width:760px){.organization-toolbar{align-items:stretch;flex-direction:column}.organization-toolbar .search-field{max-width:none;width:100%}.organization-toolbar>span{align-self:flex-end}.task-filter-tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px}.task-filter-tabs button{white-space:nowrap}.course-card-summary{margin-top:12px}}
 @media(max-width:520px){.task-filters{gap:7px;flex-wrap:wrap}.task-filters span{font-size:9px}.full-task-row{flex-wrap:wrap}.full-task-row .full-task-copy{flex-basis:calc(100% - 48px)}.full-task-row .status-pill{margin-left:30px}}
+
+
+/* Learning experience: searchable notes and clearer study controls */
+.note-tools{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.55fr);gap:9px;margin:0 0 14px}
+.note-tools input,.note-tools select{width:100%;min-width:0;border:1px solid #dfe7e3;border-radius:10px;padding:10px 12px;background:#fff;color:var(--navy);font:inherit;font-size:11px}
+.note-tools input:focus,.note-tools select:focus{outline:2px solid rgba(66,191,167,.3);border-color:var(--mint)}
+.note-item>div:first-child{min-width:0;flex:1}
+.note-item p{overflow-wrap:anywhere}
+.timer-buttons{display:flex;gap:9px;flex-wrap:wrap}
+.timer-display{font-variant-numeric:tabular-nums}
+@media(max-width:560px){.note-tools{grid-template-columns:1fr}.timer-buttons>*{flex:1}}
