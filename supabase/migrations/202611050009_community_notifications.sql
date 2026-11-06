@@ -71,8 +71,9 @@ create or replace function public.notify_community_comment()
 returns trigger language plpgsql security definer
 set search_path = public, pg_temp
 as $$
-declare post_owner uuid;
-declare parent_owner uuid;
+declare
+  post_owner uuid;
+  parent_owner uuid;
 begin
   select user_id into post_owner from public.community_posts where id = new.post_id;
   if new.parent_comment_id is not null then
