@@ -7,6 +7,7 @@ import { LearnWorkspace } from "./components/LearnWorkspace";
 import { CommunityWorkspace } from "./components/CommunityWorkspace";
 import { ProfileWorkspace, type StudentProfile } from "./components/ProfileWorkspace";
 import { NotificationWorkspace } from "./components/NotificationWorkspace";
+import { GamificationWorkspace } from "./components/GamificationWorkspace";
 import { ScheduleWorkspace } from "./components/ScheduleWorkspace";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
@@ -242,7 +243,7 @@ export default function App() {
   const visibleCourses = courses.filter(course => `${course.title} ${course.code ?? ""} ${course.description ?? ""}`.toLowerCase().includes(courseSearch.trim().toLowerCase()));
   const courseName = (id: string | null) => courses.find(course => course.id === id)?.title ?? "Personal";
   const dateLabel = (value: string | null) => value ? new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "No due date";
-  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▦", label: "Calendar" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "♧", label: "Notifications" }];
+  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▦", label: "Calendar" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "♧", label: "Notifications" }, { icon: "✦", label: "Achieve" }];
 
   return <div className="app-shell">
     <a className="skip-link" href="#main-content">Skip to main content</a>
@@ -307,6 +308,7 @@ export default function App() {
         {activeNav === "My profile" && user && profile && (
           <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>
         )}
+        {activeNav === "Achieve" && user && <GamificationWorkspace userId={user.id}/>}
         <footer>Made for students, with a little help from Meowky. <span>MEOWKS © 2026</span></footer>
       </section>
     </main>
