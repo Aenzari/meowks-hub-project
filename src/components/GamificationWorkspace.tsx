@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Meowky } from "./Meowky";
+import { MEOWKY_FORMS, getMeowkyForm, getNextMeowkyForm } from "../lib/meowky-evolution";
 
 type Stats = { xp:number; level:number; current_streak:number; longest_streak:number; last_activity_date:string|null };
 type Achievement = { achievement_id:string; earned_at:string; catalog:{name:string;description:string;icon:string}|null };
@@ -55,14 +56,26 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const levelProgress=xp%250;
   const earned=new Set(achievements.map(item=>item.achievement_id));
   const dailyGoal=30;
+  const currentForm=getMeowkyForm(xp);
+  const nextForm=getNextMeowkyForm(xp);
+  const evolutionProgress=nextForm?Math.min(100,Math.round(((xp-currentForm.xpRequired)/(nextForm.xpRequired-currentForm.xpRequired))*100)):100;
   return <section className="feature-page gamification-workspace">
     <div className="feature-heading"><div><p className="eyebrow">EVERY LITTLE WIN COUNTS</p><h1>My Space<span className="coral">.</span></h1><p className="subheading">Your learning journey, one paw at a time.</p></div><div className="gamification-level">🐾 <strong>Level {level}</strong></div></div>
     <section className="meowky-companion" aria-label="Your Meowky companion">
-      <div className="meowky-companion-copy"><p className="eyebrow">YOUR STUDY BUDDY · {level >= 20 ? "CHAMPION" : level >= 10 ? "SCHOLAR" : level >= 5 ? "ADVENTURER" : "KITTEN"} STAGE</p><h2>{todayMinutes >= 30 ? "Meowky is proud of you!" : "Meowky is cheering you on."}</h2><p>{todayMinutes >= 30 ? "You showed up for your learning goal today. Give yourself a little credit." : "Every focused minute helps you grow. Keep going at your own pace."}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Goal reached" : "♡ Here for your next step"}</span></div>
-      <div className="meowky-companion-art"><Meowky level={level} mood={todayMinutes >= 30 ? "happy" : "focused"} /></div>
+      <div className="meowky-companion-copy"><p className="eyebrow">YOUR COMPANION · {currentForm.rarity.toUpperCase()}</p><h2>{currentForm.name}</h2><p>{currentForm.personality}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Goal reached" : "♡ Growing with every step"}</span></div>
+      <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky level={level} mood={todayMinutes >= 30 ? "happy" : "focused"} /><span className="meowky-stage-name">{currentForm.name}</span></div>
     </section>
     {error&&<div className="inline-error" role="alert">{error}</div>}
     {notice&&<div className="inline-notice" role="status">{notice}</div>}
+    <section className="panel meowky-evolution-panel">
+      <div className="panel-heading"><div><p className="eyebrow">YOUR EVOLUTION JOURNEY</p><h2>{nextForm ? "Your next form is waiting." : "Celestial form achieved."}</h2></div><span className="meowky-rarity-pill" data-rarity={currentForm.rarity.toLowerCase()}>{currentForm.rarity}</span></div>
+      <div className="meowky-evolution-progress"><div className="meowky-evolution-progress-copy"><strong>{currentForm.name}</strong><span>{nextForm ? `${xp.toLocaleString()} / ${nextForm.xpRequired.toLocaleString()} XP` : "All 10 forms unlocked"}</span></div><div className="progress-track"><span style={{width:`${evolutionProgress}%`}}/></div><p>{nextForm ? `${(nextForm.xpRequired-xp).toLocaleString()} XP until ${nextForm.name} · ${nextForm.rarity}` : "You've reached the highest known evolution. Your next chapter is still unwritten."}</p></div>
+    </section>
+    <section className="panel meowky-collection-panel">
+      <div className="panel-heading"><div><p className="eyebrow">THE MEOWKY COLLECTION</p><h2>Ten forms. One journey.</h2></div><span className="achievement-count">{MEOWKY_FORMS.filter(form=>xp>=form.xpRequired).length} / 10 discovered</span></div>
+      <div className="meowky-card-grid">{MEOWKY_FORMS.map(form=>{const unlocked=xp>=form.xpRequired;return <article className={`meowky-collectible-card ${unlocked?"is-unlocked":"is-locked"}`} data-rarity={form.rarity.toLowerCase()} key={form.id}><div className="meowky-card-art" style={{"--form-color":form.palette} as React.CSSProperties}><span className="meowky-card-sigil">{unlocked?form.symbol:"?"}</span>{unlocked?<Meowky level={Math.max(1,form.id*5)} mood="happy"/>:<span className="meowky-card-lock" aria-hidden="true">✦</span>}</div><div className="meowky-card-copy"><div className="meowky-card-meta"><span>FORM {String(form.id).padStart(2,"0")}</span><b>{form.rarity}</b></div><h3>{unlocked?form.name:"Undiscovered Meowky"}</h3><p>{unlocked?form.trait:`Unlock at ${form.xpRequired.toLocaleString()} XP`}</p>{unlocked&&<><strong className="meowky-card-ability">{form.ability}</strong><small>{form.personality}</small></>}</div></article>})}</div>
+      <p className="meowky-collection-note">All students follow the same evolution path. Future special forms can be added without changing this collection's foundations.</p>
+    </section>
     <div className="gamification-stats">
       <article className="stat-card paw-xp"><span className="stat-label">Paw Points</span><strong>{xp.toLocaleString()}</strong><span className="stat-foot">Total XP earned</span></article>
       <article className="stat-card mint-card"><span className="stat-label">Learning streak</span><strong>🔥 {stats?.current_streak??0} <small>days</small></strong><span className="stat-foot">Longest: {stats?.longest_streak??0} days</span></article>
