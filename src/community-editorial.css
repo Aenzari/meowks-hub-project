@@ -91,3 +91,14 @@
 .community-workspace .community-report-footer { display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:8px; }
 .community-workspace .community-report-footer small { margin-right:auto;color:#89958e;font-size:11px;font-variant-numeric:tabular-nums; }
 @media(max-width:560px) { .community-report-backdrop { padding:12px;align-items:end; } .community-workspace .community-report-dialog { padding:19px;border-radius:20px 20px 14px 14px;max-height:88vh; } .community-workspace .community-report-footer { display:grid;grid-template-columns:1fr 1fr;width:100%; } .community-workspace .community-report-footer small { grid-column:1/-1; } .community-workspace .community-report-footer button { width:100%; } }
+
+/* Study group discovery controls */
+.community-workspace .study-group-discovery { margin:24px 0 14px;padding:20px 22px;border:1px solid #e9e9df;border-radius:18px;background:linear-gradient(145deg,#fffefa,#f7faf3); }
+.community-workspace .study-group-discovery-heading { display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap; }
+.community-workspace .study-group-discovery-heading h2 { margin:3px 0;color:#20394b;font-size:clamp(21px,3vw,27px); }
+.community-workspace .study-group-discovery-heading p:not(.eyebrow) { margin:3px 0 0;color:#84928a;font-size:12px; }
+.community-workspace .study-group-discovery-heading input { flex:1 1 260px;max-width:380px;background:#fff; }
+.community-workspace .study-group-controls { display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px; }
+.community-workspace .study-group-controls .community-filter-tabs { flex-wrap:wrap; }
+.community-workspace .study-group-controls select { min-width:180px;max-width:100%;background:#fff; }
+@media(max-width:720px) { .community-workspace .study-group-discovery { padding:16px; } .community-workspace .study-group-discovery-heading { align-items:stretch; } .community-workspace .study-group-discovery-heading input,.community-workspace .study-group-controls select { width:100%;max-width:none; } .community-workspace .study-group-controls { align-items:stretch; } .community-workspace .study-group-controls .community-filter-tabs { width:100%; } }
