@@ -8,6 +8,7 @@ import "./design-system.css";
 import "./awwwards-redesign.css";
 import "./workspace-experience.css";
 import "./motion-feedback.css";
+import "./learn-workspace-editorial.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode><App /></React.StrictMode>
