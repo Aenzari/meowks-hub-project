@@ -68,9 +68,31 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     setBusy(true);const {error:e2}=await supabase.from("community_comments").insert({post_id:id,user_id:userId,body:value});setBusy(false);
     if(e2)setError(e2.message);else{setDrafts(v=>({...v,[id]:""}));await loadComments(id);}
   }
+  async function editPost(post:Post){
+    if(!supabase||post.user_id!==userId)return;
+    const nextTitle=window.prompt("Edit post title",post.title);
+    if(nextTitle===null)return;
+    const nextBody=window.prompt("Edit post content",post.body);
+    if(nextBody===null)return;
+    if(!nextTitle.trim()||!nextBody.trim()){setError("Post title and content cannot be empty.");return;}
+    setBusy(true);setError("");
+    const {error:e}=await supabase.from("community_posts").update({title:nextTitle.trim(),body:nextBody.trim()}).eq("id",post.id).eq("user_id",userId);
+    setBusy(false);
+    if(e)setError(e.message);else{setNotice("Your post was updated.");await refresh();}
+  }
+  async function editComment(comment:Comment){
+    if(!supabase||comment.user_id!==userId)return;
+    const nextBody=window.prompt("Edit your comment",comment.body);
+    if(nextBody===null)return;
+    if(!nextBody.trim()){setError("Comment cannot be empty.");return;}
+    setBusy(true);setError("");
+    const {error:e}=await supabase.from("community_comments").update({body:nextBody.trim()}).eq("id",comment.id).eq("user_id",userId);
+    setBusy(false);
+    if(e)setError(e.message);else{setNotice("Your comment was updated.");await loadComments(comment.post_id);}
+  }
   async function removePost(post:Post){
     if(!supabase||post.user_id!==userId||!window.confirm("Delete this post and its comments?"))return;
-    const {error:e}=await supabase.from("community_posts").delete().eq("id",post.id);if(e)setError(e.message);else await refresh();
+    const {error:e}=await supabase.from("community_posts").delete().eq("id",post.id).eq("user_id",userId);if(e)setError(e.message);else await refresh();
   }
   async function react(postId:string,reaction:"like"|"love"|"helpful"){
     if(!supabase)return;setBusy(true);setError("");
@@ -128,13 +150,13 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
       <div className="community-post-list">{visiblePosts.length?visiblePosts.map(p=><article className="panel community-post" key={p.id}>
         <div className="community-post-meta"><span className="community-avatar">{p.user_id===userId?initial:"M"}</span><div><strong>{p.user_id===userId?(displayName||"You"):(people[p.user_id]||"Meowks student")}</strong><small>{new Date(p.created_at).toLocaleString()} · {courseLabel(p.course_id)}</small></div><span className="post-type">{p.post_type}</span></div>
         <h2>{p.title}</h2><p className="community-post-body">{p.body}</p>
-        <div className="post-actions"><button onClick={()=>{const next=expanded===p.id?null:p.id;setExpanded(next);if(next)void loadComments(p.id);}}>💬 {comments[p.id]?.length??"Comments"}</button>{p.user_id===userId?<button className="danger-text" onClick={()=>void removePost(p)}>Delete post</button>:<button onClick={()=>void report({post_id:p.id})}>Report</button>}</div>
+        <div className="post-actions"><button onClick={()=>{const next=expanded===p.id?null:p.id;setExpanded(next);if(next)void loadComments(p.id);}}>💬 {comments[p.id]?.length??"Comments"}</button>{p.user_id===userId?<><button onClick={()=>void editPost(p)}>Edit post</button><button className="danger-text" onClick={()=>void removePost(p)}>Delete post</button></>:<button onClick={()=>void report({post_id:p.id})}>Report</button>}</div>
         <div className="post-reactions" aria-label="Post reactions">
           <button className={myReaction(p.id)==="like"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"like")}>👍 Like <b>{reactionCount(p.id,"like")}</b></button>
           <button className={myReaction(p.id)==="love"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"love")}>💚 Love <b>{reactionCount(p.id,"love")}</b></button>
           <button className={myReaction(p.id)==="helpful"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"helpful")}>✨ Helpful <b>{reactionCount(p.id,"helpful")}</b></button>
         </div>
-        {expanded===p.id&&<div className="comment-thread"><form onSubmit={e=>void reply(e,p.id)}><input value={drafts[p.id]||""} onChange={e=>setDrafts(v=>({...v,[p.id]:e.target.value}))} maxLength={3000} required placeholder="Write a thoughtful reply…"/><button className="primary-button" disabled={busy}>Reply</button></form>{(comments[p.id]||[]).map(c=><div className="comment-item" key={c.id}><div><strong>{c.user_id===userId?(displayName||"You"):(people[c.user_id]||"Meowks student")}</strong><small>{new Date(c.created_at).toLocaleString()}</small></div><p>{c.body}</p>{c.user_id!==userId&&<button className="comment-report" onClick={()=>void report({comment_id:c.id})}>Report comment</button>}</div>)}</div>}
+        {expanded===p.id&&<div className="comment-thread"><form onSubmit={e=>void reply(e,p.id)}><input value={drafts[p.id]||""} onChange={e=>setDrafts(v=>({...v,[p.id]:e.target.value}))} maxLength={3000} required placeholder="Write a thoughtful reply…"/><button className="primary-button" disabled={busy}>Reply</button></form>{(comments[p.id]||[]).map(c=><div className="comment-item" key={c.id}><div><strong>{c.user_id===userId?(displayName||"You"):(people[c.user_id]||"Meowks student")}</strong><small>{new Date(c.created_at).toLocaleString()}</small></div><p>{c.body}</p>{c.user_id===userId?<button className="comment-report" onClick={()=>void editComment(c)}>Edit comment</button>:<button className="comment-report" onClick={()=>void report({comment_id:c.id})}>Report comment</button>}</div>)}</div>}
       </article>):<div className="empty-card"><div className="empty-illustration">🐾</div><h2>{feedSearch||feedFilter!=="all"?"No matching posts.":"Be the first to start a conversation."}</h2><p>{feedSearch||feedFilter!=="all"?"Try another search or filter.":"Share a question or a study tip to get things going."}</p></div>}</div>
     </>}
     {tab==="moderation"&&isModerator&&<section className="moderation-queue"><div className="panel moderation-intro"><p className="eyebrow">COMMUNITY SAFETY</p><h2>Report review queue</h2><p>Review reports submitted by students. Change a report status after taking appropriate action. This queue does not automatically hide or delete reported content.</p><button className="secondary-button" onClick={()=>void refresh()}>Refresh reports</button></div>
