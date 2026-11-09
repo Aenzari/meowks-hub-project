@@ -5,14 +5,14 @@ import { supabase } from "../lib/supabase";
 type Course = { id: string; title: string };
 type Post = { id: string; user_id: string; course_id: string | null; post_type: string; title: string; body: string; created_at: string };
 type Comment = { id: string; post_id: string; user_id: string; body: string; created_at: string };
-type Group = { id: string; created_by: string; course_id: string | null; name: string; description: string; created_at: string };
+type Group = { id: string; created_by: string; course_id: string | null; name: string; description: string; visibility: "public" | "private"; created_at: string };
 type Reaction = { post_id: string; user_id: string; reaction: "like" | "love" | "helpful" };
 type Report = { id: string; reporter_id: string; post_id: string | null; comment_id: string | null; reason: string; details: string; status: "open" | "reviewing" | "resolved" | "dismissed"; created_at: string; target_preview?: string };
 
 export function CommunityWorkspace({ userId, courses, displayName }: { userId: string; courses: Course[]; displayName: string }) {
   const [tab,setTab]=useState<"feed"|"groups"|"moderation">("feed"),[posts,setPosts]=useState<Post[]>([]),[groups,setGroups]=useState<Group[]>([]);
   const [feedFilter,setFeedFilter]=useState<"all"|"discussion"|"question"|"resource">("all"),[feedSearch,setFeedSearch]=useState("");
-  const [joined,setJoined]=useState<string[]>([]),[expanded,setExpanded]=useState<string|null>(null);
+  const [joined,setJoined]=useState<string[]>([]),[expanded,setExpanded]=useState<string|null>(null),[groupCreators,setGroupCreators]=useState<Record<string,string>>({});
   const [comments,setComments]=useState<Record<string,Comment[]>>({}),[commentCounts,setCommentCounts]=useState<Record<string,number>>({}),[drafts,setDrafts]=useState<Record<string,string>>({});
   const [reactions,setReactions]=useState<Reaction[]>([]),[people,setPeople]=useState<Record<string,string>>({});
   const [title,setTitle]=useState(""),[body,setBody]=useState(""),[kind,setKind]=useState("discussion"),[course,setCourse]=useState("");
@@ -26,13 +26,16 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     if(!supabase)return;
     const [p,g,m,r,role]=await Promise.all([
       supabase.from("community_posts").select("id,user_id,course_id,post_type,title,body,created_at").order("created_at",{ascending:false}).limit(50),
-      supabase.from("study_groups").select("id,created_by,course_id,name,description,created_at").order("created_at",{ascending:false}).limit(50),
+      supabase.from("study_groups").select("id,created_by,course_id,name,description,visibility,created_at").order("created_at",{ascending:false}).limit(50),
       supabase.from("study_group_members").select("group_id").eq("user_id",userId),
       supabase.from("community_post_reactions").select("post_id,user_id,reaction"),
       supabase.from("meowks_moderator_roles").select("user_id").eq("user_id",userId).maybeSingle()
     ]);
     if(p.error||g.error||m.error||r.error||role.error){setError(p.error?.message||g.error?.message||m.error?.message||r.error?.message||role.error?.message||"Unable to load community.");return;}
     setPosts((p.data||[]) as Post[]);setGroups((g.data||[]) as Group[]);setJoined((m.data||[]).map(x=>x.group_id));setReactions((r.data||[]) as Reaction[]);
+    const creatorIds=[...new Set((g.data||[]).map(item=>item.created_by))];
+    if(creatorIds.length){const {data:creatorProfiles}=await supabase.from("profiles").select("id,display_name").in("id",creatorIds);if(creatorProfiles)setGroupCreators(Object.fromEntries(creatorProfiles.map(item=>[item.id,item.display_name||"Meowks student"])));}
+    else setGroupCreators({});
     const postIds=(p.data||[]).map(item=>item.id);
     if(postIds.length){
       const {data:commentRows,error:commentCountError}=await supabase.from("community_comments").select("post_id").in("post_id",postIds);
@@ -218,7 +221,7 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
         <div className="study-group-discovery-heading"><div><p className="eyebrow">EXPLORE TOGETHER</p><h2>Find your study circle</h2><p>{visibleGroups.length} of {groups.length} groups shown</p></div><input aria-label="Search study groups" value={groupSearch} onChange={e=>setGroupSearch(e.target.value)} placeholder="Search groups or topics…"/></div>
         <div className="study-group-controls"><div className="community-filter-tabs" aria-label="Filter study groups"><button type="button" className={groupScope==="all"?"active":""} onClick={()=>setGroupScope("all")}>All groups</button><button type="button" className={groupScope==="joined"?"active":""} onClick={()=>setGroupScope("joined")}>My groups</button><button type="button" className={groupScope==="created"?"active":""} onClick={()=>setGroupScope("created")}>Created by me</button></div><select aria-label="Filter study groups by course" value={groupCourseFilter} onChange={e=>setGroupCourseFilter(e.target.value)}><option value="">All courses</option>{courses.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}</select></div>
       </div>
-      <div className="study-group-grid">{visibleGroups.length?visibleGroups.map(g=><article className="panel study-group-card" key={g.id}><div className="group-symbol">♧</div><h2>{g.name}</h2><p>{g.description||"A space to study and make progress together."}</p><small>{courseLabel(g.course_id)} · {new Date(g.created_at).toLocaleDateString()}</small><div className="group-card-actions">{g.created_by===userId?<><span className="group-owner-label">Your group</span><button className="secondary-button" disabled={busy} onClick={()=>void editGroup(g)}>Edit details</button><button className="danger-text" disabled={busy} onClick={()=>void deleteGroup(g)}>Delete group</button></>:joined.includes(g.id)?<button className="secondary-button" disabled={busy} onClick={()=>void leave(g)}>Joined · Leave</button>:<button className="primary-button" disabled={busy} onClick={()=>void join(g)}>Join group</button>}</div></article>):<div className="empty-card"><div className="empty-illustration">♧</div><h2>{groups.length?"No groups match those filters.":"Your study circle starts here."}</h2><p>{groups.length?"Try a different search or filter to discover more groups.":"Create a group or invite classmates to join one."}</p>{groups.length>0&&<button type="button" className="secondary-button" onClick={()=>{setGroupSearch("");setGroupScope("all");setGroupCourseFilter("");}}>Clear filters</button>}</div>}</div>
+      <div className="study-group-grid">{visibleGroups.length?visibleGroups.map(g=><article className="panel study-group-card" key={g.id}><div className="group-symbol">♧</div><h2>{g.name}</h2><p>{g.description||"A space to study and make progress together."}</p><div className="group-card-meta"><small>{courseLabel(g.course_id)} · {new Date(g.created_at).toLocaleDateString()}</small><span className={`group-visibility visibility-${g.visibility}`}>{g.visibility==="private"?"Private group":"Public group"}</span></div><p className="group-created-by">Started by <strong>{g.created_by===userId?"you":(groupCreators[g.created_by]||"Meowks student")}</strong></p><div className="group-card-actions">{g.created_by===userId?<><span className="group-owner-label">Your group</span><button className="secondary-button" disabled={busy} onClick={()=>void editGroup(g)}>Edit details</button><button className="danger-text" disabled={busy} onClick={()=>void deleteGroup(g)}>Delete group</button></>:joined.includes(g.id)?<button className="secondary-button" disabled={busy} onClick={()=>void leave(g)}>Joined · Leave</button>:<button className="primary-button" disabled={busy} onClick={()=>void join(g)}>Join group</button>}</div></article>):<div className="empty-card"><div className="empty-illustration">♧</div><h2>{groups.length?"No groups match those filters.":"Your study circle starts here."}</h2><p>{groups.length?"Try a different search or filter to discover more groups.":"Create a group or invite classmates to join one."}</p>{groups.length>0&&<button type="button" className="secondary-button" onClick={()=>{setGroupSearch("");setGroupScope("all");setGroupCourseFilter("");}}>Clear filters</button>}</div>}</div>
     </>}
   </section>;
 }

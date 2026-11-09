@@ -102,3 +102,12 @@
 .community-workspace .study-group-controls .community-filter-tabs { flex-wrap:wrap; }
 .community-workspace .study-group-controls select { min-width:180px;max-width:100%;background:#fff; }
 @media(max-width:720px) { .community-workspace .study-group-discovery { padding:16px; } .community-workspace .study-group-discovery-heading { align-items:stretch; } .community-workspace .study-group-discovery-heading input,.community-workspace .study-group-controls select { width:100%;max-width:none; } .community-workspace .study-group-controls { align-items:stretch; } .community-workspace .study-group-controls .community-filter-tabs { width:100%; } }
+
+
+/* Study group ownership and visibility context */
+.community-workspace .group-card-meta {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.community-workspace .group-card-meta small {color:#87958d;font-size:11px;}
+.community-workspace .group-visibility {display:inline-flex;align-items:center;padding:5px 9px;border:1px solid #dcece2;border-radius:999px;background:#edf8f0;color:#347a66;font-size:10px;font-weight:850;letter-spacing:.04em;text-transform:uppercase;}
+.community-workspace .group-visibility.visibility-private {border-color:#f0dfc9;background:#fff5e8;color:#9a6940;}
+.community-workspace .group-created-by {margin:0;color:#819087;font-size:12px;}
+.community-workspace .group-created-by strong {color:#405d56;font-weight:850;}
