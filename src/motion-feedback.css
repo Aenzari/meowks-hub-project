@@ -1,0 +1,108 @@
+/* Meowks — motion & feedback layer
+   Motion is decorative and never required to understand or complete an action. */
+:root {
+  --mk-motion-fast: 150ms;
+  --mk-motion-base: 240ms;
+  --mk-motion-slow: 420ms;
+  --mk-motion-spring: cubic-bezier(.2,.85,.25,1);
+}
+@keyframes mk-arrive {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mk-soft-pop {
+  0% { opacity: 0; transform: scale(.975) translateY(5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes mk-orbit {
+  from { transform: rotate(0deg) translateX(3px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(3px) rotate(-360deg); }
+}
+/* Workspace entry: quiet, short, and consistent across every destination. */
+.page-content > .feature-page,
+.page-content > .dashboard-welcome,
+.page-content > .dashboard-stat-grid,
+.page-content > .dashboard-week,
+.page-content > .dashboard-main-grid {
+  animation: mk-arrive var(--mk-motion-slow) var(--mk-motion-spring) both;
+}
+.page-content > .dashboard-stat-grid { animation-delay: 45ms; }
+.page-content > .dashboard-week { animation-delay: 85ms; }
+.page-content > .dashboard-main-grid { animation-delay: 125ms; }
+.feature-page > .feature-heading { animation: mk-arrive 360ms var(--mk-motion-spring) both; }
+.feature-page > .learn-grid,
+.feature-page > .panel,
+.feature-page > .schedule-layout,
+.feature-page > .profile-layout,
+.feature-page > .community-layout { animation: mk-soft-pop 420ms var(--mk-motion-spring) both; }
+/* Cards respond like tactile objects, without exaggerated movement. */
+:where(.panel,.course-card,.stat-card,.note-item,.deck-item,.community-post,
+       .directory-card,.achievement-card,.notification-item,.agenda-item,
+       .full-task-row,.dashboard-deadline) {
+  transition:
+    transform var(--mk-motion-base) var(--mk-motion-spring),
+    border-color var(--mk-motion-base) ease,
+    box-shadow var(--mk-motion-base) ease,
+    background-color var(--mk-motion-base) ease;
+}
+:where(.panel,.course-card,.stat-card,.note-item,.deck-item,.community-post,
+       .directory-card,.achievement-card,.notification-item,.agenda-item,
+       .full-task-row,.dashboard-deadline):hover {
+  border-color: rgba(76,199,169,.42);
+}
+@media (hover:hover) {
+  :where(.note-item,.deck-item,.directory-card,.achievement-card,.agenda-item,
+         .full-task-row,.dashboard-deadline):hover { transform: translateY(-2px); }
+}
+:where(button,.primary-button,.secondary-button,.text-button,.icon-action,
+       .nav-item,.mobile-nav button,.calendar-controls button,.calendar-dates button) {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--mk-motion-fast) var(--mk-motion-spring),
+    box-shadow var(--mk-motion-fast) ease,
+    background-color var(--mk-motion-fast) ease,
+    border-color var(--mk-motion-fast) ease,
+    color var(--mk-motion-fast) ease;
+}
+:where(button,.primary-button,.secondary-button):active:not(:disabled) {
+  transform: translateY(1px) scale(.985);
+}
+:where(button,input,textarea,select):disabled {
+  cursor: not-allowed;
+}
+:where(input,textarea,select) {
+  transition: border-color var(--mk-motion-fast) ease, box-shadow var(--mk-motion-fast) ease, background-color var(--mk-motion-fast) ease;
+}
+:where(input,textarea,select):focus {
+  border-color: var(--mk-mint-deep);
+  box-shadow: 0 0 0 4px rgba(76,199,169,.12);
+}
+:where(.inline-notice,.inline-error,[role="status"],[role="alert"]) {
+  animation: mk-soft-pop 260ms var(--mk-motion-spring) both;
+}
+:where(.modal-backdrop) { animation: mk-soft-pop 180ms ease-out both; }
+:where(.modal-card) { animation: mk-arrive 260ms var(--mk-motion-spring) both; }
+.flashcard-face {
+  transform-style: preserve-3d;
+  transition: transform 420ms var(--mk-motion-spring), box-shadow 240ms ease, border-color 240ms ease;
+}
+.flashcard-face:hover { box-shadow: 0 18px 34px rgba(20,40,62,.11), inset 0 1px #fff; }
+.dashboard-progress-ring { transition: --progress 700ms var(--mk-motion-spring); }
+.dashboard-welcome-mascot .dashboard-mascot-halo {
+  animation: mk-soft-pop 650ms 100ms var(--mk-motion-spring) both;
+}
+.sidebar .nav-item:active { transform: translateX(2px) scale(.99); }
+.notification-trigger:has(i) { animation: mk-soft-pop 320ms var(--mk-motion-spring) both; }
+@media (hover:none) {
+  :where(.note-item,.deck-item,.directory-card,.achievement-card,.agenda-item,
+         .full-task-row,.dashboard-deadline):hover { transform: none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
