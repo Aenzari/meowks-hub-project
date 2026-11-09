@@ -90,6 +90,13 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     setBusy(false);
     if(e)setError(e.message);else{setNotice("Your comment was updated.");await loadComments(comment.post_id);}
   }
+  async function removeComment(comment:Comment){
+    if(!supabase||comment.user_id!==userId||!window.confirm("Delete your comment?"))return;
+    setBusy(true);setError("");
+    const {error:e}=await supabase.from("community_comments").delete().eq("id",comment.id).eq("user_id",userId);
+    setBusy(false);
+    if(e)setError(e.message);else{setNotice("Your comment was deleted.");await loadComments(comment.post_id);}
+  }
   async function removePost(post:Post){
     if(!supabase||post.user_id!==userId||!window.confirm("Delete this post and its comments?"))return;
     const {error:e}=await supabase.from("community_posts").delete().eq("id",post.id).eq("user_id",userId);if(e)setError(e.message);else await refresh();
@@ -156,7 +163,7 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
           <button className={myReaction(p.id)==="love"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"love")}>💚 Love <b>{reactionCount(p.id,"love")}</b></button>
           <button className={myReaction(p.id)==="helpful"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"helpful")}>✨ Helpful <b>{reactionCount(p.id,"helpful")}</b></button>
         </div>
-        {expanded===p.id&&<div className="comment-thread"><form onSubmit={e=>void reply(e,p.id)}><input value={drafts[p.id]||""} onChange={e=>setDrafts(v=>({...v,[p.id]:e.target.value}))} maxLength={3000} required placeholder="Write a thoughtful reply…"/><button className="primary-button" disabled={busy}>Reply</button></form>{(comments[p.id]||[]).map(c=><div className="comment-item" key={c.id}><div><strong>{c.user_id===userId?(displayName||"You"):(people[c.user_id]||"Meowks student")}</strong><small>{new Date(c.created_at).toLocaleString()}</small></div><p>{c.body}</p>{c.user_id===userId?<button className="comment-report" onClick={()=>void editComment(c)}>Edit comment</button>:<button className="comment-report" onClick={()=>void report({comment_id:c.id})}>Report comment</button>}</div>)}</div>}
+        {expanded===p.id&&<div className="comment-thread"><form onSubmit={e=>void reply(e,p.id)}><input value={drafts[p.id]||""} onChange={e=>setDrafts(v=>({...v,[p.id]:e.target.value}))} maxLength={3000} required placeholder="Write a thoughtful reply…"/><button className="primary-button" disabled={busy}>Reply</button></form>{(comments[p.id]||[]).map(c=><div className="comment-item" key={c.id}><div><strong>{c.user_id===userId?(displayName||"You"):(people[c.user_id]||"Meowks student")}</strong><small>{new Date(c.created_at).toLocaleString()}</small></div><p>{c.body}</p>{c.user_id===userId?<><button className="comment-report" onClick={()=>void editComment(c)}>Edit comment</button><button className="comment-report danger-text" disabled={busy} onClick={()=>void removeComment(c)}>Delete comment</button></>:<button className="comment-report" onClick={()=>void report({comment_id:c.id})}>Report comment</button>}</div>)}</div>}
       </article>):<div className="empty-card"><div className="empty-illustration">🐾</div><h2>{feedSearch||feedFilter!=="all"?"No matching posts.":"Be the first to start a conversation."}</h2><p>{feedSearch||feedFilter!=="all"?"Try another search or filter.":"Share a question or a study tip to get things going."}</p></div>}</div>
     </>}
     {tab==="moderation"&&isModerator&&<section className="moderation-queue"><div className="panel moderation-intro"><p className="eyebrow">COMMUNITY SAFETY</p><h2>Report review queue</h2><p>Review reports submitted by students. Change a report status after taking appropriate action. This queue does not automatically hide or delete reported content.</p><button className="secondary-button" onClick={()=>void refresh()}>Refresh reports</button></div>
