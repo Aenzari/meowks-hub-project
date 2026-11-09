@@ -11,6 +11,7 @@ import "./motion-feedback.css";
 import "./learn-workspace-editorial.css";
 import "./community-editorial.css";
 import "./profile-discovery-editorial.css";
+import "./schedule-calendar-editorial.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode><App /></React.StrictMode>
