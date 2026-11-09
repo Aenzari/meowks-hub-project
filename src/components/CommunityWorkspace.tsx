@@ -13,7 +13,7 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
   const [tab,setTab]=useState<"feed"|"groups"|"moderation">("feed"),[posts,setPosts]=useState<Post[]>([]),[groups,setGroups]=useState<Group[]>([]);
   const [feedFilter,setFeedFilter]=useState<"all"|"discussion"|"question"|"resource">("all"),[feedSearch,setFeedSearch]=useState("");
   const [joined,setJoined]=useState<string[]>([]),[expanded,setExpanded]=useState<string|null>(null);
-  const [comments,setComments]=useState<Record<string,Comment[]>>({}),[drafts,setDrafts]=useState<Record<string,string>>({});
+  const [comments,setComments]=useState<Record<string,Comment[]>>({}),[commentCounts,setCommentCounts]=useState<Record<string,number>>({}),[drafts,setDrafts]=useState<Record<string,string>>({});
   const [reactions,setReactions]=useState<Reaction[]>([]),[people,setPeople]=useState<Record<string,string>>({});
   const [title,setTitle]=useState(""),[body,setBody]=useState(""),[kind,setKind]=useState("discussion"),[course,setCourse]=useState("");
   const [groupName,setGroupName]=useState(""),[groupDesc,setGroupDesc]=useState(""),[groupCourse,setGroupCourse]=useState("");
@@ -31,6 +31,12 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     ]);
     if(p.error||g.error||m.error||r.error||role.error){setError(p.error?.message||g.error?.message||m.error?.message||r.error?.message||role.error?.message||"Unable to load community.");return;}
     setPosts((p.data||[]) as Post[]);setGroups((g.data||[]) as Group[]);setJoined((m.data||[]).map(x=>x.group_id));setReactions((r.data||[]) as Reaction[]);
+    const postIds=(p.data||[]).map(item=>item.id);
+    if(postIds.length){
+      const {data:commentRows,error:commentCountError}=await supabase.from("community_comments").select("post_id").in("post_id",postIds);
+      if(commentCountError)setError(commentCountError.message);
+      else{const counts:Record<string,number>={};(commentRows||[]).forEach(row=>{counts[row.post_id]=(counts[row.post_id]||0)+1;});setCommentCounts(counts);}
+    }else setCommentCounts({});
     const authorIds=[...new Set((p.data||[]).map(item=>item.user_id))];
     if(authorIds.length){const {data:profiles}=await supabase.from("profiles").select("id,display_name").in("id",authorIds);setPeople(current=>({...current,...Object.fromEntries((profiles||[]).map(item=>[item.id,item.display_name||"Meowks student"]))}));}
     const moderator=Boolean(role.data);setIsModerator(moderator);
@@ -53,7 +59,7 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     if(!supabase)return;
     const {data,error:e}=await supabase.from("community_comments").select("id,post_id,user_id,body,created_at").eq("post_id",id).order("created_at");
     if(e)setError(e.message);else{
-      setComments(v=>({...v,[id]:(data||[]) as Comment[]}));
+      setComments(v=>({...v,[id]:(data||[]) as Comment[]}));setCommentCounts(v=>({...v,[id]:(data||[]).length}));
       const ids=[...new Set((data||[]).map(item=>item.user_id))];
       if(ids.length){const {data:profiles}=await supabase.from("profiles").select("id,display_name").in("id",ids);if(profiles)setPeople(current=>({...current,...Object.fromEntries(profiles.map(item=>[item.id,item.display_name||"Meowks student"]))}));}
     }
@@ -157,7 +163,7 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
       <div className="community-post-list">{visiblePosts.length?visiblePosts.map(p=><article className="panel community-post" key={p.id}>
         <div className="community-post-meta"><span className="community-avatar">{p.user_id===userId?initial:"M"}</span><div><strong>{p.user_id===userId?(displayName||"You"):(people[p.user_id]||"Meowks student")}</strong><small>{new Date(p.created_at).toLocaleString()} · {courseLabel(p.course_id)}</small></div><span className="post-type">{p.post_type}</span></div>
         <h2>{p.title}</h2><p className="community-post-body">{p.body}</p>
-        <div className="post-actions"><button onClick={()=>{const next=expanded===p.id?null:p.id;setExpanded(next);if(next)void loadComments(p.id);}}>💬 {comments[p.id]?.length??"Comments"}</button>{p.user_id===userId?<><button onClick={()=>void editPost(p)}>Edit post</button><button className="danger-text" onClick={()=>void removePost(p)}>Delete post</button></>:<button onClick={()=>void report({post_id:p.id})}>Report</button>}</div>
+        <div className="post-actions"><button onClick={()=>{const next=expanded===p.id?null:p.id;setExpanded(next);if(next)void loadComments(p.id);}}>💬 {commentCounts[p.id]??0} {commentCounts[p.id]===1?"Comment":"Comments"}</button>{p.user_id===userId?<><button onClick={()=>void editPost(p)}>Edit post</button><button className="danger-text" onClick={()=>void removePost(p)}>Delete post</button></>:<button onClick={()=>void report({post_id:p.id})}>Report</button>}</div>
         <div className="post-reactions" aria-label="Post reactions">
           <button className={myReaction(p.id)==="like"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"like")}>👍 Like <b>{reactionCount(p.id,"like")}</b></button>
           <button className={myReaction(p.id)==="love"?"selected":""} disabled={busy} onClick={()=>void react(p.id,"love")}>💚 Love <b>{reactionCount(p.id,"love")}</b></button>
