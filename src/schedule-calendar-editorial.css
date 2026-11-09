@@ -1,0 +1,56 @@
+/* Meowks — Schedule / calendar editorial refinement */
+.schedule-page{position:relative}
+.schedule-page>.feature-heading{position:relative;padding:25px 28px;margin:0 0 20px;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:radial-gradient(circle at 88% 10%,rgba(76,199,169,.2),transparent 18rem),linear-gradient(115deg,#14283e,#23475a);box-shadow:0 18px 38px rgba(20,40,62,.12)}
+.schedule-page>.feature-heading h1{color:#fff8e9}
+.schedule-page>.feature-heading .eyebrow{color:#8fe2c9}
+.schedule-page>.feature-heading .subheading{color:#d0dfd8}
+.schedule-page>.feature-heading .coral{color:#ff9b83}
+.schedule-page>.feature-heading .primary-button{background:#4cc7a9;color:#123247;box-shadow:0 4px 0 #238c76,0 9px 18px rgba(0,0,0,.14)}
+.schedule-layout{grid-template-columns:minmax(0,1.45fr) minmax(290px,.75fr);gap:18px}
+.schedule-page .calendar-panel,.schedule-page .agenda-panel{padding:clamp(17px,2.2vw,25px);border-radius:22px}
+.schedule-page .calendar-toolbar{padding-bottom:15px;border-bottom:1px solid #edf0e8}
+.schedule-page .calendar-toolbar h2{font-size:clamp(20px,2.4vw,27px);letter-spacing:-.055em}
+.schedule-page .calendar-controls{padding:4px;border:1px solid #e8ede5;border-radius:12px;background:#f7f8f2}
+.schedule-page .calendar-controls button{width:36px;height:34px;border:0;background:transparent;color:#526d68;font-weight:800;transition:background .18s,transform .18s}
+.schedule-page .calendar-controls button:hover{background:#eaf8f0;transform:translateY(-1px)}
+.schedule-page .calendar-controls button:nth-child(2){width:auto;padding:0 11px;border-radius:8px;background:#fffefa;color:#278b75;font-size:10px}
+.schedule-page .calendar-weekdays{gap:6px;margin-bottom:5px}
+.schedule-page .calendar-weekdays span{padding:10px 0;color:#91a097;font-size:9px;letter-spacing:.08em;text-transform:uppercase}
+.schedule-page .calendar-dates{gap:6px}
+.schedule-page .calendar-dates button{min-height:clamp(52px,6vw,72px);border:1px solid #edf0e9;border-radius:13px;background:#fffefa;color:#49645f;font-size:11px;font-weight:750;transition:background .18s,border-color .18s,transform .18s,box-shadow .18s}
+.schedule-page .calendar-dates button:hover{border-color:#bfe5d4;background:#f1faf4;box-shadow:0 5px 12px rgba(20,40,62,.05);transform:translateY(-2px)}
+.schedule-page .calendar-dates button.outside-month{border-color:transparent;background:#f8f8f3;color:#c0c8bf}
+.schedule-page .calendar-dates button.is-today{border-color:#6ccdae;background:#effaf4;color:#21836d}
+.schedule-page .calendar-dates button.is-selected{border-color:#172d45;background:#172d45;color:#fff8e9;box-shadow:0 5px 12px rgba(20,40,62,.15)}
+.schedule-page .calendar-dots{bottom:8px;gap:4px}
+.schedule-page .calendar-dots b{width:5px;height:5px;background:#ff947a}
+.schedule-page .calendar-day.is-selected .calendar-dots b{background:#8fe2c9}
+.schedule-page .calendar-legend{padding-top:13px;border-top:1px solid #edf0e8;color:#82918a}
+.schedule-page .agenda-panel{background:linear-gradient(160deg,#fffefa,#f7fbf5)}
+.schedule-page .agenda-panel .panel-heading{align-items:flex-start;padding-bottom:14px;border-bottom:1px solid #edf0e8}
+.schedule-page .agenda-panel .panel-heading h2{max-width:240px;font-size:clamp(17px,2vw,21px);line-height:1.2}
+.schedule-page .agenda-count{min-width:34px;height:34px;border-radius:12px;background:#172d45;color:#fff8e9;font-size:12px}
+.schedule-page .agenda-list{gap:10px}
+.schedule-page .agenda-item{position:relative;gap:11px;padding:14px;border-color:#e9eee6;border-radius:14px;transition:border-color .18s,transform .18s,box-shadow .18s}
+.schedule-page .agenda-item:hover{border-color:#c8e8d7;box-shadow:0 8px 18px rgba(20,40,62,.055);transform:translateY(-1px)}
+.schedule-page .agenda-marker{flex:0 0 auto;width:9px;height:9px;margin-top:4px;box-shadow:0 0 0 4px #eaf8f0}
+.schedule-page .marker-exam{background:#ff8f78;box-shadow:0 0 0 4px #fff0e9}
+.schedule-page .marker-assignment{background:#4b9cc1;box-shadow:0 0 0 4px #edf6fa}
+.schedule-page .marker-reading{background:#b49a57;box-shadow:0 0 0 4px #faf5e8}
+.schedule-page .marker-event{background:#9c83c7;box-shadow:0 0 0 4px #f3effa}
+.schedule-page .agenda-item strong{display:block;color:#263f50;font-size:11px;line-height:1.45}
+.schedule-page .agenda-item p{color:#438b79;font-weight:750;text-transform:capitalize}
+.schedule-page .agenda-item small{color:#82918a}
+.schedule-page .status-pill{align-self:flex-start;background:#f2f6ef;color:#718579}
+.schedule-page .status-completed{background:#eaf8f0;color:#27836b}
+.schedule-page .status-in_progress{background:#fff3e3;color:#a47a40}
+.schedule-page .agenda-empty{min-height:235px;align-content:center;border:1px dashed #dce9dd;border-radius:17px;background:linear-gradient(145deg,#f4faf4,#fff9ef)}
+.schedule-page .agenda-empty>span{display:grid;place-items:center;width:52px;height:52px;border-radius:17px;background:#fff1dc}
+.schedule-page .agenda-empty strong{font-size:12px}
+.schedule-page .agenda-empty p{max-width:235px;font-size:10px}
+.schedule-page .agenda-empty .text-button{margin-top:5px;padding:9px 12px;border-radius:10px;background:#eaf8f0}
+.schedule-page .add-task{width:100%;min-height:42px;margin-top:15px;border:1px solid #dce9df;border-radius:11px;background:#f5faf5;color:#36866f;font-size:10px;font-weight:850;transition:background .18s,border-color .18s}
+.schedule-page .add-task:hover{border-color:#b8e2cf;background:#eaf8f0}
+@media(max-width:1050px){.schedule-layout{grid-template-columns:1fr}.schedule-page .calendar-dates button{min-height:clamp(50px,8vw,68px)}}
+@media(max-width:650px){.schedule-page>.feature-heading{padding:21px 18px;border-radius:18px}.schedule-page .calendar-panel,.schedule-page .agenda-panel{padding:14px}.schedule-page .calendar-grid{gap:4px}.schedule-page .calendar-dates button{min-height:43px;border-radius:9px;font-size:10px}.schedule-page .calendar-weekdays span{font-size:8px}.schedule-page .calendar-dots{bottom:5px}.schedule-page .calendar-dots b{width:4px;height:4px}.schedule-page .calendar-toolbar{align-items:flex-start}.schedule-page .calendar-toolbar h2{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.schedule-page *{transition:none!important}}
