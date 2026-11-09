@@ -4,6 +4,7 @@ import App from "./App";
 import "./styles.css";
 import "./premium-motion.css";
 import "./meowky-identity.css";
+import "./design-system.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode><App /></React.StrictMode>
