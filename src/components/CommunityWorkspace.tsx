@@ -19,6 +19,7 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
   const [groupName,setGroupName]=useState(""),[groupDesc,setGroupDesc]=useState(""),[groupCourse,setGroupCourse]=useState("");
   const [busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState("");
   const [isModerator,setIsModerator]=useState(false),[reports,setReports]=useState<Report[]>([]),[moderationBusy,setModerationBusy]=useState<string|null>(null);
+  const [reportTarget,setReportTarget]=useState<{post_id?:string;comment_id?:string}|null>(null),[reportReason,setReportReason]=useState("spam"),[reportDetails,setReportDetails]=useState(""),[reportBusy,setReportBusy]=useState(false);
 
   async function refresh(){
     if(!supabase)return;
@@ -115,16 +116,15 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
       : await supabase.from("community_post_reactions").upsert({post_id:postId,user_id:userId,reaction},{onConflict:"post_id,user_id"});
     setBusy(false);if(result.error)setError(result.error.message);else await refresh();
   }
-  async function report(target:{post_id?:string;comment_id?:string}){
-    if(!supabase)return;
-    const reason=window.prompt("Report reason: spam, harassment, misinformation, copyright, inappropriate, or other");
-    if(!reason)return;
-    const allowed=["spam","harassment","misinformation","copyright","inappropriate","other"];
-    const normalized=reason.trim().toLowerCase();
-    if(!allowed.includes(normalized)){setError("Please use one of the listed report reasons.");return;}
-    const details=window.prompt("Optional details (do not include private information).")||"";
-    const {error:e}=await supabase.from("community_reports").insert({reporter_id:userId,...target,reason:normalized,details:details.slice(0,1000)});
-    if(e)setError(e.message);else setNotice("Thanks. Your report was submitted for review.");
+  function report(target:{post_id?:string;comment_id?:string}){
+    setReportTarget(target);setReportReason("spam");setReportDetails("");setError("");
+  }
+  async function submitReport(e:FormEvent<HTMLFormElement>){
+    e.preventDefault();if(!supabase||!reportTarget||reportBusy)return;
+    setReportBusy(true);setError("");
+    const {error:e2}=await supabase.from("community_reports").insert({reporter_id:userId,...reportTarget,reason:reportReason,details:reportDetails.trim().slice(0,1000)});
+    setReportBusy(false);
+    if(e2)setError(e2.message);else{setReportTarget(null);setReportDetails("");setNotice("Thanks. Your report was submitted for review.");}
   }
   async function updateReportStatus(report:Report,status:Report["status"]){
     if(!supabase||!isModerator)return;setModerationBusy(report.id);setError("");
@@ -175,6 +175,21 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     {tab==="moderation"&&isModerator&&<section className="moderation-queue"><div className="panel moderation-intro"><p className="eyebrow">COMMUNITY SAFETY</p><h2>Report review queue</h2><p>Review reports submitted by students. Change a report status after taking appropriate action. This queue does not automatically hide or delete reported content.</p><button className="secondary-button" onClick={()=>void refresh()}>Refresh reports</button></div>
       {reports.length?reports.map(report=><article className="panel moderation-report" key={report.id}><div className="moderation-report-heading"><div><strong>{report.reason.replace("_"," ")}</strong><small>{new Date(report.created_at).toLocaleString()} · Reporter {report.reporter_id.slice(0,8)}…</small></div><span className={`moderation-status status-${report.status}`}>{report.status}</span></div><p className="moderation-target">Reported {report.post_id?"post":"comment"} · ID {(report.post_id||report.comment_id||"").slice(0,8)}…</p><div className="moderation-details"><strong>Reported content</strong><p>{report.target_preview||"The reported content is no longer available."}</p><strong>Reporter details</strong><p>{report.details||"No additional details supplied."}</p></div><div className="moderation-actions"><button className="secondary-button" disabled={moderationBusy===report.id||report.status==="reviewing"} onClick={()=>void updateReportStatus(report,"reviewing")}>Mark reviewing</button><button className="primary-button" disabled={moderationBusy===report.id||report.status==="resolved"} onClick={()=>void updateReportStatus(report,"resolved")}>Resolve</button><button className="secondary-button" disabled={moderationBusy===report.id||report.status==="dismissed"} onClick={()=>void updateReportStatus(report,"dismissed")}>Dismiss</button></div></article>):<div className="empty-card"><div className="empty-illustration">🐾</div><h2>No reports to review.</h2><p>New community reports will appear here.</p></div>}
     </section>}
+    {reportTarget&&<div className="community-report-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget&&!reportBusy)setReportTarget(null);}}>
+      <section className="panel community-report-dialog" role="dialog" aria-modal="true" aria-labelledby="community-report-title">
+        <div className="community-report-heading"><div><p className="eyebrow">COMMUNITY SAFETY</p><h2 id="community-report-title">Report {reportTarget.post_id?"this post":"this comment"}</h2></div><button type="button" className="comment-report" aria-label="Close report form" disabled={reportBusy} onClick={()=>setReportTarget(null)}>×</button></div>
+        <p>Let the moderation team know what concerns you. Reports are private; please don’t include personal or sensitive information.</p>
+        <form onSubmit={e=>void submitReport(e)}>
+          <label htmlFor="community-report-reason">Reason</label>
+          <select id="community-report-reason" value={reportReason} onChange={e=>setReportReason(e.target.value)} required>
+            <option value="spam">Spam</option><option value="harassment">Harassment or bullying</option><option value="misinformation">Misinformation</option><option value="copyright">Copyright concern</option><option value="inappropriate">Inappropriate content</option><option value="other">Other</option>
+          </select>
+          <label htmlFor="community-report-details">Additional details <span>(optional, up to 1,000 characters)</span></label>
+          <textarea id="community-report-details" value={reportDetails} onChange={e=>setReportDetails(e.target.value)} maxLength={1000} rows={4} placeholder="Share context that may help the moderators review this report."/>
+          <div className="community-report-footer"><small>{reportDetails.length}/1000</small><button type="button" className="secondary-button" disabled={reportBusy} onClick={()=>setReportTarget(null)}>Cancel</button><button type="submit" className="primary-button" disabled={reportBusy}>{reportBusy?"Submitting…":"Submit report"}</button></div>
+        </form>
+      </section>
+    </div>}
     {tab==="groups"&&<>
       <form className="panel community-compose" onSubmit={makeGroup}><p className="eyebrow">FIND YOUR STUDY PEOPLE</p><h2>Create a study group</h2><input value={groupName} onChange={e=>setGroupName(e.target.value)} required minLength={2} maxLength={100} placeholder="Group name"/><textarea value={groupDesc} onChange={e=>setGroupDesc(e.target.value)} rows={2} maxLength={1000} placeholder="What will your group work on?"/><div className="compose-actions"><select value={groupCourse} onChange={e=>setGroupCourse(e.target.value)}><option value="">General study group</option>{courses.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}</select><button className="primary-button" disabled={busy}>＋ Create group</button></div></form>
       <div className="study-group-grid">{groups.length?groups.map(g=><article className="panel study-group-card" key={g.id}><div className="group-symbol">♧</div><h2>{g.name}</h2><p>{g.description||"A space to study and make progress together."}</p><small>{courseLabel(g.course_id)} · {new Date(g.created_at).toLocaleDateString()}</small><div className="group-card-actions">{g.created_by===userId?<span className="group-owner-label">Your group</span>:joined.includes(g.id)?<button className="secondary-button" onClick={()=>void leave(g)}>Joined · Leave</button>:<button className="primary-button" disabled={busy} onClick={()=>void join(g)}>Join group</button>}</div></article>):<div className="empty-card"><div className="empty-illustration">♧</div><h2>Your study circle starts here.</h2><p>Create a group or invite classmates to join one.</p></div>}</div>
