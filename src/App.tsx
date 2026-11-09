@@ -258,36 +258,42 @@ export default function App() {
         {notice && <div className="inline-notice" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="Dismiss">×</button></div>}
         {dataError && <div className="inline-error" role="alert">{dataError}<button onClick={()=>setDataError("")} aria-label="Dismiss">×</button></div>}
         {activeNav === "Overview" && <>
-          <section className="signature-hero" aria-labelledby="dashboard-greeting">
-            <div className="hero-glow hero-glow-one" aria-hidden="true" />
-            <div className="hero-glow hero-glow-two" aria-hidden="true" />
-            <div className="hero-copy">
-              <p className="hero-kicker"><span /> YOUR DAY, YOUR PACE</p>
-              <h1 id="dashboard-greeting">Hey, {profile?.display_name?.split(" ")[0] ?? "student"}<span className="coral">.</span></h1>
-              <p className="hero-subtitle">Big goals start with one small step. Let’s make today count.</p>
-              <div className="hero-metrics" aria-label="Today's overview">
-                <div><strong>{pendingTasks.length}</strong><span>open tasks</span></div>
-                <i aria-hidden="true" />
-                <div><strong>{dueTodayTasks.length}</strong><span>due today</span></div>
-                <i aria-hidden="true" />
-                <div><strong>{completedCount}</strong><span>completed</span></div>
+          <section className="dashboard-welcome" aria-labelledby="dashboard-greeting">
+            <div className="dashboard-welcome-copy">
+              <p className="hero-kicker"><span /> YOUR STUDENT SPACE</p>
+              <p className="dashboard-date">{new Date().toLocaleDateString([], {weekday:"long", month:"long", day:"numeric"})}</p>
+              <h1 id="dashboard-greeting">Good day, {profile?.display_name?.split(" ")[0] ?? "student"}<span className="coral">.</span></h1>
+              <p>Make room for progress. Here's what deserves your attention today.</p>
+              <div className="dashboard-actions">
+                <button className="primary-button" onClick={()=>openTask()}>＋ Add a task</button>
+                <button className="secondary-button" onClick={()=>setActiveNav("Calendar")}>Open calendar ↗</button>
               </div>
-              <button className="hero-action" onClick={() => { setActiveNav("Tasks & deadlines"); setTaskFilter("open"); }}>View my tasks <span aria-hidden="true">↗</span></button>
             </div>
-            <div className="hero-art" aria-label="Meowky, your study buddy">
-              <div className="hero-orbit hero-orbit-back" aria-hidden="true" />
-              <div className="hero-orbit hero-orbit-front" aria-hidden="true" />
-              <div className="hero-spark hero-spark-a" aria-hidden="true">✦</div>
-              <div className="hero-spark hero-spark-b" aria-hidden="true">✧</div>
-              <div className="hero-mascot-plinth"><Meowky className="hero-meowky-art" mood="focused" /></div>
-              <div className="hero-note"><span className="hero-note-icon">✦</span><div><strong>One step at a time</strong><small>Meowky believes in you</small></div></div>
-            </div>
+            <div className="dashboard-welcome-mascot"><div className="dashboard-mascot-halo"><Meowky className="dashboard-meowky" mood="focused"/></div><span>One step at a time ✨</span></div>
           </section>
-          <div className="stats-grid"><article className="stat-card"><span className="stat-label">Tasks completed</span><strong>{completedCount} <small>/ {tasks.length}</small></strong><div className="progress-track"><span style={{width:tasks.length ? `${completedCount/tasks.length*100}%` : "0%"}}/></div><span className="stat-foot">Your personal task progress</span></article><article className="stat-card mint-card"><span className="stat-label">My courses</span><strong>{courses.length}</strong><span className="stat-foot">Courses in your space</span></article><article className="stat-card peach-card"><span className="stat-label">Open tasks</span><strong>{pendingTasks.length}</strong><span className="stat-foot">{dueTodayTasks.length} due today</span></article><article className="stat-card overdue-card"><span className="stat-label">Overdue</span><strong>{overdueTasks.length}</strong><span className="stat-foot">Needs your attention</span></article></div>
-          <div className="content-grid"><section className="panel tasks-panel"><div className="panel-heading"><div><p className="eyebrow">STAY ON TRACK</p><h2>Upcoming tasks</h2></div><button className="text-button" onClick={()=>setActiveNav("Tasks & deadlines")}>View all ↗</button></div>
-            {dataLoading ? <p className="empty-state" role="status">Loading your tasks…</p> : upcomingTasks.length ? <div className="task-list">{upcomingTasks.map(task=><div className={`task-row ${task.status==="completed"?"task-done":""}`} key={task.id}><input aria-label={`Complete ${task.title}`} type="checkbox" checked={task.status==="completed"} onChange={()=>void updateTaskStatus(task,task.status==="completed"?"todo":"completed")}/><span className="task-copy"><strong>{task.title}</strong><small>{courseName(task.course_id)} · {task.task_type}</small></span><span className="task-due">{dateLabel(task.due_at)}</span></div>)}</div> : <p className="empty-state">No tasks yet. Add one to get started.</p>}
-            <button className="add-task" onClick={()=>openTask()}>＋ Add a task</button>
-          </section><section className="panel focus-panel"><p className="eyebrow">BUILD YOUR ROUTINE</p><h2>Your courses</h2><p className="focus-description">{courses.length ? `You're organizing ${courses.length} course${courses.length===1?"":"s"} in Meowks.` : "Add your first course to keep classes and deadlines together."}</p><div className="course-count">{courses.length}</div><button className="primary-button" onClick={()=>{setActiveNav("My courses");}}>Manage courses</button></section></div>
+
+          <section className="dashboard-stat-grid" aria-label="Your study overview">
+            <article className="dashboard-stat dashboard-stat-primary"><span className="dashboard-stat-icon">◷</span><span className="dashboard-stat-label">Open tasks</span><strong>{pendingTasks.length}</strong><small>{dueTodayTasks.length} need attention today</small></article>
+            <article className="dashboard-stat"><span className="dashboard-stat-icon mint">✓</span><span className="dashboard-stat-label">Completed</span><strong>{completedCount}</strong><small>{tasks.length ? Math.round(completedCount/tasks.length*100) : 0}% of your task list</small></article>
+            <article className="dashboard-stat"><span className="dashboard-stat-icon coral-bg">!</span><span className="dashboard-stat-label">Overdue</span><strong>{overdueTasks.length}</strong><small>{overdueTasks.length ? "Let's make a catch-up plan" : "You're all caught up"}</small></article>
+            <article className="dashboard-stat"><span className="dashboard-stat-icon cream-bg">▤</span><span className="dashboard-stat-label">My courses</span><strong>{courses.length}</strong><small>In your student space</small></article>
+          </section>
+
+          <section className="dashboard-week panel" aria-label="This week's workload">
+            <div className="dashboard-section-heading"><div><p className="eyebrow">PLAN AHEAD</p><h2>This week</h2></div><button className="text-button" onClick={()=>setActiveNav("Calendar")}>View calendar ↗</button></div>
+            <div className="dashboard-week-days">{Array.from({length:7},(_,index)=>{const date=new Date();date.setHours(0,0,0,0);date.setDate(date.getDate()+index);const count=pendingTasks.filter(task=>task.due_at&&new Date(task.due_at).toDateString()===date.toDateString()).length;const isToday=index===0;return <button type="button" key={date.toISOString()} className={`dashboard-week-day ${isToday?"today":""} ${count?"has-items":""}`} onClick={()=>setActiveNav("Calendar")} aria-label={`${date.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"})}, ${count} open items`}><small>{date.toLocaleDateString([], {weekday:"short"})}</small><strong>{date.getDate()}</strong><i>{count?count+" "+(count===1?"item":"items"):"—"}</i></button>})}</div>
+          </section>
+
+          <div className="dashboard-main-grid">
+            <section className="panel dashboard-deadlines">
+              <div className="dashboard-section-heading"><div><p className="eyebrow">WHAT'S NEXT</p><h2>Upcoming deadlines</h2></div><button className="text-button" onClick={()=>{setActiveNav("Tasks & deadlines");setTaskFilter("open");}}>All tasks ↗</button></div>
+              {dataLoading ? <p className="empty-state" role="status">Gathering your deadlines…</p> : upcomingTasks.length ? <div className="dashboard-deadline-list">{upcomingTasks.slice(0,5).map(task=>{const due=task.due_at?new Date(task.due_at):null;const overdue=!!due&&due.getTime()<now;return <article className="dashboard-deadline" key={task.id}><button type="button" className="dashboard-check" aria-label={`Complete ${task.title}`} onClick={()=>void updateTaskStatus(task,"completed")}>○</button><div className="dashboard-deadline-copy"><strong>{task.title}</strong><span>{courseName(task.course_id)} · {task.task_type}</span></div><time className={overdue?"is-overdue":""} dateTime={task.due_at ?? undefined}>{overdue?"Overdue":dateLabel(task.due_at)}</time></article>})}</div> : <div className="dashboard-empty"><span>✦</span><strong>Your schedule has breathing room.</strong><p>No open deadlines yet. Add a task whenever something comes up.</p><button className="secondary-button" onClick={()=>openTask()}>Add your first task</button></div>}
+            </section>
+            <aside className="dashboard-side-stack">
+              <section className="panel dashboard-progress"><p className="eyebrow">YOUR MOMENTUM</p><h2>Small wins add up.</h2><div className="dashboard-progress-ring" style={{"--progress":`${tasks.length?completedCount/tasks.length*100:0}%`} as React.CSSProperties}><div><strong>{tasks.length?Math.round(completedCount/tasks.length*100):0}%</strong><small>complete</small></div></div><p>{completedCount? `You've completed ${completedCount} ${completedCount===1?"task":"tasks"}. Keep that momentum going.`:"Your first completed task is a win worth celebrating."}</p></section>
+              <section className="panel dashboard-quick-links"><p className="eyebrow">JUMP BACK IN</p><button onClick={()=>setActiveNav("Study tools")}><span>✎</span><span><strong>Study tools</strong><small>Notes, flashcards & quizzes</small></span><b>↗</b></button><button onClick={()=>setActiveNav("Community")}><span>◎</span><span><strong>Community</strong><small>Learn alongside others</small></span><b>↗</b></button></section>
+            </aside>
+          </div>
         </>}
         {activeNav === "Calendar" && <ScheduleWorkspace tasks={tasks} onAddEvent={(date)=>{setTaskEditing(null);setTaskDraft({...emptyTask,task_type:"event",due_at:`${date}T09:00`});setDataError("");setTaskModal(true);}} onOpenTasks={()=>setActiveNav("Tasks & deadlines")}/>}
         {activeNav === "My courses" && <section className="feature-page"><div className="feature-heading"><div><p className="eyebrow">ORGANIZE YOUR SEMESTER</p><h1>My courses<span className="coral">.</span></h1><p className="subheading">Keep your classes together in one place.</p></div><button className="primary-button compact-action" onClick={()=>openCourse()}>＋ Add course</button></div>
