@@ -254,3 +254,11 @@
 @media(max-width:900px){.meowky-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.meowky-card-grid{grid-template-columns:1fr}.meowky-collectible-card{display:grid;grid-template-columns:112px minmax(0,1fr)}.meowky-card-art{min-height:100%;}.meowky-card-art svg{width:96px;height:96px}.meowky-card-copy{padding:11px}.meowky-evolution-panel,.meowky-collection-panel{padding:15px}}
 @media(prefers-reduced-motion:reduce){.meowky-card-art svg,.meowky-evolution-stage>svg,.meowky-stage-aura{animation:none}.meowky-evolution-progress .progress-track span{transition:none}}
+
+/* True 3D companion canvas */
+.meowky-3d-canvas{position:relative;z-index:1;width:min(100%,290px);height:245px;min-height:210px;touch-action:pan-y}
+.meowky-3d-canvas canvas{display:block;width:100%;height:100%;outline:none}
+.meowky-evolution-stage .meowky-stage-aura{z-index:0}
+.meowky-evolution-stage .meowky-stage-name{margin-top:-3px}
+@media(max-width:520px){.meowky-3d-canvas{height:220px;max-width:260px}}
+@media(prefers-reduced-motion:reduce){.meowky-3d-canvas{animation:none}}
