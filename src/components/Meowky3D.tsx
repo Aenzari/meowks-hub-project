@@ -42,7 +42,13 @@ export function Meowky3D({formId,mood="happy",className}:Meowky3DProps){
   const crown=new THREE.Group();crown.position.set(0,1.55,0);head.add(crown);
   if(formId>=2){const ring=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,12,48),accent);ring.rotation.x=Math.PI/2;ring.position.y=.12;crown.add(ring);}
   if(formId>=5){for(let i=0;i<3;i++){const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.12+i*.025),accent);gem.position.set((i-1)*.28,.2+(i===1?.12:0),.02);crown.add(gem);}}
-  if(formId>=9){const halo=new THREE.Mesh(new THREE.TorusGeometry(.55,.025,8,64),accent);halo.rotation.x=Math.PI/2;halo.position.y=.45;crown.add(halo);}
+  if(formId>=4){const star=new THREE.Mesh(new THREE.OctahedronGeometry(.16),accent);star.position.set(0,.48,.04);crown.add(star);}
+  if(formId>=5){for(const side of [-1,1]){const wing=new THREE.Mesh(new THREE.SphereGeometry(1,24,18),accent);wing.position.set(side*1.03,-.02,-.12);wing.scale.set(.38,.16,.12);wing.rotation.z=side*-.28;cat.add(wing);}}
+  if(formId>=6){const collar=new THREE.Mesh(new THREE.TorusGeometry(.47,.07,12,48),accent);collar.position.set(0,-.18,.53);collar.rotation.x=.12;cat.add(collar);}
+  if(formId>=7){const orbit=new THREE.Mesh(new THREE.TorusGeometry(.82,.025,8,64),accent);orbit.rotation.set(.9,.25,.35);orbit.position.y=.35;cat.add(orbit);}
+  if(formId>=8){for(let i=0;i<5;i++){const crystal=new THREE.Mesh(new THREE.OctahedronGeometry(.11+(i%2)*.04),accent);crystal.position.set(Math.cos(i*Math.PI*2/5)*1.08,Math.sin(i*Math.PI*2/5)*.72,.05);cat.add(crystal);}}
+  if(formId>=9){for(const tilt of [-.45,.45]){const halo=new THREE.Mesh(new THREE.TorusGeometry(.58,.035,8,64),accent);halo.rotation.set(Math.PI/2,tilt,tilt);halo.position.y=.48;crown.add(halo);}}
+  if(formId>=10){const crownGem=new THREE.Mesh(new THREE.IcosahedronGeometry(.22,1),new THREE.MeshStandardMaterial({color:"#fff4df",metalness:.65,roughness:.2,emissive:"#f2cf79",emissiveIntensity:.7}));crownGem.position.set(0,.82,.02);crown.add(crownGem);for(const side of [-1,1]){const plume=new THREE.Mesh(new THREE.ConeGeometry(.2,.72,16),accent);plume.position.set(side*.9,.18,-.12);plume.rotation.z=side*-.8;cat.add(plume);}}
   const ground=new THREE.Mesh(new THREE.CircleGeometry(1.35,48),new THREE.MeshBasicMaterial({color:accents[Math.max(0,Math.min(9,formId-1))],transparent:true,opacity:.12}));ground.rotation.x=-Math.PI/2;ground.position.y=-1.62;scene.add(ground);
   const resize=()=>{const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};const observer=new ResizeObserver(resize);observer.observe(element);
   let frame=0;let raf=0;const animate=()=>{raf=requestAnimationFrame(animate);frame+=.012;cat.position.y=Math.sin(frame*1.5)*.075;cat.rotation.y=Math.sin(frame*.65)*.16;head.rotation.z=Math.sin(frame*1.1)*.025;tail.rotation.x=Math.sin(frame*2)*.15;head.scale.y=mood==="sleepy"?.97:1;renderer.render(scene,camera);};animate();
