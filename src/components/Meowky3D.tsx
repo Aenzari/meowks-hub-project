@@ -22,7 +22,7 @@ export function Meowky3D({formId,mood="happy",className}:Meowky3DProps){
   const dark=new THREE.MeshStandardMaterial({color:"#493d38",roughness:.4});
   const accent=new THREE.MeshStandardMaterial({color:accents[Math.max(0,Math.min(9,formId-1))],metalness:.35,roughness:.35,emissive:accents[Math.max(0,Math.min(9,formId-1))],emissiveIntensity:.12});
   const cat=new THREE.Group();scene.add(cat);
-  const body=sphere(cat,new THREE.SphereGeometry(1,40,32),fur,[0,-.55,0],[.83,1.03,.62]);
+  sphere(cat,new THREE.SphereGeometry(1,40,32),fur,[0,-.55,0],[.83,1.03,.62]);
   sphere(cat,new THREE.SphereGeometry(1,40,32),cream,[0,-.63,.49],[.48,.65,.18]);
   const head=new THREE.Group();head.position.set(0,.55,.05);cat.add(head);
   sphere(head,new THREE.SphereGeometry(1,48,36),fur,[0,0,0],[1.04,.91,.77]);
@@ -43,7 +43,7 @@ export function Meowky3D({formId,mood="happy",className}:Meowky3DProps){
   if(formId>=2){const ring=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,12,48),accent);ring.rotation.x=Math.PI/2;ring.position.y=.12;crown.add(ring);}
   if(formId>=5){for(let i=0;i<3;i++){const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.12+i*.025),accent);gem.position.set((i-1)*.28,.2+(i===1?.12:0),.02);crown.add(gem);}}
   if(formId>=9){const halo=new THREE.Mesh(new THREE.TorusGeometry(.55,.025,8,64),accent);halo.rotation.x=Math.PI/2;halo.position.y=.45;crown.add(halo);}
-  const ground=new THREE.Mesh(new THREE.CircleGeometry(1.35,48),new THREE.MeshBasicMaterial({color:accents[formId-1],transparent:true,opacity:.12}));ground.rotation.x=-Math.PI/2;ground.position.y=-1.62;scene.add(ground);
+  const ground=new THREE.Mesh(new THREE.CircleGeometry(1.35,48),new THREE.MeshBasicMaterial({color:accents[Math.max(0,Math.min(9,formId-1))],transparent:true,opacity:.12}));ground.rotation.x=-Math.PI/2;ground.position.y=-1.62;scene.add(ground);
   const resize=()=>{const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};const observer=new ResizeObserver(resize);observer.observe(element);
   let frame=0;let raf=0;const animate=()=>{raf=requestAnimationFrame(animate);frame+=.012;cat.position.y=Math.sin(frame*1.5)*.075;cat.rotation.y=Math.sin(frame*.65)*.16;head.rotation.z=Math.sin(frame*1.1)*.025;tail.rotation.x=Math.sin(frame*2)*.15;head.scale.y=mood==="sleepy"?.97:1;renderer.render(scene,camera);};animate();
   return()=>{cancelAnimationFrame(raf);observer.disconnect();renderer.dispose();scene.traverse(object=>{if(object instanceof THREE.Mesh){object.geometry.dispose();const material=object.material;if(Array.isArray(material))material.forEach(m=>m.dispose());else material.dispose();}});element.removeChild(renderer.domElement);};
