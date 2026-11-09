@@ -40,7 +40,7 @@ create policy "group owners read join requests"
 on public.study_group_join_requests for select to authenticated
 using (exists (
   select 1 from public.study_groups g
-  where g.id = group_id and g.created_by = (select auth.uid())
+  where g.id = study_group_join_requests.group_id and g.created_by = (select auth.uid())
 ));
 
 create policy "users request private group membership"
@@ -52,13 +52,13 @@ with check (
   and reviewed_by is null
   and exists (
     select 1 from public.study_groups g
-    where g.id = group_id
+    where g.id = study_group_join_requests.group_id
       and g.visibility = 'private'
       and g.created_by <> (select auth.uid())
   )
   and not exists (
     select 1 from public.study_group_members m
-    where m.group_id = group_id and m.user_id = (select auth.uid())
+    where m.group_id = study_group_join_requests.group_id and m.user_id = (select auth.uid())
   )
 );
 
