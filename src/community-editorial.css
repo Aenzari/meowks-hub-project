@@ -77,3 +77,17 @@
  .community-workspace .community-post {padding:16px;}
  .community-workspace .comment-thread form {flex-direction:column;}
 }
+
+/* Accessible in-app report form */
+.community-report-backdrop { position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:rgba(13,27,40,.62);backdrop-filter:blur(5px); }
+.community-workspace .community-report-dialog { width:min(100%,540px);max-height:min(90vh,760px);overflow:auto;padding:24px;border:1px solid #e4e9df;background:#fffefa;box-shadow:0 24px 80px rgba(8,24,36,.28); }
+.community-workspace .community-report-heading { display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px; }
+.community-workspace .community-report-heading h2 { margin:4px 0 0;color:#20394b;font-size:25px; }
+.community-workspace .community-report-dialog > p { color:#687970;line-height:1.65; }
+.community-workspace .community-report-dialog form { display:grid;gap:9px;margin-top:18px; }
+.community-workspace .community-report-dialog label { color:#294657;font-size:12px;font-weight:850; }
+.community-workspace .community-report-dialog label span { color:#89958e;font-weight:500; }
+.community-workspace .community-report-dialog select,.community-workspace .community-report-dialog textarea { width:100%;background:#fff;border:1px solid #dfe7de;border-radius:11px;padding:11px 12px;color:#304b58; }
+.community-workspace .community-report-footer { display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap;margin-top:8px; }
+.community-workspace .community-report-footer small { margin-right:auto;color:#89958e;font-size:11px;font-variant-numeric:tabular-nums; }
+@media(max-width:560px) { .community-report-backdrop { padding:12px;align-items:end; } .community-workspace .community-report-dialog { padding:19px;border-radius:20px 20px 14px 14px;max-height:88vh; } .community-workspace .community-report-footer { display:grid;grid-template-columns:1fr 1fr;width:100%; } .community-workspace .community-report-footer small { grid-column:1/-1; } .community-workspace .community-report-footer button { width:100%; } }
