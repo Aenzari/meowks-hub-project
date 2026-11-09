@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { Meowky } from "./Meowky";
 
 type Stats = { xp:number; level:number; current_streak:number; longest_streak:number; last_activity_date:string|null };
 type Achievement = { achievement_id:string; earned_at:string; catalog:{name:string;description:string;icon:string}|null };
@@ -56,6 +57,10 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const dailyGoal=30;
   return <section className="feature-page gamification-workspace">
     <div className="feature-heading"><div><p className="eyebrow">EVERY LITTLE WIN COUNTS</p><h1>My Space<span className="coral">.</span></h1><p className="subheading">Your learning journey, one paw at a time.</p></div><div className="gamification-level">🐾 <strong>Level {level}</strong></div></div>
+    <section className="meowky-companion" aria-label="Your Meowky companion">
+      <div className="meowky-companion-copy"><p className="eyebrow">YOUR STUDY BUDDY</p><h2>{todayMinutes >= 30 ? "Meowky is proud of you!" : "Meowky is cheering you on."}</h2><p>{todayMinutes >= 30 ? "You showed up for your learning goal today. Give yourself a little credit." : "Every focused minute helps you grow. Keep going at your own pace."}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Goal reached" : "♡ Here for your next step"}</span></div>
+      <div className="meowky-companion-art"><Meowky mood={todayMinutes >= 30 ? "happy" : "focused"} /></div>
+    </section>
     {error&&<div className="inline-error" role="alert">{error}</div>}
     {notice&&<div className="inline-notice" role="status">{notice}</div>}
     <div className="gamification-stats">
