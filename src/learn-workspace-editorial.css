@@ -1,0 +1,80 @@
+/* Meowks — Study Tools editorial composition */
+.learn-workspace { --learn-ink:#172d45; --learn-mint:#42bfa7; }
+.learn-workspace > .feature-heading {
+  position:relative; isolation:isolate; overflow:hidden;
+  display:flex; align-items:center; min-height:176px; padding:30px 34px;
+  border:1px solid rgba(255,255,255,.12); border-radius:25px;
+  background:
+    radial-gradient(circle at 86% 22%,rgba(76,199,169,.22),transparent 13rem),
+    radial-gradient(circle at 100% 100%,rgba(255,143,120,.17),transparent 16rem),
+    linear-gradient(112deg,#14283e,#1e4054 68%,#285a60);
+  box-shadow:0 18px 42px rgba(20,40,62,.13);
+}
+.learn-workspace > .feature-heading:after {
+  content:"✳"; position:absolute; z-index:-1; right:7%; top:50%;
+  transform:translateY(-50%) rotate(-12deg); color:rgba(255,244,223,.18);
+  font-size:clamp(90px,13vw,158px); line-height:1;
+}
+.learn-workspace > .feature-heading h1 { color:#fff8e9; font-size:clamp(38px,5vw,58px); }
+.learn-workspace > .feature-heading .eyebrow { color:#8fe2c9; }
+.learn-workspace > .feature-heading .subheading { max-width:470px; color:#d1dfd9; }
+.learn-workspace .learn-grid { align-items:stretch; margin-top:19px; }
+.learn-workspace .learn-panel { min-width:0; overflow:hidden; }
+.learn-workspace .panel-heading { align-items:center; gap:14px; }
+.learn-workspace .panel-heading h2 { margin-top:3px; }
+.learn-workspace .panel-heading .text-button { flex:0 0 auto; min-height:38px; padding:0 13px; border:1px solid #dcece3; border-radius:11px; background:#f1faf4; font-weight:800; }
+.learn-workspace .panel-heading .text-button:hover { background:#e5f6ed; transform:translateY(-1px); }
+.learn-workspace .note-tools { display:grid; grid-template-columns:minmax(0,1fr) minmax(140px,.55fr); gap:9px; margin:16px 0; }
+.learn-workspace .note-list,.learn-workspace .deck-list { gap:9px; }
+.learn-workspace .note-item { padding:14px 15px; border:1px solid #ecebe3; border-radius:14px; background:#fffefa; }
+.learn-workspace .note-item p { line-height:1.65; }
+.learn-workspace .deck-item { padding:8px 10px; border:1px solid #ecebe3; border-radius:14px; background:#fffefa; }
+.learn-workspace .deck-open { min-height:55px; }
+.learn-workspace .deck-icon { display:grid; place-items:center; width:39px; height:39px; border-radius:13px; background:#eaf8f0; color:#278b75; font-size:18px; }
+.learn-workspace .practice-area,.learn-workspace .quiz-builder { display:grid; gap:14px; }
+.learn-workspace .practice-heading { padding-bottom:11px; border-bottom:1px solid #eeeee7; }
+.learn-workspace .flashcard-face {
+  min-height:210px; padding:25px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:15px; text-align:center;
+  border:1px solid #dce9dd; border-radius:20px;
+  background:
+    radial-gradient(circle at 85% 12%,rgba(76,199,169,.17),transparent 45%),
+    linear-gradient(145deg,#f8fbf5,#fff0dc);
+}
+.learn-workspace .flashcard-face span { color:#278b75; font-size:9px; font-weight:900; letter-spacing:2px; }
+.learn-workspace .flashcard-face strong { max-width:620px; color:#20394b; font-size:clamp(19px,2.4vw,27px); line-height:1.35; }
+.learn-workspace .flashcard-face small { color:#8b9a91; }
+.learn-workspace .flashcard-controls { padding:0 4px; }
+.learn-workspace .learning-analytics { margin-top:18px; }
+.learn-workspace .learning-metrics { gap:10px; margin-top:15px; }
+.learn-workspace .learning-metrics > div { min-height:90px; padding:16px; border:1px solid #e8ebe3; border-radius:15px; background:linear-gradient(145deg,#fffefa,#f7f8f1); }
+.learn-workspace .learning-metrics strong { color:#1d3a50; font-size:clamp(21px,2.6vw,29px); letter-spacing:-.05em; }
+.learn-workspace .learning-metrics small { color:#82918b; line-height:1.5; }
+.learn-workspace .review-panel,.learn-workspace .quiz-panel,.learn-workspace .timer-panel { margin-top:18px; }
+.learn-workspace .review-count { padding:8px 12px; border:1px solid #dcece3; border-radius:99px; background:#eff9f2; color:#278b75; font-size:10px; font-weight:900; }
+.learn-workspace .review-ratings { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.learn-workspace .review-ratings button { min-height:42px; border:1px solid #e7e8df; border-radius:12px; background:#fffefa; color:#405a5a; font-weight:800; }
+.learn-workspace .review-ratings button:hover { border-color:#9bdcc3; background:#eff9f2; }
+.learn-workspace .quiz-list-item { min-height:58px; padding:12px 15px; border:1px solid #e9ebe3; border-radius:13px; background:#fffefa; }
+.learn-workspace .quiz-list-item:hover { border-color:#a9dfc9; background:#f6fbf5; }
+.learn-workspace .quiz-question { padding:16px; border:1px solid #e9ebe3; border-radius:15px; background:#fffefa; }
+.learn-workspace .quiz-option { padding:10px 12px; border-radius:10px; transition:background .15s ease; }
+.learn-workspace .quiz-option:has(input:checked) { background:#eaf8f0; color:#236f5e; }
+.learn-workspace .quiz-result { padding:18px; border:1px solid #dcece3; border-radius:16px; background:linear-gradient(145deg,#f0faf4,#fffefa); }
+.learn-workspace .timer-panel { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:24px; padding:22px 25px; background:linear-gradient(110deg,#fffefa,#f1faf4); }
+.learn-workspace .timer-display { color:#172d45; font-size:clamp(38px,5vw,56px); font-weight:850; letter-spacing:-.07em; font-variant-numeric:tabular-nums; }
+.learn-workspace .timer-controls { display:grid; justify-items:end; gap:10px; }
+.learn-workspace .timer-buttons { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+@media(max-width:720px) {
+  .learn-workspace > .feature-heading { min-height:150px; padding:23px 20px; border-radius:20px; }
+  .learn-workspace > .feature-heading:after { right:3%; font-size:90px; }
+  .learn-workspace .note-tools { grid-template-columns:1fr; }
+  .learn-workspace .timer-panel { grid-template-columns:1fr; gap:12px; }
+  .learn-workspace .timer-controls { justify-items:stretch; }
+  .learn-workspace .timer-buttons { justify-content:stretch; }
+  .learn-workspace .timer-buttons button { flex:1; }
+  .learn-workspace .review-ratings { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .learn-workspace * { scroll-behavior:auto; }
+}
