@@ -144,6 +144,26 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
     if(!supabase||g.created_by===userId)return;const {error:e}=await supabase.from("study_group_members").delete().eq("group_id",g.id).eq("user_id",userId);
     if(e)setError(e.message);else await refresh();
   }
+  async function editGroup(g:Group){
+    if(!supabase||g.created_by!==userId)return;
+    const nextName=window.prompt("Edit group name",g.name);
+    if(nextName===null)return;
+    const nextDescription=window.prompt("Edit group description",g.description);
+    if(nextDescription===null)return;
+    if(nextName.trim().length<2||nextName.trim().length>100||nextDescription.length>1000){setError("Group name must be 2–100 characters and description no more than 1,000.");return;}
+    setBusy(true);setError("");
+    const {error:e}=await supabase.from("study_groups").update({name:nextName.trim(),description:nextDescription.trim()}).eq("id",g.id).eq("created_by",userId);
+    setBusy(false);
+    if(e)setError(e.message);else{setNotice("Your study group was updated.");await refresh();}
+  }
+  async function deleteGroup(g:Group){
+    if(!supabase||g.created_by!==userId||!window.confirm(`Delete “${g.name}”? This permanently removes the group and its memberships.`))return;
+    setBusy(true);setError("");
+    const {error:e}=await supabase.from("study_groups").delete().eq("id",g.id).eq("created_by",userId);
+    setBusy(false);
+    if(e)setError(e.message);else{setNotice("Your study group was deleted.");await refresh();}
+  }
+
   const courseLabel=(id:string|null)=>courses.find(c=>c.id===id)?.title||"Open community";
   const initial=displayName.trim().slice(0,1).toUpperCase()||"M";
   const reactionCount=(postId:string,type:string)=>reactions.filter(r=>r.post_id===postId&&r.reaction===type).length;
@@ -198,7 +218,7 @@ export function CommunityWorkspace({ userId, courses, displayName }: { userId: s
         <div className="study-group-discovery-heading"><div><p className="eyebrow">EXPLORE TOGETHER</p><h2>Find your study circle</h2><p>{visibleGroups.length} of {groups.length} groups shown</p></div><input aria-label="Search study groups" value={groupSearch} onChange={e=>setGroupSearch(e.target.value)} placeholder="Search groups or topics…"/></div>
         <div className="study-group-controls"><div className="community-filter-tabs" aria-label="Filter study groups"><button type="button" className={groupScope==="all"?"active":""} onClick={()=>setGroupScope("all")}>All groups</button><button type="button" className={groupScope==="joined"?"active":""} onClick={()=>setGroupScope("joined")}>My groups</button><button type="button" className={groupScope==="created"?"active":""} onClick={()=>setGroupScope("created")}>Created by me</button></div><select aria-label="Filter study groups by course" value={groupCourseFilter} onChange={e=>setGroupCourseFilter(e.target.value)}><option value="">All courses</option>{courses.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}</select></div>
       </div>
-      <div className="study-group-grid">{visibleGroups.length?visibleGroups.map(g=><article className="panel study-group-card" key={g.id}><div className="group-symbol">♧</div><h2>{g.name}</h2><p>{g.description||"A space to study and make progress together."}</p><small>{courseLabel(g.course_id)} · {new Date(g.created_at).toLocaleDateString()}</small><div className="group-card-actions">{g.created_by===userId?<span className="group-owner-label">Your group</span>:joined.includes(g.id)?<button className="secondary-button" onClick={()=>void leave(g)}>Joined · Leave</button>:<button className="primary-button" disabled={busy} onClick={()=>void join(g)}>Join group</button>}</div></article>):<div className="empty-card"><div className="empty-illustration">♧</div><h2>{groups.length?"No groups match those filters.":"Your study circle starts here."}</h2><p>{groups.length?"Try a different search or filter to discover more groups.":"Create a group or invite classmates to join one."}</p>{groups.length>0&&<button type="button" className="secondary-button" onClick={()=>{setGroupSearch("");setGroupScope("all");setGroupCourseFilter("");}}>Clear filters</button>}</div>}</div>
+      <div className="study-group-grid">{visibleGroups.length?visibleGroups.map(g=><article className="panel study-group-card" key={g.id}><div className="group-symbol">♧</div><h2>{g.name}</h2><p>{g.description||"A space to study and make progress together."}</p><small>{courseLabel(g.course_id)} · {new Date(g.created_at).toLocaleDateString()}</small><div className="group-card-actions">{g.created_by===userId?<><span className="group-owner-label">Your group</span><button className="secondary-button" disabled={busy} onClick={()=>void editGroup(g)}>Edit details</button><button className="danger-text" disabled={busy} onClick={()=>void deleteGroup(g)}>Delete group</button></>:joined.includes(g.id)?<button className="secondary-button" disabled={busy} onClick={()=>void leave(g)}>Joined · Leave</button>:<button className="primary-button" disabled={busy} onClick={()=>void join(g)}>Join group</button>}</div></article>):<div className="empty-card"><div className="empty-illustration">♧</div><h2>{groups.length?"No groups match those filters.":"Your study circle starts here."}</h2><p>{groups.length?"Try a different search or filter to discover more groups.":"Create a group or invite classmates to join one."}</p>{groups.length>0&&<button type="button" className="secondary-button" onClick={()=>{setGroupSearch("");setGroupScope("all");setGroupCourseFilter("");}}>Clear filters</button>}</div>}</div>
     </>}
   </section>;
 }
