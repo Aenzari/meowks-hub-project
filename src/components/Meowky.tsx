@@ -3,7 +3,7 @@ import type { SVGProps } from "react";
 type MeowkyProps = SVGProps<SVGSVGElement> & { mood?: "happy" | "focused" | "sleepy"; level?: number };
 
 export function Meowky({ mood = "happy", level = 1, ...props }: MeowkyProps) {
-  const evolution = level >= 20 ? "champion" : level >= 10 ? "scholar" : level >= 5 ? "adventurer" : "kitten";
+  const evolution = Math.max(1, Math.min(10, Math.ceil(level / 5)));
   const eyes = mood === "sleepy"
     ? <><path d="M76 91q7 7 14 0M111 91q7 7 14 0" fill="none" stroke="#493d38" strokeWidth="4" strokeLinecap="round"/></>
     : <><ellipse cx="84" cy="89" rx="5.5" ry="8" fill="#493d38"/><ellipse cx="117" cy="89" rx="5.5" ry="8" fill="#493d38"/><circle cx="86" cy="86" r="2" fill="white"/><circle cx="119" cy="86" r="2" fill="white"/></>;
@@ -29,9 +29,16 @@ export function Meowky({ mood = "happy", level = 1, ...props }: MeowkyProps) {
     <path d="M79 140q21 14 42 0" fill="none" stroke="#E5BE98" strokeWidth="3" strokeLinecap="round" opacity=".75"/>
     <path d="M155 49l3 8 8 3-8 3-3 8-3-8-8-3 8-3 3-8Z" fill="#42BFA7"/>
     <path d="M36 66l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" fill="#FF947A"/>
-    {evolution === "adventurer" && <path d="M64 45q36-22 72 0l-4 8q-32-17-64 0Z" fill="#42BFA7" stroke="#247D70" strokeWidth="2"/>}
-    {evolution === "scholar" && <><path d="M61 48 72 22l28 15 28-15 11 26q-39-15-78 0Z" fill="#FF947A" stroke="#D97968" strokeWidth="2"/><circle cx="100" cy="37" r="5" fill="#FFF4DF"/></>}
-    {evolution === "champion" && <><path d="m61 49 8-27 17 15 14-23 14 23 17-15 8 27q-39-15-78 0Z" fill="#F6C85F" stroke="#B98932" strokeWidth="2.5" strokeLinejoin="round"/><circle cx="100" cy="35" r="5" fill="#FF947A"/><path d="M155 77l4 9 9 4-9 4-4 9-4-9-9-4 9-4 4-9Z" fill="#F6C85F"/></>}
+    {evolution === 4 && <path d="M64 45q36-22 72 0l-4 8q-32-17-64 0Z" fill="#42BFA7" stroke="#247D70" strokeWidth="2"/>}
+    {evolution === 7 && <><path d="M61 48 72 22l28 15 28-15 11 26q-39-15-78 0Z" fill="#FF947A" stroke="#D97968" strokeWidth="2"/><circle cx="100" cy="37" r="5" fill="#FFF4DF"/></>}
+    {evolution === 10 && <><path d="m61 49 8-27 17 15 14-23 14 23 17-15 8 27q-39-15-78 0Z" fill="#F6C85F" stroke="#B98932" strokeWidth="2.5" strokeLinejoin="round"/><circle cx="100" cy="35" r="5" fill="#FF947A"/><path d="M155 77l4 9 9 4-9 4-4 9-4-9-9-4 9-4 4-9Z" fill="#F6C85F"/></>}
+    {evolution === 2 && <><path d="M58 48q42-23 84 0" fill="none" stroke="#FF947A" strokeWidth="5" strokeLinecap="round"/><circle cx="100" cy="43" r="5" fill="#F6C85F"/></>}
+    {evolution === 3 && <><path d="M48 76q-18 8-10 26 13-2 18-17M152 76q18 8 10 26-13-2-18-17" fill="#72C8D0" stroke="#3B9EAE" strokeWidth="2"/><path d="M100 27q-8-10 0-17 8 7 0 17Z" fill="#72C8D0"/></>}
+    {evolution === 5 && <><path d="M100 31q-17-23-27-5 8 16 27 10 19 6 27-10-10-18-27 5Z" fill="#79B991"/><circle cx="100" cy="32" r="5" fill="#F6C85F"/></>}
+    {evolution === 6 && <><path d="M100 17v13m-14-8 8 10m20-10-8 10" stroke="#F2C45F" strokeWidth="4" strokeLinecap="round"/><circle cx="100" cy="27" r="9" fill="#F6C85F"/></>}
+    {evolution === 8 && <><path d="m55 59 9-16 9 16-9 13ZM127 59l9-16 9 16-9 13Z" fill="#DDF7FF" stroke="#67A8DC" strokeWidth="2"/><path d="M100 19 105 29 100 39 95 29Z" fill="#8DC8ED"/></>}
+    {evolution === 9 && <><ellipse cx="100" cy="29" rx="34" ry="9" fill="none" stroke="#BD8BBA" strokeWidth="3" transform="rotate(-18 100 29)"/><path d="M100 10l4 9 10 4-10 4-4 9-4-9-10-4 10-4 4-9Z" fill="#E9C77C"/></>}
+    {evolution === 10 && <><path d="M42 99q-23-36 4-48 24 9 20 39M158 99q23-36-4-48-24 9-20 39" fill="#FFF4CF" stroke="#D5B65E" strokeWidth="3"/><ellipse cx="100" cy="18" rx="23" ry="7" fill="none" stroke="#E9C77C" strokeWidth="3"/><path d="M100 2l5 10 11 5-11 5-5 10-5-10-11-5 11-5 5-10Z" fill="#F6C85F"/></>}
     <ellipse cx="78" cy="64" rx="10" ry="4" fill="white" opacity=".42" transform="rotate(-28 78 64)"/>
   </svg>;
 }
