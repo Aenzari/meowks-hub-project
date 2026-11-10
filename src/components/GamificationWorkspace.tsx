@@ -7,6 +7,7 @@ import { MEOWKY_FORMS, getMeowkyForm, getNextMeowkyForm } from "../lib/meowky-ev
 type Stats = { xp:number; level:number; current_streak:number; longest_streak:number; last_activity_date:string|null };
 type Achievement = { achievement_id:string; earned_at:string; catalog:{name:string;description:string;icon:string}|null };
 type Leader = { user_id:string; display_name:string; xp:number; level:number; current_streak:number; rank:number };
+type MeowkyCare = { fullness:number; joy:number; energy:number; bond:number; completed:string[]; day:string };
 
 export function GamificationWorkspace({userId}:{userId:string}) {
   const [stats,setStats]=useState<Stats|null>(null);
@@ -23,6 +24,8 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [headpats,setHeadpats]=useState(0);
   const [roomTheme,setRoomTheme]=useState<"meadow"|"starlight"|"moonlit">("meadow");
   const [roomDecor,setRoomDecor]=useState("sprout");
+  const [care,setCare]=useState<MeowkyCare>({fullness:68,joy:62,energy:76,bond:0,completed:[],day:new Date().toLocaleDateString("en-CA")});
+  const [careReady,setCareReady]=useState(false);
   const [evolutionCelebration,setEvolutionCelebration]=useState<(typeof MEOWKY_FORMS)[number]|null>(null);
 
   async function refresh(){
@@ -46,6 +49,21 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     setTodayMinutes(Math.floor((study.data||[]).reduce((sum:any,item:any)=>sum+item.duration_seconds,0)/60));
   }
   useEffect(()=>{void refresh();},[userId]);
+  useEffect(()=>{
+    const today=new Date().toLocaleDateString("en-CA");
+    try{
+      const saved=window.localStorage.getItem("achieve-meowky-care-"+userId);
+      if(saved){
+        const parsed=JSON.parse(saved) as MeowkyCare;
+        if(typeof parsed.fullness==="number"&&typeof parsed.joy==="number"&&typeof parsed.energy==="number"&&typeof parsed.bond==="number"){
+          setCare({...parsed,completed:parsed.day===today&&Array.isArray(parsed.completed)?parsed.completed:[],day:today});
+        }else{setCare(value=>({...value,day:today,completed:[]}));}
+      }else{setCare(value=>({...value,day:today}));}
+    }catch{setCare(value=>({...value,day:today,completed:[]}));}
+    setCareReady(true);
+  },[userId]);
+  useEffect(()=>{if(!careReady)return;try{window.localStorage.setItem("achieve-meowky-care-"+userId,JSON.stringify(care));}catch{/* Care remains available for this visit if storage is unavailable. */}},[care,userId,careReady]);
+
 
   async function toggleLeaderboard(){
     if(!supabase)return;
@@ -82,11 +100,35 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const roomRank=xp>=850?"Celestial sanctuary":xp>=550?"Starlit hideaway":xp>=275?"Enchanted nook":xp>=100?"Cozy corner":"A little place to begin";
   const roomDecorations=[{id:"sprout",name:"Moonflower sprout",icon:"🌱",unlock:0},{id:"books",name:"Study book stack",icon:"📚",unlock:50},{id:"lantern",name:"Dream lantern",icon:"🏮",unlock:100},{id:"crystal",name:"Star crystal",icon:"💎",unlock:275},{id:"moon",name:"Moon window",icon:"🌙",unlock:550},{id:"crown",name:"Celestial crown",icon:"👑",unlock:850}];
   const activeDecor=roomDecorations.find(item=>item.id===roomDecor)||roomDecorations[0];
+  const timeGreeting=new Date().getHours()<11?"A bright morning stretch":new Date().getHours()<17?"A sunny afternoon pause":"A soft evening wind-down";
+  function careForMeowky(action:"feed"|"play"|"rest"){
+    const effects={feed:{fullness:22,joy:4,energy:-2,line:"Nom nom! That snack was purr-fect. Thank you!"},play:{fullness:-5,joy:22,energy:-12,line:"Wheee! That was so much fun. You always know how to make me smile!"},rest:{fullness:-2,joy:3,energy:24,line:"Mmm… a little rest feels wonderful. I’m all recharged!"}};
+    const change=effects[action];
+    setCare(value=>({...value,fullness:Math.max(0,Math.min(100,value.fullness+change.fullness)),joy:Math.max(0,Math.min(100,value.joy+change.joy)),energy:Math.max(0,Math.min(100,value.energy+change.energy)),bond:value.bond+1,completed:value.completed.includes(action)?value.completed:[...value.completed,action]}));
+    setCompanionMood(action==="rest"?"sleepy":"happy");setCompanionLine(change.line);
+  }
+
   return <section className="feature-page gamification-workspace">
     <div className="feature-heading"><div><p className="eyebrow">EVERY LITTLE WIN COUNTS</p><h1>My Space<span className="coral">.</span></h1><p className="subheading">Your learning journey, one paw at a time.</p></div><div className="gamification-level">🐾 <strong>Level {level}</strong></div></div>
     <section className={"meowky-companion meowky-companion-interactive mood-" + companionMood} aria-label="Your Meowky companion">
       <div className="meowky-companion-copy"><p className="eyebrow">YOUR COMPANION · {currentForm.rarity.toUpperCase()}</p><h2>{currentForm.name}</h2><span className="meowky-companion-rank">{companionRank}</span><p className="meowky-companion-personality">{currentForm.personality}</p><span className="meowky-bond-level">♡ {bondStage}</span><p className="meowky-bond-message">{bondMessage}</p><p className="meowky-companion-dialogue" aria-live="polite">{companionLine}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Daily study goal reached" : "♡ Your companion is here"}</span><div className="meowky-companion-actions" role="group" aria-label="Companion mood"><button type="button" onClick={()=>{setCompanionMood("focused");setCompanionLine("I’m right here. Let’s make one small step count.");}}>Study together</button><button type="button" onClick={()=>{setCompanionMood("sleepy");setCompanionLine("Even the brightest minds need a little rest. Take a gentle breather.");}}>Rest mode</button><button type="button" onClick={()=>{setCompanionMood("happy");setCompanionLine("You’re doing better than you think. Every little win deserves a cheer!");}}>Cheer me on</button><button type="button" className="meowky-headpat" onClick={()=>{setCompanionMood("happy");setCompanionLine(["Prrr! That was a lovely headpat.","Meowky’s whiskers are doing a happy dance!","A tiny purr of appreciation, just for you."][headpats%3]);setHeadpats(value=>value+1);}}>♡ Headpat</button></div><small className="meowky-headpat-count" aria-live="polite">{headpats} headpats this visit</small></div>
       <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky3D formId={currentForm.id} mood={companionMood} /><span className="meowky-stage-name">{currentForm.name}</span></div>
+    </section>
+
+    <section className="meowky-care panel" aria-label="Meowky daily care">
+      <div className="meowky-home-heading"><div><p className="eyebrow">LITTLE MOMENTS OF CARE</p><h2>Meowky's daily life</h2><p>{timeGreeting} · Your companion feels loved when you spend time together.</p></div><span className="meowky-care-bond">♡ {care.bond} care bonds</span></div>
+      <div className="meowky-care-meters">
+        <div><div className="meowky-care-meter-label"><span>🍪 Fullness</span><b>{care.fullness}%</b></div><div className="meowky-care-track"><span style={{width:care.fullness+"%"}}/></div></div>
+        <div><div className="meowky-care-meter-label"><span>💖 Happiness</span><b>{care.joy}%</b></div><div className="meowky-care-track joy"><span style={{width:care.joy+"%"}}/></div></div>
+        <div><div className="meowky-care-meter-label"><span>⚡ Energy</span><b>{care.energy}%</b></div><div className="meowky-care-track energy"><span style={{width:care.energy+"%"}}/></div></div>
+      </div>
+      <div className="meowky-care-actions" role="group" aria-label="Care for Meowky">
+        <button type="button" disabled={care.completed.includes("feed")} onClick={()=>careForMeowky("feed")}><span>🍪</span><b>{care.completed.includes("feed")?"Snack given":"Give a snack"}</b><small>{care.completed.includes("feed")?"Today's care complete":"Restore fullness"}</small></button>
+        <button type="button" disabled={care.completed.includes("play")} onClick={()=>careForMeowky("play")}><span>🧶</span><b>{care.completed.includes("play")?"Playtime done":"Play together"}</b><small>{care.completed.includes("play")?"Today's care complete":"Boost happiness"}</small></button>
+        <button type="button" disabled={care.completed.includes("rest")} onClick={()=>careForMeowky("rest")}><span>🌙</span><b>{care.completed.includes("rest")?"Rest complete":"Take a rest"}</b><small>{care.completed.includes("rest")?"Today's care complete":"Restore energy"}</small></button>
+      </div>
+      <div className="meowky-care-quest"><div><p className="eyebrow">DAILY CARE QUEST</p><strong>{care.completed.length} / 3 moments shared</strong><p>{care.completed.length===3?"You made Meowky's day! Come back tomorrow for another little routine.":"Complete all three care moments to finish today's companion routine."}</p></div><div className="meowky-care-paws" aria-label={care.completed.length+" of 3 daily care tasks completed"}>{["feed","play","rest"].map((task,index)=><span key={task} className={care.completed.includes(task)?"done":""}>{care.completed.includes(task)?"🐾":index+1}</span>)}</div></div>
+      <p className="meowky-home-note">Care progress is saved on this device and resets its daily checklist each new day. Care bonds are for fun and do not change your study XP.</p>
     </section>
     <section className="meowky-home panel" aria-label="Meowky's personal space">
       <div className="meowky-home-heading"><div><p className="eyebrow">A LITTLE PLACE TO CALL HOME</p><h2>Meowky's nook</h2><p>{roomRank} · A home that grows with your learning journey.</p></div><span className="meowky-home-level">Level {Math.min(6,Math.floor(xp/170)+1)} home</span></div>
