@@ -1,14 +1,14 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-type Meowky3DProps={formId:number;mood?:"happy"|"focused"|"sleepy";className?:string};
+type Meowky3DProps={formId:number;mood?:"happy"|"focused"|"sleepy";timeOfDay?:"morning"|"day"|"evening";className?:string};
 const palettes=["#f4d9b7","#f39a79","#72c8d0","#a9a0e9","#79b991","#f2c45f","#817bd2","#8dc8ed","#bd8bba","#e9c77c"];
 const accents=["#42bfa7","#ff947a","#3b9eae","#7669c5","#438b68","#c18a27","#d0a4ff","#67a8dc","#e98aa9","#f2cf79"];
 function sphere(parent:THREE.Group,geometry:THREE.SphereGeometry,material:THREE.Material,position:[number,number,number],scale:[number,number,number]){const mesh=new THREE.Mesh(geometry,material);mesh.position.set(...position);mesh.scale.set(...scale);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
-export function Meowky3D({formId,mood="happy",className}:Meowky3DProps){
+export function Meowky3D({formId,mood="happy",timeOfDay="day",className}:Meowky3DProps){
  const host=useRef<HTMLDivElement>(null);
- const moodRef=useRef(mood);
- useEffect(()=>{moodRef.current=mood;},[mood]);
+ const moodRef=useRef(mood);\n const timeRef=useRef(timeOfDay);
+ useEffect(()=>{moodRef.current=mood;},[mood]);\n useEffect(()=>{timeRef.current=timeOfDay;},[timeOfDay]);
  useEffect(()=>{
   const element=host.current;if(!element)return;
   const scene=new THREE.Scene();scene.background=null;
@@ -58,7 +58,7 @@ export function Meowky3D({formId,mood="happy",className}:Meowky3DProps){
   const idleSparkles:THREE.Mesh[]=[];
   if(formId>=7){for(let i=0;i<7;i++){const sparkle=new THREE.Mesh(new THREE.OctahedronGeometry(i%2?.045:.065),new THREE.MeshBasicMaterial({color:accents[Math.max(0,Math.min(9,formId-1))],transparent:true,opacity:.72}));sparkle.position.set(Math.cos(i*Math.PI*2/7)*1.35,.15+Math.sin(i*2.4)*.8,-.15);scene.add(sparkle);idleSparkles.push(sparkle);}}
   const resize=()=>{const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};const observer=new ResizeObserver(resize);observer.observe(element);
-  let frame=0;let raf=0;const animate=()=>{raf=requestAnimationFrame(animate);frame+=.012;const activeMood=moodRef.current;cat.position.y=Math.sin(frame*(activeMood==="happy"?2:1.5))*(activeMood==="sleepy"?.025:.075);cat.rotation.y=Math.sin(frame*.65)*(activeMood==="happy"?.22:.16);head.rotation.z=Math.sin(frame*(activeMood==="happy"?2.1:1.1))*(activeMood==="happy"?.045:.025);head.rotation.x=activeMood==="sleepy"?.08:0;tail.rotation.x=Math.sin(frame*(activeMood==="happy"?3.2:2))*(activeMood==="sleepy"?.06:.15);head.scale.y=activeMood==="sleepy"?.97:1;const blink=frame%8.5;const blinkScale=blink>8.28?Math.max(.12,1-(blink-8.28)/.11):1;eyes.forEach(eye=>{eye.scale.y=.12*blinkScale*(activeMood==="sleepy"?.82:1);});idleSparkles.forEach((sparkle,index)=>{sparkle.position.y=.15+Math.sin(frame*1.2+index*1.7)*.82;sparkle.rotation.x+=.012;sparkle.rotation.y+=.018;const pulse=.45+Math.sin(frame*1.8+index)*.3;(sparkle.material as THREE.MeshBasicMaterial).opacity=pulse;});renderer.render(scene,camera);};animate();
+  let frame=0;let raf=0;const animate=()=>{raf=requestAnimationFrame(animate);frame+=.012;const activeMood=moodRef.current;const dayPhase=timeRef.current;const pace=dayPhase==="morning"?1.22:dayPhase==="evening"?.78:1;cat.position.y=Math.sin(frame*(activeMood==="happy"?2:1.5)*pace)*(activeMood==="sleepy"?.025:dayPhase==="morning"?.095:.075);cat.rotation.y=Math.sin(frame*.65*pace)*(activeMood==="happy"?.22:dayPhase==="evening"?.1:.16);head.rotation.z=Math.sin(frame*(activeMood==="happy"?2.1:1.1)*pace)*(activeMood==="happy"?.045:.025);head.rotation.x=activeMood==="sleepy"?.08:0;tail.rotation.x=Math.sin(frame*(activeMood==="happy"?3.2:2))*(activeMood==="sleepy"?.06:.15);head.scale.y=activeMood==="sleepy"?.97:1;const blink=frame%(dayPhase==="evening"?6.5:dayPhase==="morning"?9.5:8.5);const blinkScale=blink>8.28?Math.max(.12,1-(blink-8.28)/.11):1;eyes.forEach(eye=>{eye.scale.y=.12*blinkScale*(activeMood==="sleepy"?.82:1);});idleSparkles.forEach((sparkle,index)=>{sparkle.position.y=.15+Math.sin(frame*1.2+index*1.7)*.82;sparkle.rotation.x+=.012;sparkle.rotation.y+=.018;const pulse=.45+Math.sin(frame*1.8+index)*.3;(sparkle.material as THREE.MeshBasicMaterial).opacity=pulse;});renderer.render(scene,camera);};animate();
   return()=>{cancelAnimationFrame(raf);observer.disconnect();renderer.dispose();scene.traverse(object=>{if(object instanceof THREE.Mesh){object.geometry.dispose();const material=object.material;if(Array.isArray(material))material.forEach(m=>m.dispose());else material.dispose();}});element.removeChild(renderer.domElement);};
  },[formId]);
  return <div ref={host} className={className??"meowky-3d-canvas"} role="img" aria-label={`3D Meowky companion, evolution form ${formId}`}/>;
