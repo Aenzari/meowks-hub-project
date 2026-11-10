@@ -184,3 +184,38 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .course-card,.full-task-row,.calendar-day,.nav-item{transition:none}
   .course-card:hover,.nav-item:hover{transform:none}
 }
+
+
+/* Phase 2 — interactive Meowky companion */
+.meowky-companion-interactive{grid-template-columns:minmax(0,1fr) 190px;gap:26px;min-height:245px}
+.meowky-companion-interactive .meowky-companion-copy{max-width:650px}
+.meowky-companion-dialogue{min-height:38px;margin:9px 0 12px!important;color:#e0eee8!important;font-size:12px!important;line-height:1.65!important}
+.meowky-companion-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.meowky-companion-actions button{min-height:34px;padding:8px 11px;border:1px solid rgba(220,244,233,.22);border-radius:10px;background:rgba(255,255,255,.08);color:#e8f6ef;font-size:10px;font-weight:750;transition:background .18s,border-color .18s,transform .18s}
+.meowky-companion-actions button:hover{transform:translateY(-2px);border-color:rgba(143,226,201,.7);background:rgba(76,199,169,.2)}
+.meowky-companion-actions button:focus-visible{outline:3px solid #9debd3;outline-offset:3px}
+.meowky-companion-actions .meowky-headpat{border-color:rgba(255,190,169,.38);background:rgba(255,148,122,.14);color:#ffd7c9}
+.meowky-headpat-count{display:block;margin-top:9px;color:#9eb8ae;font-size:9px}
+.meowky-companion-art{overflow:visible;transition:box-shadow .25s ease,filter .25s ease}
+.meowky-companion-art:before{content:"";position:absolute;inset:-12px;border-radius:48px;background:radial-gradient(circle,rgba(115,225,194,.24),transparent 68%);z-index:-1;opacity:.7;transition:opacity .25s,transform .25s}
+.meowky-companion-art .meowky-3d-canvas{width:100%;height:100%;overflow:hidden;border-radius:inherit}
+.meowky-companion-art .meowky-3d-canvas canvas{display:block;width:100%;height:100%}
+.meowky-companion-interactive.mood-happy .meowky-companion-art{box-shadow:0 0 0 5px rgba(255,207,130,.14),0 18px 38px rgba(0,0,0,.22),inset 0 2px 5px #fff}
+.meowky-companion-interactive.mood-happy .meowky-companion-art:before{opacity:1;transform:scale(1.12);background:radial-gradient(circle,rgba(255,207,130,.34),transparent 68%)}
+.meowky-companion-interactive.mood-sleepy .meowky-companion-art:before{opacity:.35;transform:scale(.92)}
+.meowky-companion-interactive.mood-focused .meowky-companion-art:before{opacity:.85}
+@media(max-width:720px){
+ .meowky-companion-interactive{grid-template-columns:minmax(0,1fr) 112px;gap:10px;min-height:220px}
+ .meowky-companion-interactive .meowky-companion-actions{gap:6px}
+ .meowky-companion-interactive .meowky-companion-actions button{padding:7px 8px;font-size:9px}
+ .meowky-companion-interactive .meowky-headpat-count{max-width:230px;line-height:1.5}
+}
+@media(max-width:420px){
+ .meowky-companion-interactive{grid-template-columns:minmax(0,1fr) 86px;gap:7px}
+ .meowky-companion-interactive .meowky-companion-actions button{min-height:31px;padding:6px 7px}
+ .meowky-companion-dialogue{font-size:10px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .meowky-companion-actions button,.meowky-companion-art,.meowky-companion-art:before{transition:none}
+ .meowky-companion-actions button:hover{transform:none}
+}
