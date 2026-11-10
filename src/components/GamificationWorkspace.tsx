@@ -86,7 +86,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     try{
       const saved=window.localStorage.getItem("achieve-active-companion-"+userId);
       const available=COMPANION_ROSTER.filter(item=>item.availability==="recruited").map(item=>item.id);
-      setActiveCompanionId(saved&&available.includes(saved)?"meowky"===saved?saved:"meowky":"meowky");
+      setActiveCompanionId(saved&&available.includes(saved)?saved:"meowky");
     }catch{setActiveCompanionId("meowky");}
     setActiveCompanionReady(true);setActiveCompanionOwner(userId);
   },[userId]);
