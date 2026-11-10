@@ -7,8 +7,10 @@ const accents=["#42bfa7","#ff947a","#3b9eae","#7669c5","#438b68","#c18a27","#d0a
 function sphere(parent:THREE.Group,geometry:THREE.SphereGeometry,material:THREE.Material,position:[number,number,number],scale:[number,number,number]){const mesh=new THREE.Mesh(geometry,material);mesh.position.set(...position);mesh.scale.set(...scale);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
 export function Meowky3D({formId,mood="happy",timeOfDay="day",className}:Meowky3DProps){
  const host=useRef<HTMLDivElement>(null);
- const moodRef=useRef(mood);\n const timeRef=useRef(timeOfDay);
- useEffect(()=>{moodRef.current=mood;},[mood]);\n useEffect(()=>{timeRef.current=timeOfDay;},[timeOfDay]);
+ const moodRef=useRef(mood);
+ const timeRef=useRef(timeOfDay);
+ useEffect(()=>{moodRef.current=mood;},[mood]);
+ useEffect(()=>{timeRef.current=timeOfDay;},[timeOfDay]);
  useEffect(()=>{
   const element=host.current;if(!element)return;
   const scene=new THREE.Scene();scene.background=null;
