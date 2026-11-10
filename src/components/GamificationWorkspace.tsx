@@ -33,6 +33,11 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [journalReady,setJournalReady]=useState(false);
   const [journalOwner,setJournalOwner]=useState("");
   const [journalFilter,setJournalFilter]=useState<"all"|"journey"|"evolution"|"achievement"|"streak"|"care">("all");
+  const [seasonalTokens,setSeasonalTokens]=useState(0);
+  const [seasonalClaimDay,setSeasonalClaimDay]=useState("");
+  const [seasonalReady,setSeasonalReady]=useState(false);
+  const [seasonalOwner,setSeasonalOwner]=useState("");
+  const [equippedCollectible,setEquippedCollectible]=useState("none");
   const [evolutionCelebration,setEvolutionCelebration]=useState<(typeof MEOWKY_FORMS)[number]|null>(null);
 
   async function refresh(){
@@ -72,6 +77,26 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   useEffect(()=>{if(!careReady)return;try{window.localStorage.setItem("achieve-meowky-care-"+userId,JSON.stringify(care));}catch{/* Care remains available for this visit if storage is unavailable. */}},[care,userId,careReady]);
   useEffect(()=>{try{const saved=window.localStorage.getItem("achieve-meowky-journal-"+userId);const parsed=saved?JSON.parse(saved):[];setJournal(Array.isArray(parsed)?parsed.filter((item:any)=>item&&typeof item.id==="string"&&typeof item.title==="string"):[]);}catch{setJournal([]);}setJournalReady(true);setJournalOwner(userId);},[userId]);
   useEffect(()=>{if(!journalReady||journalOwner!==userId)return;try{window.localStorage.setItem("achieve-meowky-journal-"+userId,JSON.stringify(journal.slice(0,100)));}catch{/* Journal remains available for this visit if storage is unavailable. */}},[journal,userId,journalReady,journalOwner]);
+
+  const seasonKey=(()=>{const month=new Date().getMonth();return month<3?"spring":month<6?"summer":month<9?"autumn":"winter";})();
+  const seasonYear=new Date().getFullYear();
+  const seasonalStorageKey="achieve-meowky-season-"+userId+"-"+seasonYear+"-"+seasonKey;
+  const seasonalToday=new Date().toLocaleDateString("en-CA");
+  useEffect(()=>{
+    try{
+      const saved=window.localStorage.getItem(seasonalStorageKey);
+      const parsed=saved?JSON.parse(saved):null;
+      setSeasonalTokens(typeof parsed?.tokens==="number"?Math.max(0,Math.min(100,parsed.tokens)):0);
+      setSeasonalClaimDay(typeof parsed?.claimedDay==="string"?parsed.claimedDay:"");
+      setEquippedCollectible(typeof parsed?.equipped==="string"?parsed.equipped:"none");
+    }catch{setSeasonalTokens(0);setSeasonalClaimDay("");setEquippedCollectible("none");}
+    setSeasonalReady(true);setSeasonalOwner(userId);
+  },[userId,seasonalStorageKey]);
+  useEffect(()=>{
+    if(!seasonalReady||seasonalOwner!==userId)return;
+    try{window.localStorage.setItem(seasonalStorageKey,JSON.stringify({tokens:seasonalTokens,claimedDay:seasonalClaimDay,equipped:equippedCollectible}));}catch{/* Seasonal progress remains available for this visit if storage is unavailable. */}
+  },[seasonalReady,seasonalOwner,userId,seasonalStorageKey,seasonalTokens,seasonalClaimDay,equippedCollectible]);
+
 
 
   async function toggleLeaderboard(){
@@ -116,6 +141,21 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const returnGreeting=daysSinceActivity!==null&&daysSinceActivity>=2?"I missed you! Every return is a fresh beginning.":daysSinceActivity===1?"Welcome back! I saved a little purr just for you.":"It’s lovely spending another day together.";
   const activityDialogue=todayMinutes>=30?"You reached today's study goal! I’m doing the proudest little purr.":todayMinutes>0?"I saw you studying today. Every minute is a tiny victory.":(stats?.current_streak??0)>=3?"Your study streak is still glowing. Shall we keep it going?":"Ready when you are. We can start with just five minutes.";
   const friendshipTier=care.bond>=30?"Soul companion":care.bond>=15?"Best friends":care.bond>=7?"Close friends":care.bond>=3?"Good friends":"New friends";
+
+  const seasonalEvents={spring:{name:"Bloomlight Festival",subtitle:"A season of fresh starts and little wonders.",icon:"🌸",collectibles:[{id:"petal-crown",name:"Petal crown",icon:"🌺",unlock:20,detail:"A flower crown for your companion."},{id:"bloom-lantern",name:"Bloom lantern",icon:"🏮",unlock:40,detail:"A lantern filled with spring light."},{id:"mossy-plush",name:"Mossy plush",icon:"🧸",unlock:60,detail:"A tiny keepsake from the meadow."},{id:"rainbow-butterfly",name:"Rainbow butterfly",icon:"🦋",unlock:80,detail:"A colorful visitor for your nook."},{id:"spring-aura",name:"Bloomlight aura",icon:"✨",unlock:100,detail:"A soft seasonal glow."}]},
+    summer:{name:"Sunbeam Carnival",subtitle:"Collect sunny moments and warm little memories.",icon:"☀️",collectibles:[{id:"sunhat",name:"Sunshine hat",icon:"👒",unlock:20,detail:"A sunny hat for bright days."},{id:"lemonade",name:"Lemonade stand",icon:"🍋",unlock:40,detail:"A refreshing nook decoration."},{id:"seashell",name:"Ocean shell",icon:"🐚",unlock:60,detail:"A little treasure from the shore."},{id:"sunfish",name:"Sunfish friend",icon:"🐠",unlock:80,detail:"A cheerful seasonal visitor."},{id:"sun-aura",name:"Sunbeam aura",icon:"🌟",unlock:100,detail:"A warm golden glow."}]},
+    autumn:{name:"Goldenleaf Gathering",subtitle:"Gather cozy treasures as the leaves turn gold.",icon:"🍂",collectibles:[{id:"acorn-cap",name:"Acorn cap",icon:"🌰",unlock:20,detail:"A tiny woodland cap."},{id:"cider-mug",name:"Cider mug",icon:"☕",unlock:40,detail:"A cozy nook keepsake."},{id:"maple-plush",name:"Maple plush",icon:"🦊",unlock:60,detail:"A soft woodland friend."},{id:"leaf-sprite",name:"Leaf sprite",icon:"🍁",unlock:80,detail:"A little autumn visitor."},{id:"golden-aura",name:"Goldenleaf aura",icon:"✨",unlock:100,detail:"A warm amber seasonal glow."}]},
+    winter:{name:"Froststar Festival",subtitle:"Find wonder in the quiet glow of winter.",icon:"❄️",collectibles:[{id:"frost-scarf",name:"Frost scarf",icon:"🧣",unlock:20,detail:"A soft scarf for chilly days."},{id:"snowglobe",name:"Snow globe",icon:"🔮",unlock:40,detail:"A tiny winter scene."},{id:"penguin-plush",name:"Penguin plush",icon:"🐧",unlock:60,detail:"A bundled-up seasonal friend."},{id:"ice-crystal",name:"Ice crystal",icon:"💠",unlock:80,detail:"A sparkling winter treasure."},{id:"frost-aura",name:"Froststar aura",icon:"❄️",unlock:100,detail:"A gentle frosty glow."}]}};
+  const activeSeason=seasonalEvents[seasonKey as keyof typeof seasonalEvents];
+  const canClaimSeasonal=seasonalReady&&seasonalClaimDay!==seasonalToday&&(todayMinutes>=30||care.completed.length===3);
+  const seasonalProgress=Math.min(100,seasonalTokens);
+  function claimSeasonalToken(){
+    if(!canClaimSeasonal)return;
+    setSeasonalTokens(value=>Math.min(100,value+20));
+    setSeasonalClaimDay(seasonalToday);
+    setNotice("You found a seasonal token! Your little collection is growing.");
+  }
+
   useEffect(()=>{
     if(!journalReady||!stats)return;
     const today=new Date().toLocaleDateString("en-CA");
@@ -177,6 +217,14 @@ export function GamificationWorkspace({userId}:{userId:string}) {
       </div>
       <div className="meowky-surprise-row"><div><strong>✨ A little surprise</strong><p>{surpriseLine||"There's a small bit of magic waiting whenever you need a smile."}</p></div><button type="button" disabled={surpriseUsed} onClick={revealSurprise}>{surpriseUsed?"Surprise discovered":"Reveal surprise"}</button></div>
       {(todayMinutes>=30||(stats?.current_streak??0)>=7)&&<div className="meowky-milestone-note" role="status"><span>🎉</span><div><strong>{todayMinutes>=30?"Daily study goal achieved!":"A seven-day streak milestone!"}</strong><p>{todayMinutes>=30?"Meowky is celebrating your 30-minute study goal with you.":"A whole week of showing up. That's something to be proud of."}</p></div></div>}
+    </section>
+
+    <section className="meowky-seasonal panel" aria-label="Meowky seasonal event and collectibles">
+      <div className="meowky-home-heading"><div><p className="eyebrow">LIMITED-TIME SEASONAL EVENT · {seasonYear}</p><h2>{activeSeason.icon} {activeSeason.name}</h2><p>{activeSeason.subtitle}</p></div><span className="meowky-season-token">✦ {seasonalTokens} / 100 tokens</span></div>
+      <div className="meowky-season-progress" role="progressbar" aria-label="Seasonal event progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={seasonalProgress}><span style={{width:seasonalProgress+"%"}}/></div>
+      <div className="meowky-season-action"><div><strong>{canClaimSeasonal?"A seasonal token is ready to collect!":seasonalClaimDay===seasonalToday?"Today's token has been collected.":"Complete today's study goal or all three care moments."}</strong><p>{seasonalClaimDay===seasonalToday?"Come back tomorrow for another event token.":"Earn one token bundle per day by studying for 30 minutes or completing Meowky's daily care routine."}</p></div><button type="button" disabled={!canClaimSeasonal} onClick={claimSeasonalToken}>{seasonalClaimDay===seasonalToday?"Collected today":"Collect 20 tokens"}</button></div>
+      <div className="meowky-season-collection"><div className="meowky-season-collection-heading"><strong>Seasonal keepsakes</strong><span>Unlock rewards as you collect tokens</span></div><div className="meowky-season-rewards">{activeSeason.collectibles.map(item=>{const unlocked=seasonalTokens>=item.unlock;return <button type="button" key={item.id} disabled={!unlocked} className={(unlocked?"unlocked ":"")+ (equippedCollectible===item.id?"equipped":"")} aria-pressed={equippedCollectible===item.id} title={unlocked?item.detail:"Collect "+item.unlock+" seasonal tokens to unlock"} onClick={()=>setEquippedCollectible(item.id)}><span>{unlocked?item.icon:"🔒"}</span><b>{item.name}</b><small>{unlocked?(equippedCollectible===item.id?"Equipped":"Tap to equip"):item.unlock+" tokens"}</small></button>;})}</div></div>
+      <p className="meowky-home-note">Seasonal tokens are earned through study and companion care, never purchased. Collectibles are cosmetic only and do not affect study XP. Progress is saved on this device and browser.</p>
     </section>
     <section className="meowky-journal panel" aria-label="Meowky adventure journal">
       <div className="meowky-home-heading"><div><p className="eyebrow">OUR LITTLE HISTORY</p><h2>Meowky's adventure journal</h2><p>A keepsake of the milestones, memories, and moments you've shared.</p></div><span className="meowky-journal-count">📖 {journal.length} memories</span></div>
