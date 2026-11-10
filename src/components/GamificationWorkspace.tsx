@@ -31,6 +31,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [surpriseUsed,setSurpriseUsed]=useState(false);
   const [journal,setJournal]=useState<MeowkyMemory[]>([]);
   const [journalReady,setJournalReady]=useState(false);
+  const [journalOwner,setJournalOwner]=useState("");
   const [journalFilter,setJournalFilter]=useState<"all"|"journey"|"evolution"|"achievement"|"streak"|"care">("all");
   const [evolutionCelebration,setEvolutionCelebration]=useState<(typeof MEOWKY_FORMS)[number]|null>(null);
 
@@ -69,8 +70,8 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     setCareReady(true);
   },[userId]);
   useEffect(()=>{if(!careReady)return;try{window.localStorage.setItem("achieve-meowky-care-"+userId,JSON.stringify(care));}catch{/* Care remains available for this visit if storage is unavailable. */}},[care,userId,careReady]);
-  useEffect(()=>{try{const saved=window.localStorage.getItem("achieve-meowky-journal-"+userId);const parsed=saved?JSON.parse(saved):[];setJournal(Array.isArray(parsed)?parsed.filter((item:any)=>item&&typeof item.id==="string"&&typeof item.title==="string"):[]);}catch{setJournal([]);}setJournalReady(true);},[userId]);
-  useEffect(()=>{if(!journalReady)return;try{window.localStorage.setItem("achieve-meowky-journal-"+userId,JSON.stringify(journal.slice(0,100)));}catch{/* Journal remains available for this visit if storage is unavailable. */}},[journal,userId,journalReady]);
+  useEffect(()=>{try{const saved=window.localStorage.getItem("achieve-meowky-journal-"+userId);const parsed=saved?JSON.parse(saved):[];setJournal(Array.isArray(parsed)?parsed.filter((item:any)=>item&&typeof item.id==="string"&&typeof item.title==="string"):[]);}catch{setJournal([]);}setJournalReady(true);setJournalOwner(userId);},[userId]);
+  useEffect(()=>{if(!journalReady||journalOwner!==userId)return;try{window.localStorage.setItem("achieve-meowky-journal-"+userId,JSON.stringify(journal.slice(0,100)));}catch{/* Journal remains available for this visit if storage is unavailable. */}},[journal,userId,journalReady,journalOwner]);
 
 
   async function toggleLeaderboard(){
