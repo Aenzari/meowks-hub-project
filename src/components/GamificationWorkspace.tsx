@@ -4,6 +4,7 @@ import { Meowky } from "./Meowky";
 import { Meowky3D } from "./Meowky3D";
 import { MEOWKY_FORMS, getMeowkyForm, getNextMeowkyForm } from "../lib/meowky-evolution";
 import { COMPANION_ROSTER } from "../lib/companion-roster";
+import { COMPANION_EVOLUTION_PATHS, getCompanionEvolutionStage, getNextCompanionEvolutionStage } from "../lib/companion-evolution";
 
 type Stats = { xp:number; level:number; current_streak:number; longest_streak:number; last_activity_date:string|null };
 type Achievement = { achievement_id:string; earned_at:string; catalog:{name:string;description:string;icon:string}|null };
@@ -138,6 +139,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   }
 
   const activeCompanion=COMPANION_ROSTER.find(item=>item.id===activeCompanionId)??COMPANION_ROSTER[0];
+  const companionEvolutionPaths=COMPANION_ROSTER.map(companion=>({companion,path:COMPANION_EVOLUTION_PATHS[companion.id]})).filter(item=>Boolean(item.path));
   const xp=stats?.xp??0;
   const level=stats?.level??1;
   const levelProgress=xp%250;
@@ -283,7 +285,16 @@ export function GamificationWorkspace({userId}:{userId:string}) {
         <span className="active-companion-status">✦ ACTIVE</span>
         <div className="companion-identity-story"><div><span>PERSONALITY</span><p>{activeCompanion.personality}</p></div><div><span>FAVORITE ADVENTURE</span><p>{activeCompanion.favoriteActivity}</p></div><blockquote>“{activeCompanion.signatureLine}”</blockquote><div className="companion-trait-list">{activeCompanion.traits.map(trait=><span key={trait}>{trait}</span>)}</div></div>
       </div>
-      <div className="companion-roster-grid">{COMPANION_ROSTER.map(companion=>{const recruited=companion.availability==="recruited";const active=activeCompanionId===companion.id;return <article className={"companion-roster-card "+(recruited?"is-recruited":"is-coming-soon")+(active?" is-active":"")} key={companion.id}><div className="companion-roster-art" aria-hidden="true"><span>{recruited?companion.symbol:"?"}</span>{!recruited&&<small>LOCKED</small>}</div><div className="companion-roster-copy"><div className="companion-roster-meta"><span>{companion.species}</span><b>{active?"ACTIVE":recruited?"RECRUITED":"COMING SOON"}</b></div><h3>{companion.name}</h3><p>{companion.description}</p><p className="companion-roster-personality">{companion.role} · {companion.traits.join(" · ")}</p><div className="companion-roster-foot"><span>{companion.rarity}</span>{recruited?<strong>{MEOWKY_FORMS.filter(form=>xp>=form.xpRequired).length} / {MEOWKY_FORMS.length} forms</strong>:<strong>Adventure awaits</strong>}</div><button type="button" className="companion-select-button" disabled={!recruited||active||!activeCompanionReady} onClick={()=>selectActiveCompanion(companion.id)}>{active?"Currently active":recruited?"Set as active":"Not yet available"}</button></div></article>;})}</div>
+      <div className="companion-roster-grid">{COMPANION_ROSTER.map(companion=>{const recruited=companion.availability==="recruited";const active=activeCompanionId===companion.id;return <article className={"companion-roster-card "+(recruited?"is-recruited":"is-coming-soon")+(active?" is-active":"")} key={companion.id}><div className="companion-roster-art" aria-hidden="true"><span>{recruited?companion.symbol:"?"}</span>{!recruited&&<small>LOCKED</small>}</div><div className="companion-roster-copy"><div className="companion-roster-meta"><span>{companion.species}</span><b>{active?"ACTIVE":recruited?"RECRUITED":"COMING SOON"}</b></div><h3>{companion.name}</h3><p>{companion.description}</p><p className="companion-roster-personality">{companion.role} · {companion.traits.join(" · ")}</p><div className="companion-roster-foot"><span>{companion.rarity}</span>{recruited?<strong>{(COMPANION_EVOLUTION_PATHS[companion.id]?.stages??[]).filter(form=>xp>=form.xpRequired).length} / {(COMPANION_EVOLUTION_PATHS[companion.id]?.stages??[]).length} forms</strong>:<strong>Adventure awaits</strong>}</div><button type="button" className="companion-select-button" disabled={!recruited||active||!activeCompanionReady} onClick={()=>selectActiveCompanion(companion.id)}>{active?"Currently active":recruited?"Set as active":"Not yet available"}</button></div></article>;})}</div>
+      <div className="companion-evolution-library" aria-label="Individual companion evolution paths">
+        <div className="companion-evolution-library-heading"><div><p className="eyebrow">FOUR UNIQUE JOURNEYS</p><h3>Evolution paths</h3><p>Your learning XP guides every companion along their own ten-form story.</p></div><span>10 stages each</span></div>
+        <div className="companion-evolution-path-grid">{companionEvolutionPaths.map(({companion,path})=>{const current=getCompanionEvolutionStage(companion.id,xp);const next=getNextCompanionEvolutionStage(companion.id,xp);const unlocked=path.stages.filter(stage=>xp>=stage.xpRequired).length;const progress=next&&current?Math.min(100,Math.round(((xp-current.xpRequired)/(next.xpRequired-current.xpRequired))*100)):100;return <article className="companion-evolution-path" key={companion.id} data-companion={companion.id}>
+          <div className="companion-evolution-path-top"><span className="companion-evolution-symbol" style={{background:current?.palette??"#f4ead8"}}>{companion.symbol}</span><div><strong>{companion.name}</strong><small>{current?.name??"First form"} · {current?.rarity??"Common"}</small></div><b>{unlocked}/10</b></div>
+          <div className="companion-evolution-track"><span style={{width:progress+"%"}}/></div>
+          <p className="companion-evolution-next">{next?(next.xpRequired-xp).toLocaleString()+" XP to "+next.name:"Celestial form reached"}</p>
+          <div className="companion-evolution-stages">{path.stages.map(stage=>{const isUnlocked=xp>=stage.xpRequired;return <div className={"companion-evolution-stage "+(isUnlocked?"is-unlocked":"is-locked")} key={stage.id} title={isUnlocked?stage.name:"Unlock at "+stage.xpRequired.toLocaleString()+" XP"}><span style={{background:stage.palette}}>{isUnlocked?stage.symbol:"?"}</span><small>{isUnlocked?stage.name:"Undiscovered"}</small><em>{stage.xpRequired.toLocaleString()} XP</em></div>;})}</div>
+        </article>;})}</div>
+      </div>
       <p className="gamification-footnote">Meowky is your first fully playable companion. New roster entries are previews until their character art, evolution paths, and interactions are released.</p>
     </section>
     <section className="panel meowky-evolution-panel">
