@@ -315,3 +315,25 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .meowky-milestone-note p{margin:3px 0 0;color:#99876a;font-size:9px;line-height:1.5}
 @media(max-width:560px){.meowky-bond-story{padding:15px!important}.meowky-story-grid{grid-template-columns:1fr;gap:8px}.meowky-surprise-row{align-items:flex-start;flex-direction:column}.meowky-surprise-row button{width:100%}}
 @media(prefers-reduced-motion:reduce){.meowky-surprise-row button{transition:none}}
+
+
+/* Phase 2.6 — Meowky's keepsake journal */
+.meowky-journal{margin:0 0 19px;padding:22px!important;background:radial-gradient(circle at 100% 0%,rgba(233,189,114,.13),transparent 17rem),linear-gradient(145deg,#fffefa,#f8f7fc)}
+.meowky-journal-count{flex:0 0 auto;padding:8px 11px;border:1px solid #e8dfc9;border-radius:99px;background:#fff9eb;color:#8c754e;font-size:10px;font-weight:800}
+.meowky-journal-filters{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0}
+.meowky-journal-filters button{min-height:34px;padding:7px 11px;border:1px solid #e8e7e1;border-radius:99px;background:#fff;color:#87918a;font-size:9px;font-weight:750;touch-action:manipulation}
+.meowky-journal-filters button.selected{border-color:#c9e5d7;background:#eaf7ef;color:#287b69}
+.meowky-journal-list{display:grid;gap:9px;max-height:440px;overflow-y:auto;padding-right:3px}
+.meowky-journal-entry{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:start;gap:12px;padding:13px;border:1px solid #ece9e1;border-radius:14px;background:rgba(255,255,255,.86)}
+.meowky-journal-icon{display:grid;place-items:center;width:42px;height:42px;border:1px solid #f0e7d6;border-radius:13px;background:linear-gradient(145deg,#fff7e8,#f6f0ff);font-size:20px}
+.meowky-journal-entry>div{min-width:0}
+.meowky-journal-entry-meta{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.meowky-journal-entry-meta strong{color:#294354;font-size:11px}
+.meowky-journal-entry-meta time{flex:0 0 auto;color:#9a9b91;font-size:9px}
+.meowky-journal-entry p{margin:5px 0;color:#78877e;font-size:10px;line-height:1.6}
+.meowky-journal-entry small{display:inline-block;padding:3px 7px;border-radius:99px;background:#f3f1f7;color:#897b9b;font-size:8px;font-weight:750;text-transform:capitalize}
+.meowky-journal-empty{display:grid;justify-items:center;gap:6px;padding:27px 14px;border:1px dashed #e5e2d9;border-radius:14px;background:rgba(255,255,255,.55);text-align:center}
+.meowky-journal-empty>span{font-size:27px}
+.meowky-journal-empty strong{color:#526b60;font-size:12px}
+.meowky-journal-empty p{max-width:300px;margin:0;color:#92968c;font-size:10px;line-height:1.6}
+@media(max-width:560px){.meowky-journal{padding:15px!important}.meowky-journal-entry{grid-template-columns:36px minmax(0,1fr);gap:9px;padding:10px}.meowky-journal-icon{width:36px;height:36px}.meowky-journal-entry-meta{align-items:flex-start;flex-direction:column;gap:3px}.meowky-journal-filters{gap:5px}.meowky-journal-filters button{padding-inline:9px}}
