@@ -8,6 +8,7 @@ type Stats = { xp:number; level:number; current_streak:number; longest_streak:nu
 type Achievement = { achievement_id:string; earned_at:string; catalog:{name:string;description:string;icon:string}|null };
 type Leader = { user_id:string; display_name:string; xp:number; level:number; current_streak:number; rank:number };
 type MeowkyCare = { fullness:number; joy:number; energy:number; bond:number; completed:string[]; day:string };
+type MeowkyMemory = { id:string; title:string; detail:string; icon:string; date:string; category:"journey"|"evolution"|"achievement"|"streak"|"care" };
 
 export function GamificationWorkspace({userId}:{userId:string}) {
   const [stats,setStats]=useState<Stats|null>(null);
@@ -28,6 +29,9 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [careReady,setCareReady]=useState(false);
   const [surpriseLine,setSurpriseLine]=useState("");
   const [surpriseUsed,setSurpriseUsed]=useState(false);
+  const [journal,setJournal]=useState<MeowkyMemory[]>([]);
+  const [journalReady,setJournalReady]=useState(false);
+  const [journalFilter,setJournalFilter]=useState<"all"|"journey"|"evolution"|"achievement"|"streak"|"care">("all");
   const [evolutionCelebration,setEvolutionCelebration]=useState<(typeof MEOWKY_FORMS)[number]|null>(null);
 
   async function refresh(){
@@ -65,6 +69,8 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     setCareReady(true);
   },[userId]);
   useEffect(()=>{if(!careReady)return;try{window.localStorage.setItem("achieve-meowky-care-"+userId,JSON.stringify(care));}catch{/* Care remains available for this visit if storage is unavailable. */}},[care,userId,careReady]);
+  useEffect(()=>{try{const saved=window.localStorage.getItem("achieve-meowky-journal-"+userId);const parsed=saved?JSON.parse(saved):[];setJournal(Array.isArray(parsed)?parsed.filter((item:any)=>item&&typeof item.id==="string"&&typeof item.title==="string"):[]);}catch{setJournal([]);}setJournalReady(true);},[userId]);
+  useEffect(()=>{if(!journalReady)return;try{window.localStorage.setItem("achieve-meowky-journal-"+userId,JSON.stringify(journal.slice(0,100)));}catch{/* Journal remains available for this visit if storage is unavailable. */}},[journal,userId,journalReady]);
 
 
   async function toggleLeaderboard(){
@@ -109,6 +115,21 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const returnGreeting=daysSinceActivity!==null&&daysSinceActivity>=2?"I missed you! Every return is a fresh beginning.":daysSinceActivity===1?"Welcome back! I saved a little purr just for you.":"It’s lovely spending another day together.";
   const activityDialogue=todayMinutes>=30?"You reached today's study goal! I’m doing the proudest little purr.":todayMinutes>0?"I saw you studying today. Every minute is a tiny victory.":(stats?.current_streak??0)>=3?"Your study streak is still glowing. Shall we keep it going?":"Ready when you are. We can start with just five minutes.";
   const friendshipTier=care.bond>=30?"Soul companion":care.bond>=15?"Best friends":care.bond>=7?"Close friends":care.bond>=3?"Good friends":"New friends";
+  useEffect(()=>{
+    if(!journalReady||!stats)return;
+    const today=new Date().toLocaleDateString("en-CA");
+    const memories:MeowkyMemory[]=[];
+    if(currentForm.id>1)memories.push({id:"evolution-"+currentForm.id,title:currentForm.name+" awakened",detail:"You reached "+currentForm.xpRequired.toLocaleString()+" XP and unlocked the "+currentForm.rarity+" form.",icon:"✨",date:today,category:"evolution"});
+    if(todayMinutes>=30)memories.push({id:"daily-goal-"+today,title:"A focused day",detail:"You completed at least 30 minutes of study. Meowky is celebrating your effort.",icon:"📚",date:today,category:"journey"});
+    if((stats.current_streak??0)>=3)memories.push({id:"streak-"+stats.current_streak,title:stats.current_streak+" day study streak",detail:"You kept showing up for your learning journey. One day at a time adds up.",icon:"🔥",date:today,category:"streak"});
+    achievements.forEach(item=>{const info=catalog[item.achievement_id];if(info)memories.push({id:"achievement-"+item.achievement_id,title:info.name,detail:info.description||"You earned a new achievement on your learning journey.",icon:info.icon||"🏅",date:item.earned_at?new Date(item.earned_at).toLocaleDateString("en-CA"):today,category:"achievement"});});
+    setJournal(existing=>{const known=new Set(existing.map(item=>item.id));const fresh=memories.filter(item=>!known.has(item.id));if(existing.length===0&&fresh.length===0)fresh.push({id:"journey-begins",title:"Our adventure begins",detail:"This is where your memories with Meowky begin. Every little step can become a story.",icon:"🐾",date:today,category:"journey"});return fresh.length?[...fresh,...existing].slice(0,100):existing;});
+  },[journalReady,stats,currentForm.id,todayMinutes,achievements,catalog]);
+  function addCareMemory(action:"feed"|"play"|"rest"){
+    const details={feed:{title:"A thoughtful snack",detail:"You shared a little snack with Meowky and made sure they felt cared for.",icon:"🍪"},play:{title:"Playtime together",detail:"You took a playful break with Meowky and shared a happy moment.",icon:"🧶"},rest:{title:"A peaceful rest",detail:"You helped Meowky recharge. Rest is part of every good journey.",icon:"🌙"}};
+    const item=details[action];const memory:MeowkyMemory={id:"care-"+care.day+"-"+action,title:item.title,detail:item.detail,icon:item.icon,date:care.day,category:"care"};
+    setJournal(existing=>existing.some(entry=>entry.id===memory.id)?existing:[memory,...existing].slice(0,100));
+  }
   const surpriseMessages=["A tiny star fell into our room. I think it wished us a wonderful day!","Secret mission: stretch your shoulders, sip some water, and come back when you're ready.","I found a little imaginary flower and named it after you.","Psst… your effort matters, even on the days progress feels slow.","If I could give you one thing, it would be a pocket-sized bit of courage."];
   function revealSurprise(){
     const index=Math.floor(Math.random()*surpriseMessages.length);
@@ -119,6 +140,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   function careForMeowky(action:"feed"|"play"|"rest"){
     const effects={feed:{fullness:22,joy:4,energy:-2,line:"Nom nom! That snack was purr-fect. Thank you!"},play:{fullness:-5,joy:22,energy:-12,line:"Wheee! That was so much fun. You always know how to make me smile!"},rest:{fullness:-2,joy:3,energy:24,line:"Mmm… a little rest feels wonderful. I’m all recharged!"}};
     const change=effects[action];
+    addCareMemory(action);
     setCare(value=>({...value,fullness:Math.max(0,Math.min(100,value.fullness+change.fullness)),joy:Math.max(0,Math.min(100,value.joy+change.joy)),energy:Math.max(0,Math.min(100,value.energy+change.energy)),bond:value.bond+1,completed:value.completed.includes(action)?value.completed:[...value.completed,action]}));
     setCompanionMood(action==="rest"?"sleepy":"happy");setCompanionLine(change.line);
   }
@@ -154,6 +176,12 @@ export function GamificationWorkspace({userId}:{userId:string}) {
       </div>
       <div className="meowky-surprise-row"><div><strong>✨ A little surprise</strong><p>{surpriseLine||"There's a small bit of magic waiting whenever you need a smile."}</p></div><button type="button" disabled={surpriseUsed} onClick={revealSurprise}>{surpriseUsed?"Surprise discovered":"Reveal surprise"}</button></div>
       {(todayMinutes>=30||(stats?.current_streak??0)>=7)&&<div className="meowky-milestone-note" role="status"><span>🎉</span><div><strong>{todayMinutes>=30?"Daily study goal achieved!":"A seven-day streak milestone!"}</strong><p>{todayMinutes>=30?"Meowky is celebrating your 30-minute study goal with you.":"A whole week of showing up. That's something to be proud of."}</p></div></div>}
+    </section>
+    <section className="meowky-journal panel" aria-label="Meowky adventure journal">
+      <div className="meowky-home-heading"><div><p className="eyebrow">OUR LITTLE HISTORY</p><h2>Meowky's adventure journal</h2><p>A keepsake of the milestones, memories, and moments you've shared.</p></div><span className="meowky-journal-count">📖 {journal.length} memories</span></div>
+      <div className="meowky-journal-filters" role="group" aria-label="Filter journal memories">{(["all","journey","evolution","achievement","streak","care"] as const).map(filter=><button type="button" key={filter} className={journalFilter===filter?"selected":""} aria-pressed={journalFilter===filter} onClick={()=>setJournalFilter(filter)}>{filter==="all"?"All memories":filter==="journey"?"Journey":filter==="evolution"?"Evolution":filter==="achievement"?"Achievements":filter==="streak"?"Streaks":"Care"}</button>)}</div>
+      <div className="meowky-journal-list">{(journalFilter==="all"?journal:journal.filter(item=>item.category===journalFilter)).length===0?<div className="meowky-journal-empty"><span>🌱</span><strong>Your next memory is waiting.</strong><p>Study, care for Meowky, or unlock an achievement to add a new page.</p></div>:(journalFilter==="all"?journal:journal.filter(item=>item.category===journalFilter)).map(item=><article className="meowky-journal-entry" key={item.id}><span className="meowky-journal-icon" aria-hidden="true">{item.icon}</span><div><div className="meowky-journal-entry-meta"><strong>{item.title}</strong><time dateTime={item.date}>{new Date(item.date+"T00:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}</time></div><p>{item.detail}</p><small>{item.category}</small></div></article>)}</div>
+      <p className="meowky-home-note">Your journal is saved privately on this device and browser. It does not award extra XP or sync between devices.</p>
     </section>
     <section className="meowky-home panel" aria-label="Meowky's personal space">
       <div className="meowky-home-heading"><div><p className="eyebrow">A LITTLE PLACE TO CALL HOME</p><h2>Meowky's nook</h2><p>{roomRank} · A home that grows with your learning journey.</p></div><span className="meowky-home-level">Level {Math.min(6,Math.floor(xp/170)+1)} home</span></div>
