@@ -15,6 +15,7 @@ type MeowkyCare = { fullness:number; joy:number; energy:number; bond:number; com
 type MeowkyMemory = { id:string; title:string; detail:string; icon:string; date:string; category:"journey"|"evolution"|"achievement"|"streak"|"care" };
 
 export function GamificationWorkspace({userId}:{userId:string}) {
+  const [activeTab,setActiveTab]=useState<"sanctuary"|"style"|"collection"|"progress">("sanctuary");
   const [stats,setStats]=useState<Stats|null>(null);
   const [achievements,setAchievements]=useState<Achievement[]>([]);
   const [catalog,setCatalog]=useState<Record<string,{name:string;description:string;icon:string}>>({});
@@ -272,6 +273,12 @@ export function GamificationWorkspace({userId}:{userId:string}) {
 
   return <section className="feature-page gamification-workspace">
     <div className="feature-heading"><div><p className="eyebrow">EVERY LITTLE WIN COUNTS</p><h1>My Space<span className="coral">.</span></h1><p className="subheading">Your learning journey, one paw at a time.</p></div><div className="gamification-level">🐾 <strong>Level {level}</strong></div></div>
+    <nav className="achieve-tab-nav" aria-label="Achieve sections" role="tablist">
+      <button type="button" role="tab" aria-selected={activeTab==="sanctuary"} className={activeTab==="sanctuary"?"active":""} onClick={()=>setActiveTab("sanctuary")}><span>🐾</span><b>Sanctuary</b><small>Meet & care</small></button>
+      <button type="button" role="tab" aria-selected={activeTab==="style"} className={activeTab==="style"?"active":""} onClick={()=>setActiveTab("style")}><span>✨</span><b>Style & Events</b><small>Wardrobe & seasons</small></button>
+      <button type="button" role="tab" aria-selected={activeTab==="collection"} className={activeTab==="collection"?"active":""} onClick={()=>setActiveTab("collection")}><span>📖</span><b>Collection</b><small>Forms & memories</small></button>
+      <button type="button" role="tab" aria-selected={activeTab==="progress"} className={activeTab==="progress"?"active":""} onClick={()=>setActiveTab("progress")}><span>🏆</span><b>Progress</b><small>XP & achievements</small></button>
+    </nav>
     <section className={"meowky-companion meowky-companion-interactive mood-" + companionMood} aria-label="Your Meowky companion">
       <div className="meowky-companion-copy"><p className="eyebrow">YOUR COMPANION · {currentForm.rarity.toUpperCase()}</p><h2>{currentForm.name}</h2><span className="meowky-companion-rank">{companionRank}</span><p className="meowky-companion-personality">{currentForm.personality}</p><span className="meowky-bond-level">♡ {bondStage}</span><p className="meowky-bond-message">{bondMessage}</p><p className="meowky-companion-dialogue" aria-live="polite">{companionLine}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Daily study goal reached" : "♡ Your companion is here"}</span><div className="meowky-companion-actions" role="group" aria-label="Companion mood"><button type="button" onClick={()=>{setCompanionMood("focused");setCompanionLine(activeHabitat.interactionLines.focused);}}>Study together</button><button type="button" onClick={()=>{setCompanionMood("sleepy");setCompanionLine(activeHabitat.interactionLines.sleepy);}}>Rest mode</button><button type="button" onClick={()=>{setCompanionMood("happy");setCompanionLine(activeHabitat.interactionLines.happy);}}>Cheer me on</button><button type="button" className="meowky-headpat" onClick={()=>{setCompanionMood("happy");setCompanionLine(["Prrr! That was a lovely headpat.","Meowky’s whiskers are doing a happy dance!","A tiny purr of appreciation, just for you."][headpats%3]);setHeadpats(value=>value+1);}}>♡ Headpat</button></div><small className="meowky-headpat-count" aria-live="polite">{headpats} headpats this visit</small></div>
       <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky3D formId={currentForm.id} mood={companionMood} timeOfDay={timeOfDay} accessories={activeAccessoryIds} habitatTheme={roomTheme} /><span className="meowky-stage-name">{currentForm.name}</span></div>
