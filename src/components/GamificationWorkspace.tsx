@@ -5,6 +5,7 @@ import { Meowky3D } from "./Meowky3D";
 import { MEOWKY_FORMS, getMeowkyForm, getNextMeowkyForm } from "../lib/meowky-evolution";
 import { COMPANION_ROSTER } from "../lib/companion-roster";
 import { COMPANION_EVOLUTION_PATHS, getCompanionEvolutionStage, getNextCompanionEvolutionStage } from "../lib/companion-evolution";
+import { COMPANION_ACCESSORIES, getAccessoryUnlockReason, type EquippedAccessories } from "../lib/companion-accessories";
 
 type Stats = { xp:number; level:number; current_streak:number; longest_streak:number; last_activity_date:string|null };
 type Achievement = { achievement_id:string; earned_at:string; catalog:{name:string;description:string;icon:string}|null };
@@ -44,6 +45,9 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [activeCompanionId,setActiveCompanionId]=useState("meowky");
   const [activeCompanionReady,setActiveCompanionReady]=useState(false);
   const [activeCompanionOwner,setActiveCompanionOwner]=useState("");
+  const [equippedAccessories,setEquippedAccessories]=useState<EquippedAccessories>({});
+  const [accessoriesReady,setAccessoriesReady]=useState(false);
+  const [accessoriesOwner,setAccessoriesOwner]=useState("");
 
   async function refresh(){
     if(!supabase)return;
@@ -95,6 +99,23 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     if(!activeCompanionReady||activeCompanionOwner!==userId)return;
     try{window.localStorage.setItem("achieve-active-companion-"+userId,activeCompanionId);}catch{/* Active companion remains selected for this visit if storage is unavailable. */}
   },[activeCompanionReady,activeCompanionOwner,userId,activeCompanionId]);
+  useEffect(()=>{
+    try{
+      const saved=window.localStorage.getItem("achieve-companion-accessories-"+userId);
+      const parsed=saved?JSON.parse(saved):{};
+      const valid:EquippedAccessories={};
+      if(parsed&&typeof parsed==="object"){
+        for(const item of COMPANION_ACCESSORIES){if(parsed[item.slot]===item.id)valid[item.slot]=item.id;}
+      }
+      setEquippedAccessories(valid);
+    }catch{setEquippedAccessories({});}
+    setAccessoriesReady(true);setAccessoriesOwner(userId);
+  },[userId]);
+  useEffect(()=>{
+    if(!accessoriesReady||accessoriesOwner!==userId)return;
+    try{window.localStorage.setItem("achieve-companion-accessories-"+userId,JSON.stringify(equippedAccessories));}catch{/* Equipped cosmetics remain available for this visit if storage is unavailable. */}
+  },[accessoriesReady,accessoriesOwner,userId,equippedAccessories]);
+
 
 
   const seasonKey=(()=>{const month=new Date().getMonth();return month<3?"spring":month<6?"summer":month<9?"autumn":"winter";})();
@@ -126,6 +147,20 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     setCompanionLine(companion.greeting);
     setNotice(companion.name+" is now your active companion.");
   }
+  function toggleAccessory(itemId:string){
+    const item=COMPANION_ACCESSORIES.find(accessory=>accessory.id===itemId);
+    if(!item)return;
+    const reason=getAccessoryUnlockReason(item,xp,achievements.length);
+    if(reason){setNotice(reason);return;}
+    if(!item.compatibleCompanions.includes(activeCompanionId)){setNotice(item.name+" is not compatible with "+activeCompanion.name+".");return;}
+    setEquippedAccessories(current=>{
+      const next={...current};
+      if(next[item.slot]===item.id)delete next[item.slot];
+      else next[item.slot]=item.id;
+      return next;
+    });
+    setNotice(equippedAccessories[item.slot]===item.id?item.name+" removed.":item.name+" equipped!");
+  }
 
   async function toggleLeaderboard(){
     if(!supabase)return;
@@ -139,6 +174,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   }
 
   const activeCompanion=COMPANION_ROSTER.find(item=>item.id===activeCompanionId)??COMPANION_ROSTER[0];
+  const activeAccessoryIds=COMPANION_ACCESSORIES.filter(item=>equippedAccessories[item.slot]===item.id&&item.compatibleCompanions.includes(activeCompanionId)).map(item=>item.id);
   const companionEvolutionPaths=COMPANION_ROSTER.map(companion=>({companion,path:COMPANION_EVOLUTION_PATHS[companion.id]})).filter(item=>Boolean(item.path));
   const xp=stats?.xp??0;
   const level=stats?.level??1;
@@ -220,9 +256,18 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     <div className="feature-heading"><div><p className="eyebrow">EVERY LITTLE WIN COUNTS</p><h1>My Space<span className="coral">.</span></h1><p className="subheading">Your learning journey, one paw at a time.</p></div><div className="gamification-level">🐾 <strong>Level {level}</strong></div></div>
     <section className={"meowky-companion meowky-companion-interactive mood-" + companionMood} aria-label="Your Meowky companion">
       <div className="meowky-companion-copy"><p className="eyebrow">YOUR COMPANION · {currentForm.rarity.toUpperCase()}</p><h2>{currentForm.name}</h2><span className="meowky-companion-rank">{companionRank}</span><p className="meowky-companion-personality">{currentForm.personality}</p><span className="meowky-bond-level">♡ {bondStage}</span><p className="meowky-bond-message">{bondMessage}</p><p className="meowky-companion-dialogue" aria-live="polite">{companionLine}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Daily study goal reached" : "♡ Your companion is here"}</span><div className="meowky-companion-actions" role="group" aria-label="Companion mood"><button type="button" onClick={()=>{setCompanionMood("focused");setCompanionLine("I’m right here. Let’s make one small step count.");}}>Study together</button><button type="button" onClick={()=>{setCompanionMood("sleepy");setCompanionLine("Even the brightest minds need a little rest. Take a gentle breather.");}}>Rest mode</button><button type="button" onClick={()=>{setCompanionMood("happy");setCompanionLine("You’re doing better than you think. Every little win deserves a cheer!");}}>Cheer me on</button><button type="button" className="meowky-headpat" onClick={()=>{setCompanionMood("happy");setCompanionLine(["Prrr! That was a lovely headpat.","Meowky’s whiskers are doing a happy dance!","A tiny purr of appreciation, just for you."][headpats%3]);setHeadpats(value=>value+1);}}>♡ Headpat</button></div><small className="meowky-headpat-count" aria-live="polite">{headpats} headpats this visit</small></div>
-      <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky3D formId={currentForm.id} mood={companionMood} timeOfDay={timeOfDay} /><span className="meowky-stage-name">{currentForm.name}</span></div>
+      <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky3D formId={currentForm.id} mood={companionMood} timeOfDay={timeOfDay} accessories={activeAccessoryIds} /><span className="meowky-stage-name">{currentForm.name}</span></div>
     </section>
 
+    <section className="companion-accessory-workshop panel" aria-label="Companion accessories and appearance">
+      <div className="meowky-home-heading"><div><p className="eyebrow">A LITTLE EXTRA MAGIC</p><h2>Accessory wardrobe</h2><p>Dress up {activeCompanion.name} with keepsakes earned through your learning journey.</p></div><span className="meowky-care-bond">{activeAccessoryIds.length} equipped</span></div>
+      <div className="companion-accessory-slots">{(["head","face","neck","back","aura"] as const).map(slot=>{const item=COMPANION_ACCESSORIES.find(accessory=>accessory.id===equippedAccessories[slot]);return <div key={slot}><small>{slot.toUpperCase()}</small><strong>{item?item.icon+" "+item.name:"Empty slot"}</strong></div>;})}</div>
+      <div className="companion-accessory-grid">{COMPANION_ACCESSORIES.map(item=>{const reason=getAccessoryUnlockReason(item,xp,achievements.length);const compatible=item.compatibleCompanions.includes(activeCompanionId);const equipped=equippedAccessories[item.slot]===item.id;const locked=Boolean(reason);return <article key={item.id} className={"companion-accessory-card"+(equipped?" is-equipped":"")+(locked?" is-locked":"")}>
+        <span className="companion-accessory-icon" aria-hidden="true">{locked?"🔒":item.icon}</span><div className="companion-accessory-copy"><div><strong>{item.name}</strong><small data-rarity={item.rarity.toLowerCase()}>{item.rarity}</small></div><p>{item.description}</p><span>{locked?reason:compatible?"Ready to wear":"Not compatible with this companion"}</span></div>
+        <button type="button" disabled={!accessoriesReady||locked||!compatible} aria-pressed={equipped} onClick={()=>toggleAccessory(item.id)}>{equipped?"Unequip":locked?"Locked":"Equip"}</button>
+      </article>;})}</div>
+      <p className="meowky-home-note">Cosmetics are optional and do not change XP, stats, or companion abilities. Your equipped look is saved privately on this device. Future companions have compatibility defined, while their dedicated 3D accessory rendering will arrive with their playable character systems.</p>
+    </section>
     <section className="meowky-care panel" aria-label="Meowky daily care">
       <div className="meowky-home-heading"><div><p className="eyebrow">LITTLE MOMENTS OF CARE</p><h2>Meowky's daily life</h2><p>{timeGreeting} · Your companion feels loved when you spend time together.</p></div><span className="meowky-care-bond">♡ {care.bond} care bonds</span></div>
       <div className="meowky-care-meters">
@@ -266,7 +311,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
       <div className="meowky-home-heading"><div><p className="eyebrow">A LITTLE PLACE TO CALL HOME</p><h2>Meowky's nook</h2><p>{roomRank} · A home that grows with your learning journey.</p></div><span className="meowky-home-level">Level {Math.min(6,Math.floor(xp/170)+1)} home</span></div>
       <div className={"meowky-room-scene theme-"+roomTheme}>
         <span className="meowky-room-window" aria-hidden="true">✦</span><span className="meowky-room-plant" aria-hidden="true">🌿</span><span className="meowky-room-shelf" aria-hidden="true">▤</span>
-        <div className="meowky-room-companion"><Meowky3D formId={currentForm.id} mood={companionMood} timeOfDay={timeOfDay}/><span>{currentForm.name}'s cozy corner</span></div>
+        <div className="meowky-room-companion"><Meowky3D formId={currentForm.id} mood={companionMood} timeOfDay={timeOfDay} accessories={activeAccessoryIds}/><span>{currentForm.name}'s cozy corner</span></div>
         <div className="meowky-room-decor" aria-label={"Selected decoration: "+activeDecor.name}><span>{activeDecor.icon}</span><small>{activeDecor.name}</small></div>
         <span className="meowky-room-rug" aria-hidden="true"/>
       </div>
