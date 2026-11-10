@@ -243,17 +243,31 @@ export default function App() {
   const visibleCourses = courses.filter(course => `${course.title} ${course.code ?? ""} ${course.description ?? ""}`.toLowerCase().includes(courseSearch.trim().toLowerCase()));
   const courseName = (id: string | null) => courses.find(course => course.id === id)?.title ?? "Personal";
   const dateLabel = (value: string | null) => value ? new Date(value).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "No due date";
-  const nav = [{ icon: "⌂", label: "Overview" }, { icon: "▦", label: "Calendar" }, { icon: "▤", label: "My courses" }, { icon: "✓", label: "Tasks & deadlines" }, { icon: "▧", label: "Study tools" }, { icon: "◎", label: "Community" }, { icon: "♙", label: "My profile" }, { icon: "✦", label: "Achieve" }];
+  const navGroups = [
+    { title: "YOUR WORLD", items: [{ icon: "⌂", label: "Overview", short: "Home" }] },
+    { title: "LEARN", items: [{ icon: "▤", label: "My courses", short: "Courses" }, { icon: "▧", label: "Study tools", short: "Tools" }] },
+    { title: "PLAN", items: [{ icon: "▦", label: "Calendar", short: "Calendar" }, { icon: "✓", label: "Tasks & deadlines", short: "Tasks" }] },
+    { title: "CONNECT", items: [{ icon: "◎", label: "Community", short: "Guild" }] },
+    { title: "PLAY & GROW", items: [{ icon: "✦", label: "Achieve", short: "Sanctuary" }] },
+    { title: "ACCOUNT", items: [{ icon: "♙", label: "My profile", short: "Profile" }] },
+  ];
+  const mobileNav = [
+    { icon: "⌂", label: "Overview", short: "Home" },
+    { icon: "▤", label: "My courses", short: "Academy" },
+    { icon: "▦", label: "Calendar", short: "Planner" },
+    { icon: "◎", label: "Community", short: "Guild" },
+    { icon: "✦", label: "Achieve", short: "Sanctuary" },
+  ];
 
   return <div className="app-shell">
     <a className="skip-link" href="#main-content">Skip to main content</a>
     <aside className="sidebar"><BrandMark/><div className="workspace-label">YOUR STUDENT SPACE</div>
-      <nav className="nav-list" aria-label="Main navigation">{nav.map(item=><button className={`nav-item ${activeNav===item.label?"active":""}`} key={item.label} onClick={()=>setActiveNav(item.label)} aria-current={activeNav===item.label?"page":undefined}><span className="nav-icon">{item.icon}</span>{item.label}{item.label === "Notifications" && unreadNotifications > 0 && <span className="nav-count">{unreadNotifications > 99 ? "99+" : unreadNotifications}</span>}</button>)}</nav>
+      <nav className="nav-list" aria-label="Main navigation">{navGroups.map(group=><div className="nav-group" key={group.title}><p className="nav-group-label">{group.title}</p>{group.items.map(item=><button className={`nav-item ${activeNav===item.label?"active":""}`} key={item.label} onClick={()=>setActiveNav(item.label)} aria-current={activeNav===item.label?"page":undefined}><span className="nav-icon">{item.icon}</span><span>{item.label}</span></button>)}</div>)}</nav>
       <div className="sidebar-bottom"><div className="mascot-mini">m.</div><div><strong>Meowky says</strong><p>Small steps still count. ✨</p></div></div>
     </aside>
     <main className="main-area" id="main-content" tabIndex={-1}><header className="topbar"><div className="mobile-brand"><BrandMark compact/></div><div className="breadcrumb">My space <span>/</span> {activeNav}</div>
-      <div className="topbar-right"><span className="streak-pill">✦ Meowks</span><button className="notification-trigger" aria-label={`Notifications${unreadNotifications ? `, ${unreadNotifications} unread` : ""}`} title="Notifications" onClick={()=>setActiveNav("Notifications")}><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>{unreadNotifications>0&&<i>{unreadNotifications>99?"99+":unreadNotifications}</i>}</button>{user && <><div className="account-chip"><span className="avatar">{(profile?.display_name ?? user.email ?? "S").charAt(0).toUpperCase()}</span><span className="account-name">{profile?.display_name ?? "Student"}</span></div><button className="logout-button" type="button" title="Sign out of Meowks" aria-label="Log out of Meowks" onClick={()=>supabase?.auth.signOut()}><span aria-hidden="true">↪</span> Log out</button></>}</div></header>
-      <nav className="mobile-nav" aria-label="Main navigation">{nav.map(item=><button key={item.label} className={activeNav===item.label?"active":""} onClick={()=>setActiveNav(item.label)} aria-label={item.label} aria-current={activeNav===item.label?"page":undefined}><span>{item.icon}</span><small>{item.label==="Overview"?"Home":item.label==="Tasks & deadlines"?"Tasks":item.label==="My courses"?"Courses":item.label==="Study tools"?"Learn":item.label==="My profile"?"Profile":item.label}</small></button>)}</nav>
+      <div className="topbar-right"><span className="streak-pill">✦ Meowks</span><button className="notification-trigger" aria-label={`Notifications${unreadNotifications ? `, ${unreadNotifications} unread` : ""}`} title="Notifications" onClick={()=>setActiveNav("Notifications")}><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>{unreadNotifications>0&&<i>{unreadNotifications>99?"99+":unreadNotifications}</i>}</button>{user && <><button type="button" className="account-chip account-chip-button" onClick={()=>setActiveNav("My profile")} aria-label="Open your profile"><span className="avatar">{(profile?.display_name ?? user.email ?? "S").charAt(0).toUpperCase()}</span><span className="account-name">{profile?.display_name ?? "Student"}</span></button><button className="logout-button" type="button" title="Sign out of Meowks" aria-label="Log out of Meowks" onClick={()=>supabase?.auth.signOut()}><span aria-hidden="true">↪</span> Log out</button></>}</div></header>
+      <nav className="mobile-nav" aria-label="Main navigation">{mobileNav.map(item=><button key={item.label} className={activeNav===item.label?"active":""} onClick={()=>setActiveNav(item.label)} aria-label={item.short} aria-current={activeNav===item.label?"page":undefined}><span>{item.icon}</span><small>{item.short}</small></button>)}</nav>
       <section className="page-content" aria-busy={dataLoading}>
         {notice && <div className="inline-notice" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="Dismiss">×</button></div>}
         {dataError && <div className="inline-error" role="alert">{dataError}<button onClick={()=>setDataError("")} aria-label="Dismiss">×</button></div>}
