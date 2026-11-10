@@ -267,3 +267,31 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .meowky-home-note{margin:12px 0 0;color:#89968d;font-size:9px;line-height:1.55}
 @media(max-width:560px){.meowky-home{padding:15px!important}.meowky-room-scene{min-height:220px}.meowky-room-window{right:12px;width:57px;height:70px}.meowky-room-plant{left:11px;top:25px}.meowky-room-shelf{right:78px;top:29px}.meowky-room-decor{right:10px;bottom:20px;min-width:66px;padding:7px 5px}.meowky-room-companion{bottom:13px}.meowky-room-themes button{flex:1;justify-content:center;padding:7px 6px;font-size:8px}.meowky-room-decorations button{flex:1 0 27%;min-width:0}}
 @media(prefers-reduced-motion:reduce){.meowky-room-scene{transition:none}}
+
+
+/* Phase 2.4 — daily care, gentle pet needs and repeatable rituals */
+.meowky-care{margin:0 0 19px;padding:22px!important;background:radial-gradient(circle at 100% 0%,rgba(255,190,130,.13),transparent 16rem),linear-gradient(145deg,#fffdf7,#f5faf4)}
+.meowky-care-bond{flex:0 0 auto;padding:7px 10px;border:1px solid #f0dfca;border-radius:99px;background:#fff7eb;color:#a7794f;font-size:9px;font-weight:850}
+.meowky-care-meters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:17px 0}
+.meowky-care-meter-label{display:flex;justify-content:space-between;gap:8px;margin-bottom:7px;color:#61766b;font-size:10px}
+.meowky-care-meter-label b{color:#3b5b4d;font-variant-numeric:tabular-nums}
+.meowky-care-track{height:9px;overflow:hidden;border-radius:99px;background:#eee8d9}
+.meowky-care-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e8b66f,#f3d69b);transition:width .35s ease}
+.meowky-care-track.joy span{background:linear-gradient(90deg,#ef9eae,#f4c1b6)}
+.meowky-care-track.energy span{background:linear-gradient(90deg,#70c7a9,#b6dfb7)}
+.meowky-care-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.meowky-care-actions button{display:flex;min-height:94px;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;padding:13px;border:1px solid #e3eadf;border-radius:14px;background:rgba(255,255,255,.82);color:#526c60;text-align:left;transition:transform .18s,border-color .18s,background .18s}
+.meowky-care-actions button:hover:not(:disabled){transform:translateY(-2px);border-color:#a9d8c2;background:#f5fbf5}
+.meowky-care-actions button>span{font-size:21px}
+.meowky-care-actions button b{font-size:10px}
+.meowky-care-actions button small{color:#8a9a90;font-size:8px}
+.meowky-care-actions button:disabled{opacity:.65;background:#f1f6f0;cursor:default}
+.meowky-care-quest{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:14px;padding:14px 15px;border:1px solid #e8e9da;border-radius:14px;background:linear-gradient(110deg,#fff8e9,#f6faf2)}
+.meowky-care-quest .eyebrow{margin:0 0 5px;color:#a18a62;font-size:8px;font-weight:850;letter-spacing:1.4px}
+.meowky-care-quest strong{color:#3d5b4e;font-size:12px}
+.meowky-care-quest p:not(.eyebrow){margin:4px 0 0;color:#87958a;font-size:9px;line-height:1.5}
+.meowky-care-paws{display:flex;flex:0 0 auto;gap:6px}
+.meowky-care-paws span{display:grid;width:31px;height:31px;place-items:center;border:1px solid #e5e8db;border-radius:50%;background:#fff;color:#8a9b8d;font-size:10px;font-weight:800}
+.meowky-care-paws span.done{border-color:#c7e8d5;background:#e6f7ec;font-size:15px}
+@media(max-width:560px){.meowky-care{padding:15px!important}.meowky-care-meters{grid-template-columns:1fr;gap:9px;margin:13px 0}.meowky-care-actions{gap:7px}.meowky-care-actions button{min-height:88px;padding:10px}.meowky-care-actions button b{font-size:9px}.meowky-care-actions button small{font-size:7px}.meowky-care-quest{align-items:flex-start;flex-direction:column}.meowky-care-paws{align-self:flex-end}}
+@media(prefers-reduced-motion:reduce){.meowky-care-track span,.meowky-care-actions button{transition:none}.meowky-care-actions button:hover:not(:disabled){transform:none}}
