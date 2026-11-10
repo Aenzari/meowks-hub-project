@@ -295,3 +295,23 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .meowky-care-paws span.done{border-color:#c7e8d5;background:#e6f7ec;font-size:15px}
 @media(max-width:560px){.meowky-care{padding:15px!important}.meowky-care-meters{grid-template-columns:1fr;gap:9px;margin:13px 0}.meowky-care-actions{gap:7px}.meowky-care-actions button{min-height:88px;padding:10px}.meowky-care-actions button b{font-size:9px}.meowky-care-actions button small{font-size:7px}.meowky-care-quest{align-items:flex-start;flex-direction:column}.meowky-care-paws{align-self:flex-end}}
 @media(prefers-reduced-motion:reduce){.meowky-care-track span,.meowky-care-actions button{transition:none}.meowky-care-actions button:hover:not(:disabled){transform:none}}
+
+
+/* Phase 2.5 — relationship stories, contextual moments and surprises */
+.meowky-bond-story{margin:0 0 19px;padding:22px!important;background:radial-gradient(circle at 95% 5%,rgba(205,180,238,.17),transparent 15rem),linear-gradient(145deg,#fffdf8,#f8f5fc)}
+.meowky-story-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.meowky-story-grid article{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:9px;row-gap:5px;padding:13px;border:1px solid #e9e2ef;border-radius:13px;background:rgba(255,255,255,.8)}
+.meowky-story-grid article>span{grid-row:span 2;font-size:21px}
+.meowky-story-grid article small{color:#9a86a9;font-size:8px;font-weight:850;letter-spacing:1.1px}
+.meowky-story-grid article p{margin:0;color:#68766d;font-size:10px;line-height:1.55}
+.meowky-surprise-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px dashed #d9c8e8;border-radius:14px;background:linear-gradient(100deg,#fff9f0,#f8f3ff)}
+.meowky-surprise-row strong{color:#655477;font-size:11px}
+.meowky-surprise-row p{margin:4px 0 0;color:#83798c;font-size:9px;line-height:1.5}
+.meowky-surprise-row button{flex:0 0 auto;min-height:36px;padding:8px 12px;border:1px solid #d9c6e9;border-radius:10px;background:#fff;color:#795d91;font-size:9px;font-weight:800}
+.meowky-surprise-row button:disabled{opacity:.6;cursor:default;background:#f1edf5}
+.meowky-milestone-note{display:flex;align-items:center;gap:11px;margin-top:12px;padding:12px 14px;border:1px solid #eadbb9;border-radius:12px;background:#fff8e9}
+.meowky-milestone-note>span{font-size:22px}
+.meowky-milestone-note strong{color:#86663a;font-size:10px}
+.meowky-milestone-note p{margin:3px 0 0;color:#99876a;font-size:9px;line-height:1.5}
+@media(max-width:560px){.meowky-bond-story{padding:15px!important}.meowky-story-grid{grid-template-columns:1fr;gap:8px}.meowky-surprise-row{align-items:flex-start;flex-direction:column}.meowky-surprise-row button{width:100%}}
+@media(prefers-reduced-motion:reduce){.meowky-surprise-row button{transition:none}}
