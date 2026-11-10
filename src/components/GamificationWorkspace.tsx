@@ -295,7 +295,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
           <div className="companion-evolution-stages">{path.stages.map(stage=>{const isUnlocked=xp>=stage.xpRequired;return <div className={"companion-evolution-stage "+(isUnlocked?"is-unlocked":"is-locked")} key={stage.id} title={isUnlocked?stage.name:"Unlock at "+stage.xpRequired.toLocaleString()+" XP"}><span style={{background:stage.palette}}>{isUnlocked?stage.symbol:"?"}</span><small>{isUnlocked?stage.name:"Undiscovered"}</small><em>{stage.xpRequired.toLocaleString()} XP</em></div>;})}</div>
         </article>;})}</div>
       </div>
-      <p className="gamification-footnote">Meowky is your first fully playable companion. New roster entries are previews until their character art, evolution paths, and interactions are released.</p>
+      <p className="gamification-footnote">Meowky is your first fully playable companion. Vulpin, Lumibun, and Emberwing are still previews; their evolution journeys are designed, but their recruitment, character art, and interactions are coming later.</p>
     </section>
     <section className="panel meowky-evolution-panel">
       <div className="panel-heading"><div><p className="eyebrow">YOUR EVOLUTION JOURNEY</p><h2>{nextForm ? "Your next form is waiting." : "Celestial form achieved."}</h2></div><span className="meowky-rarity-pill" data-rarity={currentForm.rarity.toLowerCase()}>{currentForm.rarity}</span></div>
@@ -304,7 +304,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     <section className="panel meowky-collection-panel" id="meowky-forms">
       <div className="panel-heading"><div><p className="eyebrow">THE MEOWKY COLLECTION</p><h2>Ten forms. One journey.</h2></div><span className="achievement-count">{MEOWKY_FORMS.filter(form=>xp>=form.xpRequired).length} / 10 discovered</span></div>
       <div className="meowky-card-grid">{MEOWKY_FORMS.map(form=>{const unlocked=xp>=form.xpRequired;return <article className={`meowky-collectible-card ${unlocked?"is-unlocked":"is-locked"}`} data-rarity={form.rarity.toLowerCase()} key={form.id}><div className="meowky-card-art" style={{"--form-color":form.palette} as React.CSSProperties}><span className="meowky-card-sigil">{unlocked?form.symbol:"?"}</span>{unlocked?<Meowky level={Math.max(1,form.id*5)} mood="happy"/>:<span className="meowky-card-lock" aria-hidden="true">✦</span>}</div><div className="meowky-card-copy"><div className="meowky-card-meta"><span>FORM {String(form.id).padStart(2,"0")}</span><b>{form.rarity}</b></div><h3>{unlocked?form.name:"Undiscovered Meowky"}</h3><p>{unlocked?form.trait:`Unlock at ${form.xpRequired.toLocaleString()} XP`}</p>{unlocked&&<><strong className="meowky-card-ability">{form.ability}</strong><small>{form.personality}</small></>}</div></article>})}</div>
-      <p className="meowky-collection-note">All students follow the same evolution path. Future special forms can be added without changing this collection's foundations.</p>
+      <p className="meowky-collection-note">Each companion has a distinct ten-form evolution path. All paths use your shared learning XP and reach their Celestial form at exactly 1,000 XP.</p>
     </section>
     <div className="gamification-stats">
       <article className="stat-card paw-xp"><span className="stat-label">Paw Points</span><strong>{xp.toLocaleString()}</strong><span className="stat-foot">Total XP earned</span></article>
