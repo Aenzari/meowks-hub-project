@@ -365,3 +365,28 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:700px){.meowky-season-rewards{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:560px){.meowky-seasonal{padding:15px!important}.meowky-season-action{align-items:stretch;flex-direction:column}.meowky-season-action button{width:100%}.meowky-season-collection-heading{align-items:flex-start;flex-direction:column;gap:3px}.meowky-season-rewards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.meowky-season-progress>span{transition:none}}
+
+
+/* Phase 2.8 — extensible companion collection book */
+.companion-collection-book{margin-bottom:18px}
+.companion-collection-book>.panel-heading>div>p:not(.eyebrow){margin:6px 0 0;color:#87948d;font-size:11px;line-height:1.55}
+.companion-roster-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.companion-roster-card{display:grid;grid-template-columns:92px minmax(0,1fr);gap:13px;min-width:0;padding:12px;border:1px solid #e9e9df;border-radius:16px;background:linear-gradient(145deg,#fffefa,#f8faf5)}
+.companion-roster-card.is-coming-soon{background:linear-gradient(145deg,#faf9f6,#f2f1ed)}
+.companion-roster-art{position:relative;display:grid;place-items:center;min-height:105px;overflow:hidden;border:1px solid rgba(255,255,255,.85);border-radius:13px;background:radial-gradient(circle at 50% 35%,#fff,#f4e9dc 76%);font-size:39px}
+.companion-roster-card.is-coming-soon .companion-roster-art{background:radial-gradient(circle at 50% 35%,#fff,#e9e8e1 76%);color:#a7a69f}
+.companion-roster-card.is-coming-soon .companion-roster-art>span{display:grid;place-items:center;width:49px;height:49px;border:1px dashed #c9c7bd;border-radius:50%;font-size:24px}
+.companion-roster-art small{position:absolute;right:5px;bottom:5px;padding:3px 5px;border-radius:5px;background:rgba(45,57,54,.75);color:white;font-size:7px;font-weight:850;letter-spacing:.08em}
+.companion-roster-copy{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.companion-roster-meta{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.companion-roster-meta span{overflow:hidden;color:#89958b;font-size:8px;text-overflow:ellipsis;white-space:nowrap}
+.companion-roster-meta b{flex:0 0 auto;color:#4c9a7e;font-size:7px;letter-spacing:.06em}
+.is-coming-soon .companion-roster-meta b{color:#a09a8d}
+.companion-roster-copy h3{margin:5px 0;color:#294354;font-size:16px;letter-spacing:-.35px}
+.companion-roster-copy p{margin:0;color:#849087;font-size:9px;line-height:1.55}
+.companion-roster-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid #eceee6}
+.companion-roster-foot span,.companion-roster-foot strong{color:#8c8d80;font-size:8px}
+.companion-roster-foot strong{color:#458d79}
+.is-coming-soon .companion-roster-foot strong{color:#a19b90}
+@media(max-width:680px){.companion-roster-grid{grid-template-columns:1fr}}
+@media(max-width:420px){.companion-roster-card{grid-template-columns:76px minmax(0,1fr);gap:10px;padding:10px}.companion-roster-art{min-height:96px;font-size:33px}.companion-roster-copy h3{font-size:14px}}
