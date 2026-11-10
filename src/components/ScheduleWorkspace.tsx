@@ -47,7 +47,7 @@ export function ScheduleWorkspace({ tasks, onAddEvent, onOpenTasks }: Props) {
   return <section className="feature-page schedule-page">
     <div className="feature-heading">
       <div><p className="eyebrow">SEE THE BIG PICTURE</p><h1>Your calendar<span className="coral">.</span></h1><p className="subheading">Deadlines, exams, and important days—all in one place.</p></div>
-      <button className="primary-button compact-action" onClick={() => onAddEvent(dateKey(selected))}>＋ Add to this day</button>
+      <div className="feature-heading-actions"><button className="secondary-button compact-action" onClick={onOpenTasks}>View tasks ↗</button><button className="primary-button compact-action" onClick={() => onAddEvent(dateKey(selected))}>＋ Add to this day</button></div>
     </div>
     <div className="schedule-layout">
       <section className="panel calendar-panel" aria-label="Calendar">
