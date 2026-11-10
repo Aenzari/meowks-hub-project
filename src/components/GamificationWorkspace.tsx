@@ -100,7 +100,9 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const roomRank=xp>=850?"Celestial sanctuary":xp>=550?"Starlit hideaway":xp>=275?"Enchanted nook":xp>=100?"Cozy corner":"A little place to begin";
   const roomDecorations=[{id:"sprout",name:"Moonflower sprout",icon:"🌱",unlock:0},{id:"books",name:"Study book stack",icon:"📚",unlock:50},{id:"lantern",name:"Dream lantern",icon:"🏮",unlock:100},{id:"crystal",name:"Star crystal",icon:"💎",unlock:275},{id:"moon",name:"Moon window",icon:"🌙",unlock:550},{id:"crown",name:"Celestial crown",icon:"👑",unlock:850}];
   const activeDecor=roomDecorations.find(item=>item.id===roomDecor)||roomDecorations[0];
-  const timeGreeting=new Date().getHours()<11?"A bright morning stretch":new Date().getHours()<17?"A sunny afternoon pause":"A soft evening wind-down";
+  const currentHour=new Date().getHours();
+  const timeOfDay: "morning"|"day"|"evening"=currentHour<11?"morning":currentHour<18?"day":"evening";
+  const timeGreeting=timeOfDay==="morning"?"A bright morning stretch":timeOfDay==="day"?"A sunny afternoon pause":"A soft evening wind-down";
   function careForMeowky(action:"feed"|"play"|"rest"){
     const effects={feed:{fullness:22,joy:4,energy:-2,line:"Nom nom! That snack was purr-fect. Thank you!"},play:{fullness:-5,joy:22,energy:-12,line:"Wheee! That was so much fun. You always know how to make me smile!"},rest:{fullness:-2,joy:3,energy:24,line:"Mmm… a little rest feels wonderful. I’m all recharged!"}};
     const change=effects[action];
@@ -112,7 +114,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     <div className="feature-heading"><div><p className="eyebrow">EVERY LITTLE WIN COUNTS</p><h1>My Space<span className="coral">.</span></h1><p className="subheading">Your learning journey, one paw at a time.</p></div><div className="gamification-level">🐾 <strong>Level {level}</strong></div></div>
     <section className={"meowky-companion meowky-companion-interactive mood-" + companionMood} aria-label="Your Meowky companion">
       <div className="meowky-companion-copy"><p className="eyebrow">YOUR COMPANION · {currentForm.rarity.toUpperCase()}</p><h2>{currentForm.name}</h2><span className="meowky-companion-rank">{companionRank}</span><p className="meowky-companion-personality">{currentForm.personality}</p><span className="meowky-bond-level">♡ {bondStage}</span><p className="meowky-bond-message">{bondMessage}</p><p className="meowky-companion-dialogue" aria-live="polite">{companionLine}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Daily study goal reached" : "♡ Your companion is here"}</span><div className="meowky-companion-actions" role="group" aria-label="Companion mood"><button type="button" onClick={()=>{setCompanionMood("focused");setCompanionLine("I’m right here. Let’s make one small step count.");}}>Study together</button><button type="button" onClick={()=>{setCompanionMood("sleepy");setCompanionLine("Even the brightest minds need a little rest. Take a gentle breather.");}}>Rest mode</button><button type="button" onClick={()=>{setCompanionMood("happy");setCompanionLine("You’re doing better than you think. Every little win deserves a cheer!");}}>Cheer me on</button><button type="button" className="meowky-headpat" onClick={()=>{setCompanionMood("happy");setCompanionLine(["Prrr! That was a lovely headpat.","Meowky’s whiskers are doing a happy dance!","A tiny purr of appreciation, just for you."][headpats%3]);setHeadpats(value=>value+1);}}>♡ Headpat</button></div><small className="meowky-headpat-count" aria-live="polite">{headpats} headpats this visit</small></div>
-      <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky3D formId={currentForm.id} mood={companionMood} /><span className="meowky-stage-name">{currentForm.name}</span></div>
+      <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky3D formId={currentForm.id} mood={companionMood} timeOfDay={timeOfDay} /><span className="meowky-stage-name">{currentForm.name}</span></div>
     </section>
 
     <section className="meowky-care panel" aria-label="Meowky daily care">
@@ -134,7 +136,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
       <div className="meowky-home-heading"><div><p className="eyebrow">A LITTLE PLACE TO CALL HOME</p><h2>Meowky's nook</h2><p>{roomRank} · A home that grows with your learning journey.</p></div><span className="meowky-home-level">Level {Math.min(6,Math.floor(xp/170)+1)} home</span></div>
       <div className={"meowky-room-scene theme-"+roomTheme}>
         <span className="meowky-room-window" aria-hidden="true">✦</span><span className="meowky-room-plant" aria-hidden="true">🌿</span><span className="meowky-room-shelf" aria-hidden="true">▤</span>
-        <div className="meowky-room-companion"><Meowky3D formId={currentForm.id} mood={companionMood}/><span>{currentForm.name}'s cozy corner</span></div>
+        <div className="meowky-room-companion"><Meowky3D formId={currentForm.id} mood={companionMood} timeOfDay={timeOfDay}/><span>{currentForm.name}'s cozy corner</span></div>
         <div className="meowky-room-decor" aria-label={"Selected decoration: "+activeDecor.name}><span>{activeDecor.icon}</span><small>{activeDecor.name}</small></div>
         <span className="meowky-room-rug" aria-hidden="true"/>
       </div>
