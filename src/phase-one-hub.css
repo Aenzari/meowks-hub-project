@@ -529,3 +529,63 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   .achieve-tab-nav{grid-template-columns:repeat(2,minmax(0,1fr));position:static}
   .achieve-tab-nav button{min-height:54px}
 }
+
+
+/* UX pass — consistent wayfinding, touch targets, and responsive workspaces */
+.main-area,.page-content,.workspace-stage,.feature-page{min-width:0;width:100%}
+.page-content{max-width:1440px}
+.breadcrumb{display:flex;align-items:center;gap:8px;min-width:0}
+.breadcrumb strong{color:#455b67;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-group{min-width:0}
+.nav-group-label{line-height:1.4}
+.nav-item{width:100%;min-width:0;min-height:44px}
+.nav-item>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feature-heading{align-items:center}
+.feature-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+.feature-heading-actions .compact-action{min-height:42px}
+.feature-page>.panel,.feature-page .panel,.feature-page .course-card,.feature-page .empty-card{min-width:0}
+.organization-toolbar{flex-wrap:wrap;gap:12px}
+.organization-toolbar .search-field{flex:1 1 240px;min-width:0}
+.task-filter-tabs{display:flex;flex-wrap:wrap;gap:6px}
+button,a,input,select,textarea{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(117,161,151,.55);outline-offset:3px}
+button:disabled{cursor:not-allowed}
+.inline-notice,.inline-error{overflow-wrap:anywhere}
+.workspace-stage{animation:workspace-arrive .22s ease-out}
+@keyframes workspace-arrive{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px) and (min-width:761px){
+  .sidebar{width:218px;padding-inline:14px}
+  .page-content{padding:30px 24px 24px}
+}
+@media(max-width:900px){
+  .schedule-layout{grid-template-columns:minmax(0,1fr)}
+  .feature-heading{align-items:flex-start}
+  .feature-heading-actions{justify-content:flex-start}
+}
+@media(max-width:760px){
+  .page-content{padding:20px 15px calc(96px + env(safe-area-inset-bottom))}
+  .breadcrumb{font-size:10px;gap:5px}
+  .topbar{position:sticky;top:0;z-index:12;background:rgba(255,255,255,.94);backdrop-filter:blur(16px)}
+  .mobile-nav{z-index:20;display:flex;justify-content:space-around;gap:3px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));}
+  .mobile-nav button{flex:1 1 0;min-width:0;min-height:48px;padding:6px 2px}
+  .mobile-nav button>span{font-size:19px}
+  .mobile-nav button small{font-size:9px;letter-spacing:0}
+  .feature-heading{gap:14px;margin-bottom:19px}
+  .feature-heading-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .feature-heading-actions .compact-action{width:100%;min-width:0;padding-inline:9px;white-space:normal}
+  .calendar-toolbar{align-items:flex-start;flex-wrap:wrap}
+  .calendar-controls{flex-wrap:wrap}
+  .organization-toolbar .search-field{flex-basis:100%}
+  .task-filter-tabs{width:100%;overflow-x:auto;flex-wrap:nowrap;padding:2px 0 5px}
+  .task-filter-tabs button{flex:0 0 auto;min-height:38px}
+}
+@media(max-width:420px){
+  .page-content{padding-inline:11px}
+  .feature-heading-actions{grid-template-columns:1fr}
+  .mobile-nav button small{font-size:8px}
+  .mobile-nav button>span{font-size:18px}
+  .dashboard-welcome{padding:22px 18px}
+}
+@media(prefers-reduced-motion:reduce){
+  .workspace-stage{animation:none!important}
+}
