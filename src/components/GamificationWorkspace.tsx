@@ -26,6 +26,8 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [roomDecor,setRoomDecor]=useState("sprout");
   const [care,setCare]=useState<MeowkyCare>({fullness:68,joy:62,energy:76,bond:0,completed:[],day:new Date().toLocaleDateString("en-CA")});
   const [careReady,setCareReady]=useState(false);
+  const [surpriseLine,setSurpriseLine]=useState("");
+  const [surpriseUsed,setSurpriseUsed]=useState(false);
   const [evolutionCelebration,setEvolutionCelebration]=useState<(typeof MEOWKY_FORMS)[number]|null>(null);
 
   async function refresh(){
@@ -103,6 +105,17 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const currentHour=new Date().getHours();
   const timeOfDay: "morning"|"day"|"evening"=currentHour<11?"morning":currentHour<18?"day":"evening";
   const timeGreeting=timeOfDay==="morning"?"A bright morning stretch":timeOfDay==="day"?"A sunny afternoon pause":"A soft evening wind-down";
+  const daysSinceActivity=stats?.last_activity_date?Math.max(0,Math.floor((new Date(new Date().toLocaleDateString("en-CA")).getTime()-new Date(stats.last_activity_date+"T00:00:00").getTime())/86400000)):null;
+  const returnGreeting=daysSinceActivity!==null&&daysSinceActivity>=2?"I missed you! Every return is a fresh beginning.":daysSinceActivity===1?"Welcome back! I saved a little purr just for you.":"It’s lovely spending another day together.";
+  const activityDialogue=todayMinutes>=30?"You reached today's study goal! I’m doing the proudest little purr.":todayMinutes>0?"I saw you studying today. Every minute is a tiny victory.":(stats?.current_streak??0)>=3?"Your study streak is still glowing. Shall we keep it going?":"Ready when you are. We can start with just five minutes.";
+  const friendshipTier=care.bond>=30?"Soul companion":care.bond>=15?"Best friends":care.bond>=7?"Close friends":care.bond>=3?"Good friends":"New friends";
+  const surpriseMessages=["A tiny star fell into our room. I think it wished us a wonderful day!","Secret mission: stretch your shoulders, sip some water, and come back when you're ready.","I found a little imaginary flower and named it after you.","Psst… your effort matters, even on the days progress feels slow.","If I could give you one thing, it would be a pocket-sized bit of courage."];
+  function revealSurprise(){
+    const index=Math.floor(Math.random()*surpriseMessages.length);
+    setSurpriseLine(surpriseMessages[index]);setSurpriseUsed(true);
+    setCompanionMood("happy");setCompanionLine(surpriseMessages[index]);
+  }
+
   function careForMeowky(action:"feed"|"play"|"rest"){
     const effects={feed:{fullness:22,joy:4,energy:-2,line:"Nom nom! That snack was purr-fect. Thank you!"},play:{fullness:-5,joy:22,energy:-12,line:"Wheee! That was so much fun. You always know how to make me smile!"},rest:{fullness:-2,joy:3,energy:24,line:"Mmm… a little rest feels wonderful. I’m all recharged!"}};
     const change=effects[action];
@@ -131,6 +144,16 @@ export function GamificationWorkspace({userId}:{userId:string}) {
       </div>
       <div className="meowky-care-quest"><div><p className="eyebrow">DAILY CARE QUEST</p><strong>{care.completed.length} / 3 moments shared</strong><p>{care.completed.length===3?"You made Meowky's day! Come back tomorrow for another little routine.":"Complete all three care moments to finish today's companion routine."}</p></div><div className="meowky-care-paws" aria-label={care.completed.length+" of 3 daily care tasks completed"}>{["feed","play","rest"].map((task,index)=><span key={task} className={care.completed.includes(task)?"done":""}>{care.completed.includes(task)?"🐾":index+1}</span>)}</div></div>
       <p className="meowky-home-note">Care progress is saved on this device and resets its daily checklist each new day. Care bonds are for fun and do not change your study XP.</p>
+    </section>
+
+    <section className="meowky-bond-story panel" aria-label="Your relationship with Meowky">
+      <div className="meowky-home-heading"><div><p className="eyebrow">A FRIENDSHIP THAT GROWS</p><h2>{friendshipTier}</h2><p>{returnGreeting}</p></div><span className="meowky-care-bond">♡ {care.bond} bonds</span></div>
+      <div className="meowky-story-grid">
+        <article><span>📖</span><small>YOUR STUDY STORY</small><p>{activityDialogue}</p></article>
+        <article><span>🔥</span><small>STREAK MOMENT</small><p>{(stats?.current_streak??0)>0?"We're on a "+stats!.current_streak+" day study streak. Let's celebrate showing up!":"Every streak starts with one study session. I'll be cheering you on."}</p></article>
+      </div>
+      <div className="meowky-surprise-row"><div><strong>✨ A little surprise</strong><p>{surpriseLine||"There's a small bit of magic waiting whenever you need a smile."}</p></div><button type="button" disabled={surpriseUsed} onClick={revealSurprise}>{surpriseUsed?"Surprise discovered":"Reveal surprise"}</button></div>
+      {(todayMinutes>=30||(stats?.current_streak??0)>=7)&&<div className="meowky-milestone-note" role="status"><span>🎉</span><div><strong>{todayMinutes>=30?"Daily study goal achieved!":"A seven-day streak milestone!"}</strong><p>{todayMinutes>=30?"Meowky is celebrating your 30-minute study goal with you.":"A whole week of showing up. That's something to be proud of."}</p></div></div>}
     </section>
     <section className="meowky-home panel" aria-label="Meowky's personal space">
       <div className="meowky-home-heading"><div><p className="eyebrow">A LITTLE PLACE TO CALL HOME</p><h2>Meowky's nook</h2><p>{roomRank} · A home that grows with your learning journey.</p></div><span className="meowky-home-level">Level {Math.min(6,Math.floor(xp/170)+1)} home</span></div>
