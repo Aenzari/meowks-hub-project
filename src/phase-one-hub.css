@@ -451,3 +451,30 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:760px){.companion-evolution-path-grid{grid-template-columns:1fr}}
 @media(max-width:420px){.companion-evolution-library{padding:10px}.companion-evolution-path{padding:9px}.companion-evolution-stages{gap:3px}.companion-evolution-stage{padding:4px 1px}.companion-evolution-stage>small{font-size:6px}.companion-evolution-stage>em{font-size:5px}}
 @media(prefers-reduced-motion:reduce){.companion-evolution-track>span{transition:none}}
+
+
+/* Phase 3.2 — companion accessory wardrobe */
+.companion-accessory-workshop{margin:0 0 19px;padding:22px!important;background:radial-gradient(circle at 95% 0%,rgba(203,190,238,.16),transparent 17rem),linear-gradient(145deg,#fffefa,#f7faf5)}
+.companion-accessory-slots{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:15px 0}
+.companion-accessory-slots>div{display:grid;gap:5px;min-width:0;padding:10px;border:1px solid #e9e7dd;border-radius:12px;background:rgba(255,255,255,.75)}
+.companion-accessory-slots small{color:#9a9a8b;font-size:8px;font-weight:900;letter-spacing:.1em}
+.companion-accessory-slots strong{overflow:hidden;color:#53685d;font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+.companion-accessory-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.companion-accessory-card{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;min-width:0;padding:11px;border:1px solid #e9e9df;border-radius:14px;background:rgba(255,255,255,.84)}
+.companion-accessory-card.is-equipped{border-color:#a8d5b7;background:linear-gradient(120deg,#f0faf2,#fffdf8);box-shadow:0 0 0 2px rgba(104,181,137,.1)}
+.companion-accessory-card.is-locked{background:#f7f6f2}
+.companion-accessory-icon{display:grid;place-items:center;width:42px;height:42px;border:1px solid #ece7db;border-radius:13px;background:linear-gradient(145deg,#fff8e9,#f5effb);font-size:22px}
+.companion-accessory-card.is-locked .companion-accessory-icon{filter:grayscale(1);opacity:.72}
+.companion-accessory-copy{min-width:0}
+.companion-accessory-copy>div{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.companion-accessory-copy strong{color:#40574d;font-size:10px}
+.companion-accessory-copy small{padding:3px 5px;border-radius:99px;background:#f1eee5;color:#9b8055;font-size:7px;font-weight:850}
+.companion-accessory-copy small[data-rarity="legendary"],.companion-accessory-copy small[data-rarity="celestial"]{background:#f0eafa;color:#8065a6}
+.companion-accessory-copy p{margin:4px 0;color:#849087;font-size:8px;line-height:1.45}
+.companion-accessory-copy>span{display:block;color:#a18e6c;font-size:8px;line-height:1.4}
+.companion-accessory-card button{min-width:65px;min-height:32px;padding:7px 9px;border:1px solid #d9e7dc;border-radius:9px;background:#eff8f0;color:#4e8061;font-size:8px;font-weight:850;touch-action:manipulation}
+.companion-accessory-card.is-equipped button{border-color:#cde5d3;background:#e4f4e7;color:#397653}
+.companion-accessory-card button:disabled{border-color:#e9e7e1;background:#f1f0eb;color:#a5a197;cursor:default}
+@media(max-width:760px){.companion-accessory-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.companion-accessory-workshop{padding:15px!important}.companion-accessory-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.companion-accessory-card{grid-template-columns:38px minmax(0,1fr);gap:8px}.companion-accessory-icon{width:36px;height:36px;font-size:19px}.companion-accessory-card button{grid-column:2;width:100%}}
+@media(prefers-reduced-motion:reduce){.companion-accessory-card,.companion-accessory-card button{transition:none}}
