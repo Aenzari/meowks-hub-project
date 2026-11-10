@@ -337,3 +337,31 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .meowky-journal-empty strong{color:#526b60;font-size:12px}
 .meowky-journal-empty p{max-width:300px;margin:0;color:#92968c;font-size:10px;line-height:1.6}
 @media(max-width:560px){.meowky-journal{padding:15px!important}.meowky-journal-entry{grid-template-columns:36px minmax(0,1fr);gap:9px;padding:10px}.meowky-journal-icon{width:36px;height:36px}.meowky-journal-entry-meta{align-items:flex-start;flex-direction:column;gap:3px}.meowky-journal-filters{gap:5px}.meowky-journal-filters button{padding-inline:9px}}
+
+
+/* Phase 2.7 — seasonal events and collectible showcase */
+.meowky-seasonal{margin:0 0 19px;padding:22px!important;background:radial-gradient(circle at 95% 0%,rgba(255,196,132,.18),transparent 17rem),linear-gradient(145deg,#fffdf7,#f8f6fc)}
+.meowky-season-token{flex:0 0 auto;padding:8px 11px;border:1px solid #eadfc8;border-radius:99px;background:#fff8e9;color:#977444;font-size:10px;font-weight:850}
+.meowky-season-progress{height:10px;overflow:hidden;margin:15px 0;border:1px solid #ece8dd;border-radius:99px;background:#f1eee7}
+.meowky-season-progress>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#edb66f,#e8a5a0,#a9c9b4);transition:width .35s ease}
+.meowky-season-action{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px solid #eee4d5;border-radius:14px;background:rgba(255,255,255,.82)}
+.meowky-season-action strong{color:#5c5262;font-size:11px}
+.meowky-season-action p{margin:4px 0 0;color:#8e8791;font-size:9px;line-height:1.55}
+.meowky-season-action button{flex:0 0 auto;min-height:38px;padding:9px 13px;border:1px solid #d8c4a0;border-radius:11px;background:linear-gradient(120deg,#fff4dc,#f9e9d5);color:#80613d;font-size:9px;font-weight:850;touch-action:manipulation}
+.meowky-season-action button:disabled{border-color:#e9e6df;background:#f2f0eb;color:#a7a39b;cursor:default}
+.meowky-season-collection{margin-top:17px}
+.meowky-season-collection-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.meowky-season-collection-heading strong{color:#435b56;font-size:12px}
+.meowky-season-collection-heading span{color:#99938b;font-size:9px}
+.meowky-season-rewards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.meowky-season-rewards button{display:grid;justify-items:center;align-content:start;gap:6px;min-width:0;min-height:112px;padding:11px 7px;border:1px dashed #e5e0d8;border-radius:13px;background:rgba(255,255,255,.58);color:#a09a91}
+.meowky-season-rewards button>span{display:grid;place-items:center;width:39px;height:39px;border-radius:12px;background:#f0eee9;font-size:20px;filter:grayscale(1);opacity:.65}
+.meowky-season-rewards button b{color:#98938d;font-size:9px;text-align:center;line-height:1.35}
+.meowky-season-rewards button small{color:#aaa39a;font-size:8px;text-align:center}
+.meowky-season-rewards button.unlocked{border-style:solid;border-color:#e9ddc7;background:linear-gradient(145deg,#fffdf7,#fbf5e9);color:#806b4f}
+.meowky-season-rewards button.unlocked>span{background:linear-gradient(145deg,#fff1d6,#f8e8ed);filter:none;opacity:1}
+.meowky-season-rewards button.unlocked b{color:#655b4c}
+.meowky-season-rewards button.equipped{outline:2px solid #8dcbb0;outline-offset:1px;background:#f0faf3}
+@media(max-width:700px){.meowky-season-rewards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:560px){.meowky-seasonal{padding:15px!important}.meowky-season-action{align-items:stretch;flex-direction:column}.meowky-season-action button{width:100%}.meowky-season-collection-heading{align-items:flex-start;flex-direction:column;gap:3px}.meowky-season-rewards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.meowky-season-progress>span{transition:none}}
