@@ -272,6 +272,22 @@ export default function App() {
             <div className="dashboard-welcome-mascot"><div className="dashboard-mascot-halo"><Meowky className="dashboard-meowky" mood="focused"/></div><span>One step at a time ✨</span></div>
           </section>
 
+          <section className="hub-quest-board" aria-label="Today's study quests">
+            <article className="hub-quest-card">
+              <div className="hub-quest-heading">
+                <div><p className="eyebrow">YOUR DAILY QUESTS</p><h2>A little progress goes a long way.</h2></div>
+                <span className="hub-quest-count">{dueTodayTasks.length} due today</span>
+              </div>
+              {dueTodayTasks.length ? <div className="hub-quest-list">{dueTodayTasks.slice(0,3).map(task=><div className="hub-quest-item" key={task.id}><span aria-hidden="true">✦</span><div><strong>{task.title}</strong><small>{courseName(task.course_id)} · {task.task_type}</small></div><b>Today's quest</b></div>)}</div> : <div className="hub-quest-empty"><strong>Your quest board is clear today.</strong>No deadlines are due today. Add a task whenever a new assignment or idea comes up.</div>}
+            </article>
+            <article className="hub-momentum-card">
+              <div><p className="eyebrow">YOUR MOMENTUM</p><h2>Every task is a step forward.</h2></div>
+              <div className="hub-momentum-number"><strong>{completedCount}</strong><span>of {tasks.length} tasks completed</span></div>
+              <div className="hub-momentum-track" role="progressbar" aria-label="Task completion progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={tasks.length ? Math.round(completedCount/tasks.length*100) : 0}><span style={{width:`${tasks.length ? completedCount/tasks.length*100 : 0}%`}}/></div>
+              <p>{tasks.length ? `${Math.round(completedCount/tasks.length*100)}% of your task list is complete. Keep your own pace.` : "Your first task is the beginning of your progress story."}</p>
+            </article>
+          </section>
+
           <section className="dashboard-stat-grid" aria-label="Your study overview">
             <article className="dashboard-stat dashboard-stat-primary"><span className="dashboard-stat-icon">◷</span><span className="dashboard-stat-label">Open tasks</span><strong>{pendingTasks.length}</strong><small>{dueTodayTasks.length} need attention today</small></article>
             <article className="dashboard-stat"><span className="dashboard-stat-icon mint">✓</span><span className="dashboard-stat-label">Completed</span><strong>{completedCount}</strong><small>{tasks.length ? Math.round(completedCount/tasks.length*100) : 0}% of your task list</small></article>
