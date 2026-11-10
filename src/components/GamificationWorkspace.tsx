@@ -40,6 +40,9 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [seasonalOwner,setSeasonalOwner]=useState("");
   const [equippedCollectible,setEquippedCollectible]=useState("none");
   const [evolutionCelebration,setEvolutionCelebration]=useState<(typeof MEOWKY_FORMS)[number]|null>(null);
+  const [activeCompanionId,setActiveCompanionId]=useState("meowky");
+  const [activeCompanionReady,setActiveCompanionReady]=useState(false);
+  const [activeCompanionOwner,setActiveCompanionOwner]=useState("");
 
   async function refresh(){
     if(!supabase)return;
@@ -79,6 +82,20 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   useEffect(()=>{try{const saved=window.localStorage.getItem("achieve-meowky-journal-"+userId);const parsed=saved?JSON.parse(saved):[];setJournal(Array.isArray(parsed)?parsed.filter((item:any)=>item&&typeof item.id==="string"&&typeof item.title==="string"):[]);}catch{setJournal([]);}setJournalReady(true);setJournalOwner(userId);},[userId]);
   useEffect(()=>{if(!journalReady||journalOwner!==userId)return;try{window.localStorage.setItem("achieve-meowky-journal-"+userId,JSON.stringify(journal.slice(0,100)));}catch{/* Journal remains available for this visit if storage is unavailable. */}},[journal,userId,journalReady,journalOwner]);
 
+  useEffect(()=>{
+    try{
+      const saved=window.localStorage.getItem("achieve-active-companion-"+userId);
+      const available=COMPANION_ROSTER.filter(item=>item.availability==="recruited").map(item=>item.id);
+      setActiveCompanionId(saved&&available.includes(saved)?"meowky"===saved?saved:"meowky":"meowky");
+    }catch{setActiveCompanionId("meowky");}
+    setActiveCompanionReady(true);setActiveCompanionOwner(userId);
+  },[userId]);
+  useEffect(()=>{
+    if(!activeCompanionReady||activeCompanionOwner!==userId)return;
+    try{window.localStorage.setItem("achieve-active-companion-"+userId,activeCompanionId);}catch{/* Active companion remains selected for this visit if storage is unavailable. */}
+  },[activeCompanionReady,activeCompanionOwner,userId,activeCompanionId]);
+
+
   const seasonKey=(()=>{const month=new Date().getMonth();return month<3?"spring":month<6?"summer":month<9?"autumn":"winter";})();
   const seasonYear=new Date().getFullYear();
   const seasonalStorageKey="achieve-meowky-season-"+userId+"-"+seasonYear+"-"+seasonKey;
@@ -99,6 +116,13 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   },[seasonalReady,seasonalOwner,userId,seasonalStorageKey,seasonalTokens,seasonalClaimDay,equippedCollectible]);
 
 
+
+  function selectActiveCompanion(companionId:string){
+    const companion=COMPANION_ROSTER.find(item=>item.id===companionId);
+    if(!companion||companion.availability!=="recruited"){setNotice("This companion's adventure hasn't opened yet.");return;}
+    setActiveCompanionId(companionId);
+    setNotice(companion.name+" is now your active companion.");
+  }
 
   async function toggleLeaderboard(){
     if(!supabase)return;
@@ -250,7 +274,12 @@ export function GamificationWorkspace({userId}:{userId:string}) {
     {notice&&<div className="inline-notice" role="status">{notice}</div>}
     <section className="panel companion-collection-book" aria-label="Companion collection book">
       <div className="panel-heading"><div><p className="eyebrow">YOUR GROWING WORLD</p><h2>Companion collection book</h2><p>Every companion has a story waiting to be discovered.</p></div><span className="achievement-count">{COMPANION_ROSTER.filter(item=>item.availability==="recruited").length} / {COMPANION_ROSTER.length} recruited</span></div>
-      <div className="companion-roster-grid">{COMPANION_ROSTER.map(companion=>{const recruited=companion.availability==="recruited";return <article className={"companion-roster-card "+(recruited?"is-recruited":"is-coming-soon")} key={companion.id}><div className="companion-roster-art" aria-hidden="true"><span>{recruited?companion.symbol:"?"}</span>{!recruited&&<small>LOCKED</small>}</div><div className="companion-roster-copy"><div className="companion-roster-meta"><span>{companion.species}</span><b>{recruited?"RECRUITED":"COMING SOON"}</b></div><h3>{companion.name}</h3><p>{companion.description}</p><div className="companion-roster-foot"><span>{companion.rarity}</span>{recruited?<strong>{MEOWKY_FORMS.filter(form=>xp>=form.xpRequired).length} / {MEOWKY_FORMS.length} forms</strong>:<strong>Adventure awaits</strong>}</div></div></article>;})}</div>
+      <div className="active-companion-profile">
+        <div className="active-companion-portrait" aria-hidden="true"><span>{COMPANION_ROSTER.find(item=>item.id===activeCompanionId)?.symbol??"🐾"}</span><i>✦</i></div>
+        <div className="active-companion-details"><p className="eyebrow">CURRENTLY BY YOUR SIDE</p><h3>{COMPANION_ROSTER.find(item=>item.id===activeCompanionId)?.name??"Meowky"}</h3><p>{COMPANION_ROSTER.find(item=>item.id===activeCompanionId)?.description??"Your study companion."}</p><div className="active-companion-tags"><span>{COMPANION_ROSTER.find(item=>item.id===activeCompanionId)?.species??"Companion"}</span><span>{activeCompanionId==="meowky"?currentForm.name:"Companion profile"}</span><span>{activeCompanionId==="meowky"?friendshipTier:"New friendship"}</span></div></div>
+        <span className="active-companion-status">✦ ACTIVE</span>
+      </div>
+      <div className="companion-roster-grid">{COMPANION_ROSTER.map(companion=>{const recruited=companion.availability==="recruited";const active=activeCompanionId===companion.id;return <article className={"companion-roster-card "+(recruited?"is-recruited":"is-coming-soon")+(active?" is-active":"")} key={companion.id}><div className="companion-roster-art" aria-hidden="true"><span>{recruited?companion.symbol:"?"}</span>{!recruited&&<small>LOCKED</small>}</div><div className="companion-roster-copy"><div className="companion-roster-meta"><span>{companion.species}</span><b>{active?"ACTIVE":recruited?"RECRUITED":"COMING SOON"}</b></div><h3>{companion.name}</h3><p>{companion.description}</p><div className="companion-roster-foot"><span>{companion.rarity}</span>{recruited?<strong>{MEOWKY_FORMS.filter(form=>xp>=form.xpRequired).length} / {MEOWKY_FORMS.length} forms</strong>:<strong>Adventure awaits</strong>}</div><button type="button" className="companion-select-button" disabled={!recruited||active||!activeCompanionReady} onClick={()=>selectActiveCompanion(companion.id)}>{active?"Currently active":recruited?"Set as active":"Not yet available"}</button></div></article>;})}</div>
       <p className="gamification-footnote">Meowky is your first fully playable companion. New roster entries are previews until their character art, evolution paths, and interactions are released.</p>
     </section>
     <section className="panel meowky-evolution-panel">
