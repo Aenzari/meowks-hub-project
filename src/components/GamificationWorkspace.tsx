@@ -21,6 +21,7 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const [companionMood,setCompanionMood]=useState<"happy"|"focused"|"sleepy">("focused");
   const [companionLine,setCompanionLine]=useState("I’m right here. Let’s make one small step count.");
   const [headpats,setHeadpats]=useState(0);
+  const [evolutionCelebration,setEvolutionCelebration]=useState<(typeof MEOWKY_FORMS)[number]|null>(null);
 
   async function refresh(){
     if(!supabase)return;
@@ -63,12 +64,24 @@ export function GamificationWorkspace({userId}:{userId:string}) {
   const currentForm=getMeowkyForm(xp);
   const nextForm=getNextMeowkyForm(xp);
   const evolutionProgress=nextForm?Math.min(100,Math.round(((xp-currentForm.xpRequired)/(nextForm.xpRequired-currentForm.xpRequired))*100)):100;
+  useEffect(()=>{
+    if(!stats)return;
+    const key=`achieve-meowky-form-${userId}`;
+    try{
+      const previous=Number(window.localStorage.getItem(key));
+      if(!previous){window.localStorage.setItem(key,String(currentForm.id));return;}
+      if(currentForm.id>previous){setEvolutionCelebration(currentForm);setCompanionMood("happy");setCompanionLine(`${currentForm.name} has arrived! I’m so proud of how far we’ve come.`);}
+      window.localStorage.setItem(key,String(currentForm.id));
+    }catch{ /* Storage may be unavailable; the companion remains usable. */ }
+  },[userId,stats,currentForm.id]);
+  const companionRank=currentForm.id>=10?"Celestial guardian":currentForm.id>=9?"Cosmic companion":currentForm.id>=7?"Starlit mentor":currentForm.id>=5?"Growing guide":currentForm.id>=3?"Curious explorer":"Little learning buddy";
   return <section className="feature-page gamification-workspace">
     <div className="feature-heading"><div><p className="eyebrow">EVERY LITTLE WIN COUNTS</p><h1>My Space<span className="coral">.</span></h1><p className="subheading">Your learning journey, one paw at a time.</p></div><div className="gamification-level">🐾 <strong>Level {level}</strong></div></div>
     <section className={"meowky-companion meowky-companion-interactive mood-" + companionMood} aria-label="Your Meowky companion">
-      <div className="meowky-companion-copy"><p className="eyebrow">YOUR COMPANION · {currentForm.rarity.toUpperCase()}</p><h2>{currentForm.name}</h2><p className="meowky-companion-dialogue" aria-live="polite">{companionLine}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Daily study goal reached" : "♡ Your companion is here"}</span><div className="meowky-companion-actions" role="group" aria-label="Companion mood"><button type="button" onClick={()=>{setCompanionMood("focused");setCompanionLine("I’m right here. Let’s make one small step count.");}}>Study together</button><button type="button" onClick={()=>{setCompanionMood("sleepy");setCompanionLine("Even the brightest minds need a little rest. Take a gentle breather.");}}>Rest mode</button><button type="button" onClick={()=>{setCompanionMood("happy");setCompanionLine("You’re doing better than you think. Every little win deserves a cheer!");}}>Cheer me on</button><button type="button" className="meowky-headpat" onClick={()=>{setCompanionMood("happy");setCompanionLine(["Prrr! That was a lovely headpat.","Meowky’s whiskers are doing a happy dance!","A tiny purr of appreciation, just for you."][headpats%3]);setHeadpats(value=>value+1);}}>♡ Headpat</button></div><small className="meowky-headpat-count" aria-live="polite">{headpats} headpats this visit</small></div>
+      <div className="meowky-companion-copy"><p className="eyebrow">YOUR COMPANION · {currentForm.rarity.toUpperCase()}</p><h2>{currentForm.name}</h2><span className="meowky-companion-rank">{companionRank}</span><p className="meowky-companion-personality">{currentForm.personality}</p><p className="meowky-companion-dialogue" aria-live="polite">{companionLine}</p><span className="meowky-mood-label">{todayMinutes >= 30 ? "✦ Daily study goal reached" : "♡ Your companion is here"}</span><div className="meowky-companion-actions" role="group" aria-label="Companion mood"><button type="button" onClick={()=>{setCompanionMood("focused");setCompanionLine("I’m right here. Let’s make one small step count.");}}>Study together</button><button type="button" onClick={()=>{setCompanionMood("sleepy");setCompanionLine("Even the brightest minds need a little rest. Take a gentle breather.");}}>Rest mode</button><button type="button" onClick={()=>{setCompanionMood("happy");setCompanionLine("You’re doing better than you think. Every little win deserves a cheer!");}}>Cheer me on</button><button type="button" className="meowky-headpat" onClick={()=>{setCompanionMood("happy");setCompanionLine(["Prrr! That was a lovely headpat.","Meowky’s whiskers are doing a happy dance!","A tiny purr of appreciation, just for you."][headpats%3]);setHeadpats(value=>value+1);}}>♡ Headpat</button></div><small className="meowky-headpat-count" aria-live="polite">{headpats} headpats this visit</small></div>
       <div className="meowky-companion-art meowky-evolution-stage" data-rarity={currentForm.rarity.toLowerCase()}><span className="meowky-stage-aura" aria-hidden="true"/><Meowky3D formId={currentForm.id} mood={companionMood} /><span className="meowky-stage-name">{currentForm.name}</span></div>
     </section>
+    {evolutionCelebration&&<div className="meowky-evolution-celebration" role="dialog" aria-modal="true" aria-labelledby="meowky-evolution-title"><div className="meowky-celebration-sparkles" aria-hidden="true"><i>✦</i><i>✧</i><i>✺</i><i>✦</i><i>✧</i><i>✺</i></div><div className="meowky-celebration-art"><Meowky3D formId={evolutionCelebration.id} mood="happy"/></div><p className="eyebrow">A NEW COMPANION FORM HAS AWAKENED</p><h2 id="meowky-evolution-title">Meet {evolutionCelebration.name}!</h2><span className="meowky-celebration-rarity" data-rarity={evolutionCelebration.rarity.toLowerCase()}>{evolutionCelebration.rarity} evolution</span><p>{evolutionCelebration.personality}</p><div className="meowky-celebration-ability"><strong>{evolutionCelebration.ability}</strong></div><button type="button" onClick={()=>setEvolutionCelebration(null)}>Continue our journey</button></div>}
     {error&&<div className="inline-error" role="alert">{error}</div>}
     {notice&&<div className="inline-notice" role="status">{notice}</div>}
     <section className="panel meowky-evolution-panel">
