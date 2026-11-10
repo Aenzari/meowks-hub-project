@@ -29,10 +29,11 @@ export function Meowky3D({formId,mood="happy",className}:Meowky3DProps){
   const head=new THREE.Group();head.position.set(0,.55,.05);cat.add(head);
   sphere(head,new THREE.SphereGeometry(1,48,36),fur,[0,0,0],[1.04,.91,.77]);
   const earGeo=new THREE.ConeGeometry(.34,.92,32);
+  const eyes:THREE.Mesh[]=[];
   for(const side of [-1,1]){
    const ear=new THREE.Mesh(earGeo,fur);ear.position.set(side*.69,.72,-.02);ear.rotation.z=side*-.28;ear.castShadow=true;head.add(ear);
    const inner=new THREE.Mesh(new THREE.ConeGeometry(.19,.58,24),pink);inner.position.set(side*.69,.76,.18);inner.rotation.z=side*-.28;head.add(inner);
-   sphere(head,new THREE.SphereGeometry(1,24,18),dark,[side*.39,-.08,.69],[.075,.12,.055]);
+   eyes.push(sphere(head,new THREE.SphereGeometry(1,24,18),dark,[side*.39,-.08,.69],[.075,.12,.055]));
    sphere(head,new THREE.SphereGeometry(1,16,12),cream,[side*.365,-.035,.742],[.023,.032,.015]);
    sphere(head,new THREE.SphereGeometry(1,24,16),pink,[side*.68,-.31,.57],[.2,.11,.055]);
   }
@@ -54,8 +55,10 @@ export function Meowky3D({formId,mood="happy",className}:Meowky3DProps){
   if(formId>=9){const orbit=new THREE.Mesh(new THREE.TorusGeometry(.72,.025,8,64),accent);orbit.rotation.set(.5,.25,.4);orbit.position.y=.18;crown.add(orbit);}
   if(formId>=10){for(const side of [-1,1]){const wing=new THREE.Mesh(new THREE.SphereGeometry(.48,24,18),cream);wing.position.set(side*1.02,-.05,-.18);wing.scale.set(.75,1.35,.24);wing.rotation.z=side*-.5;cat.add(wing);}const halo2=new THREE.Mesh(new THREE.TorusGeometry(.78,.035,10,64),accent);halo2.position.set(0,2.05,0);halo2.rotation.x=.25;crown.add(halo2);}
   const ground=new THREE.Mesh(new THREE.CircleGeometry(1.35,48),new THREE.MeshBasicMaterial({color:accents[Math.max(0,Math.min(9,formId-1))],transparent:true,opacity:.12}));ground.rotation.x=-Math.PI/2;ground.position.y=-1.62;scene.add(ground);
+  const idleSparkles:THREE.Mesh[]=[];
+  if(formId>=7){for(let i=0;i<7;i++){const sparkle=new THREE.Mesh(new THREE.OctahedronGeometry(i%2?.045:.065),new THREE.MeshBasicMaterial({color:accents[Math.max(0,Math.min(9,formId-1))],transparent:true,opacity:.72}));sparkle.position.set(Math.cos(i*Math.PI*2/7)*1.35,.15+Math.sin(i*2.4)*.8,-.15);scene.add(sparkle);idleSparkles.push(sparkle);}}
   const resize=()=>{const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};const observer=new ResizeObserver(resize);observer.observe(element);
-  let frame=0;let raf=0;const animate=()=>{raf=requestAnimationFrame(animate);frame+=.012;const activeMood=moodRef.current;cat.position.y=Math.sin(frame*(activeMood==="happy"?2:1.5))*(activeMood==="sleepy"?.025:.075);cat.rotation.y=Math.sin(frame*.65)*(activeMood==="happy"?.22:.16);head.rotation.z=Math.sin(frame*(activeMood==="happy"?2.1:1.1))*(activeMood==="happy"?.045:.025);head.rotation.x=activeMood==="sleepy"?.08:0;tail.rotation.x=Math.sin(frame*(activeMood==="happy"?3.2:2))*(activeMood==="sleepy"?.06:.15);head.scale.y=activeMood==="sleepy"?.97:1;renderer.render(scene,camera);};animate();
+  let frame=0;let raf=0;const animate=()=>{raf=requestAnimationFrame(animate);frame+=.012;const activeMood=moodRef.current;cat.position.y=Math.sin(frame*(activeMood==="happy"?2:1.5))*(activeMood==="sleepy"?.025:.075);cat.rotation.y=Math.sin(frame*.65)*(activeMood==="happy"?.22:.16);head.rotation.z=Math.sin(frame*(activeMood==="happy"?2.1:1.1))*(activeMood==="happy"?.045:.025);head.rotation.x=activeMood==="sleepy"?.08:0;tail.rotation.x=Math.sin(frame*(activeMood==="happy"?3.2:2))*(activeMood==="sleepy"?.06:.15);head.scale.y=activeMood==="sleepy"?.97:1;const blink=frame%8.5;const blinkScale=blink>8.28?Math.max(.12,1-(blink-8.28)/.11):1;eyes.forEach(eye=>{eye.scale.y=.12*blinkScale*(activeMood==="sleepy"?.82:1);});idleSparkles.forEach((sparkle,index)=>{sparkle.position.y=.15+Math.sin(frame*1.2+index*1.7)*.82;sparkle.rotation.x+=.012;sparkle.rotation.y+=.018;const pulse=.45+Math.sin(frame*1.8+index)*.3;(sparkle.material as THREE.MeshBasicMaterial).opacity=pulse;});renderer.render(scene,camera);};animate();
   return()=>{cancelAnimationFrame(raf);observer.disconnect();renderer.dispose();scene.traverse(object=>{if(object instanceof THREE.Mesh){object.geometry.dispose();const material=object.material;if(Array.isArray(material))material.forEach(m=>m.dispose());else material.dispose();}});element.removeChild(renderer.domElement);};
  },[formId]);
  return <div ref={host} className={className??"meowky-3d-canvas"} role="img" aria-label={`3D Meowky companion, evolution form ${formId}`}/>;
