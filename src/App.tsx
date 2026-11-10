@@ -257,6 +257,7 @@ export default function App() {
       <section className="page-content" aria-busy={dataLoading}>
         {notice && <div className="inline-notice" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="Dismiss">×</button></div>}
         {dataError && <div className="inline-error" role="alert">{dataError}<button onClick={()=>setDataError("")} aria-label="Dismiss">×</button></div>}
+        <div className="workspace-stage" key={activeNav} aria-label={`${activeNav} workspace`}>
         {activeNav === "Overview" && <>
           <section className="dashboard-welcome" aria-labelledby="dashboard-greeting">
             <div className="dashboard-welcome-copy">
@@ -331,6 +332,7 @@ export default function App() {
           <ProfileWorkspace userId={user.id} profile={profile} onProfileUpdated={setProfile}/>
         )}
         {activeNav === "Achieve" && user && <GamificationWorkspace userId={user.id}/>}
+        </div>
         <footer>Made for students, with a little help from Meowky. <span>MEOWKS © 2026</span></footer>
       </section>
     </main>
