@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-type Meowky3DProps={formId:number;mood?:"happy"|"focused"|"sleepy";timeOfDay?:"morning"|"day"|"evening";className?:string};
+type Meowky3DProps={formId:number;mood?:"happy"|"focused"|"sleepy";timeOfDay?:"morning"|"day"|"evening";accessories?:string[];className?:string};
 const palettes=["#f4d9b7","#f39a79","#72c8d0","#a9a0e9","#79b991","#f2c45f","#817bd2","#8dc8ed","#bd8bba","#e9c77c"];
 const accents=["#42bfa7","#ff947a","#3b9eae","#7669c5","#438b68","#c18a27","#d0a4ff","#67a8dc","#e98aa9","#f2cf79"];
 function sphere(parent:THREE.Group,geometry:THREE.SphereGeometry,material:THREE.Material,position:[number,number,number],scale:[number,number,number]){const mesh=new THREE.Mesh(geometry,material);mesh.position.set(...position);mesh.scale.set(...scale);mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh}
-export function Meowky3D({formId,mood="happy",timeOfDay="day",className}:Meowky3DProps){
+export function Meowky3D({formId,mood="happy",timeOfDay="day",accessories=[],className}:Meowky3DProps){
+ const accessoryKey=accessories.join("|");
  const host=useRef<HTMLDivElement>(null);
  const moodRef=useRef(mood);
  const timeRef=useRef(timeOfDay);
@@ -45,6 +46,43 @@ export function Meowky3D({formId,mood="happy",timeOfDay="day",className}:Meowky3
   const tailCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(.58,-1.05,-.28),new THREE.Vector3(1.05,-.8,-.25),new THREE.Vector3(1.18,-.15,-.2),new THREE.Vector3(.85,.05,-.2)]);
   const tail=new THREE.Mesh(new THREE.TubeGeometry(tailCurve,36,.105,12,false),fur);tail.castShadow=true;cat.add(tail);
   const crown=new THREE.Group();crown.position.set(0,1.55,0);head.add(crown);
+  const wardrobe=new THREE.Group();head.add(wardrobe);
+  if(accessories.includes("meadow-blossom")){
+   const flower=new THREE.Group();flower.position.set(-.72,.72,.25);wardrobe.add(flower);
+   for(let i=0;i<5;i++){const petal=new THREE.Mesh(new THREE.SphereGeometry(.105,14,10),new THREE.MeshStandardMaterial({color:"#f4a8b8",roughness:.55}));const angle=i*Math.PI*2/5;petal.position.set(Math.cos(angle)*.105,Math.sin(angle)*.105,0);petal.scale.set(1,.72,.42);flower.add(petal);}
+   flower.add(new THREE.Mesh(new THREE.SphereGeometry(.065,14,10),new THREE.MeshStandardMaterial({color:"#f4d477"})));
+  }
+  if(accessories.includes("scholar-cap")){
+   const cap=new THREE.Group();cap.position.set(0,.79,.02);wardrobe.add(cap);
+   const dome=new THREE.Mesh(new THREE.SphereGeometry(.42,24,16,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:"#65588f",roughness:.72}));dome.scale.set(1,.5,.82);cap.add(dome);
+   const brim=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.055,32),new THREE.MeshStandardMaterial({color:"#8d7ab9",roughness:.65}));brim.position.y=-.015;cap.add(brim);
+   const tassel=new THREE.Mesh(new THREE.SphereGeometry(.055,12,10),new THREE.MeshStandardMaterial({color:"#f0cf7d"}));tassel.position.set(.2,.19,.12);cap.add(tassel);
+  }
+  if(accessories.includes("starlace-scarf")){
+   const scarfMaterial=new THREE.MeshStandardMaterial({color:"#e99b9d",roughness:.72});
+   const scarf=new THREE.Mesh(new THREE.TorusGeometry(.53,.105,12,40),scarfMaterial);scarf.rotation.x=Math.PI/2;scarf.position.set(0,-.93,.14);cat.add(scarf);
+   const tailScarf=new THREE.Mesh(new THREE.BoxGeometry(.16,.48,.08),new THREE.MeshStandardMaterial({color:"#f3c4bf",roughness:.75}));tailScarf.position.set(.34,-1.18,.16);tailScarf.rotation.z=-.2;cat.add(tailScarf);
+  }
+  if(accessories.includes("moonlit-glasses")){
+   const frames=new THREE.MeshStandardMaterial({color:"#7796bf",metalness:.55,roughness:.35});
+   for(const side of [-1,1]){const lens=new THREE.Mesh(new THREE.TorusGeometry(.135,.025,8,28),frames);lens.position.set(side*.39,-.08,.735);wardrobe.add(lens);}
+   const bridge=new THREE.Mesh(new THREE.BoxGeometry(.17,.035,.035),frames);bridge.position.set(0,-.08,.75);wardrobe.add(bridge);
+  }
+  if(accessories.includes("aurora-wings")){
+   const wingMaterial=new THREE.MeshStandardMaterial({color:"#a4d5dc",transparent:true,opacity:.88,roughness:.4,metalness:.12});
+   for(const side of [-1,1]){const wing=new THREE.Mesh(new THREE.SphereGeometry(.48,24,18),wingMaterial);wing.position.set(side*.78,-.1,-.48);wing.scale.set(.75,1.35,.22);wing.rotation.z=side*-.55;cat.add(wing);}
+  }
+  if(accessories.includes("sunbeam-cape")){
+   const cape=new THREE.Mesh(new THREE.ConeGeometry(.58,1.25,4,1,true),new THREE.MeshStandardMaterial({color:"#e9b75f",side:THREE.DoubleSide,roughness:.75}));cape.position.set(0,-.83,-.43);cape.rotation.x=-.18;cat.add(cape);
+  }
+  if(accessories.includes("moonhalo")){
+   const accessoryHalo=new THREE.Mesh(new THREE.TorusGeometry(.58,.035,10,56),new THREE.MeshStandardMaterial({color:"#b9a8ed",emissive:"#8f7ed0",emissiveIntensity:.35,metalness:.35,roughness:.3}));accessoryHalo.position.set(0,1.17,-.04);accessoryHalo.rotation.x=.12;wardrobe.add(accessoryHalo);
+  }
+  if(accessories.includes("celestial-crown")){
+   const accessoryCrown=new THREE.Mesh(new THREE.TorusGeometry(.37,.065,10,40),new THREE.MeshStandardMaterial({color:"#e9cf83",metalness:.65,roughness:.28,emissive:"#caa64d",emissiveIntensity:.18}));accessoryCrown.position.set(0,.96,.02);accessoryCrown.rotation.x=Math.PI/2;wardrobe.add(accessoryCrown);
+   for(let i=0;i<3;i++){const point=new THREE.Mesh(new THREE.ConeGeometry(.075,.24,5),new THREE.MeshStandardMaterial({color:"#f4df9d",metalness:.5,roughness:.3}));point.position.set((i-1)*.22,1.13,.02);wardrobe.add(point);}
+  }
+
   if(formId>=2){const ring=new THREE.Mesh(new THREE.TorusGeometry(.34,.055,12,48),accent);ring.rotation.x=Math.PI/2;ring.position.y=.12;crown.add(ring);}
   if(formId>=5){for(let i=0;i<3;i++){const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.12+i*.025),accent);gem.position.set((i-1)*.28,.2+(i===1?.12:0),.02);crown.add(gem);}}
   if(formId>=9){const halo=new THREE.Mesh(new THREE.TorusGeometry(.55,.025,8,64),accent);halo.rotation.x=Math.PI/2;halo.position.y=.45;crown.add(halo);}
@@ -62,6 +100,6 @@ export function Meowky3D({formId,mood="happy",timeOfDay="day",className}:Meowky3
   const resize=()=>{const w=Math.max(1,element.clientWidth),h=Math.max(1,element.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};const observer=new ResizeObserver(resize);observer.observe(element);
   let frame=0;let raf=0;const animate=()=>{raf=requestAnimationFrame(animate);frame+=.012;const activeMood=moodRef.current;const dayPhase=timeRef.current;const pace=dayPhase==="morning"?1.22:dayPhase==="evening"?.78:1;cat.position.y=Math.sin(frame*(activeMood==="happy"?2:1.5)*pace)*(activeMood==="sleepy"?.025:dayPhase==="morning"?.095:.075);cat.rotation.y=Math.sin(frame*.65*pace)*(activeMood==="happy"?.22:dayPhase==="evening"?.1:.16);head.rotation.z=Math.sin(frame*(activeMood==="happy"?2.1:1.1)*pace)*(activeMood==="happy"?.045:.025);head.rotation.x=activeMood==="sleepy"?.08:0;tail.rotation.x=Math.sin(frame*(activeMood==="happy"?3.2:2))*(activeMood==="sleepy"?.06:.15);head.scale.y=activeMood==="sleepy"?.97:1;const blink=frame%(dayPhase==="evening"?6.5:dayPhase==="morning"?9.5:8.5);const blinkScale=blink>8.28?Math.max(.12,1-(blink-8.28)/.11):1;eyes.forEach(eye=>{eye.scale.y=.12*blinkScale*(activeMood==="sleepy"?.82:1);});idleSparkles.forEach((sparkle,index)=>{sparkle.position.y=.15+Math.sin(frame*1.2+index*1.7)*.82;sparkle.rotation.x+=.012;sparkle.rotation.y+=.018;const pulse=.45+Math.sin(frame*1.8+index)*.3;(sparkle.material as THREE.MeshBasicMaterial).opacity=pulse;});renderer.render(scene,camera);};animate();
   return()=>{cancelAnimationFrame(raf);observer.disconnect();renderer.dispose();scene.traverse(object=>{if(object instanceof THREE.Mesh){object.geometry.dispose();const material=object.material;if(Array.isArray(material))material.forEach(m=>m.dispose());else material.dispose();}});element.removeChild(renderer.domElement);};
- },[formId]);
+ },[formId,accessoryKey]);
  return <div ref={host} className={className??"meowky-3d-canvas"} role="img" aria-label={`3D Meowky companion, evolution form ${formId}`}/>;
 }
