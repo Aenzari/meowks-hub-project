@@ -219,3 +219,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
  .meowky-companion-actions button,.meowky-companion-art,.meowky-companion-art:before{transition:none}
  .meowky-companion-actions button:hover{transform:none}
 }
+
+
+/* Phase 2.2 — a living companion grows closer as learning progress accumulates. */
+.meowky-bond-level{display:inline-flex;margin:0 0 3px;padding:5px 9px;border:1px solid rgba(255,214,170,.3);border-radius:99px;background:rgba(255,190,130,.12);color:#ffd8a8;font-size:9px;font-weight:800;letter-spacing:.04em}
+.meowky-bond-message{margin:4px 0 0!important;color:#a9c8bc!important;font-size:10px!important;line-height:1.5!important}
+.meowky-evolution-stage[data-rarity="legendary"] .meowky-stage-aura{background:radial-gradient(circle,rgba(180,164,255,.3),transparent 68%)}
+.meowky-evolution-stage[data-rarity="mythic"] .meowky-stage-aura{background:radial-gradient(circle,rgba(232,137,190,.38),transparent 68%);animation:meowky-mythic-pulse 3.2s ease-in-out infinite}
+.meowky-evolution-stage[data-rarity="celestial"] .meowky-stage-aura{background:radial-gradient(circle,rgba(255,220,143,.48),transparent 68%);animation:meowky-celestial-pulse 2.4s ease-in-out infinite}
+@keyframes meowky-mythic-pulse{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:1;transform:scale(1.12)}}
+@keyframes meowky-celestial-pulse{0%,100%{opacity:.7;transform:scale(.94)}50%{opacity:1;transform:scale(1.18)}}
+@media(prefers-reduced-motion:reduce){.meowky-evolution-stage[data-rarity="mythic"] .meowky-stage-aura,.meowky-evolution-stage[data-rarity="celestial"] .meowky-stage-aura{animation:none}}
