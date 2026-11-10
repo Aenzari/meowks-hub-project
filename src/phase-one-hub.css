@@ -390,3 +390,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .is-coming-soon .companion-roster-foot strong{color:#a19b90}
 @media(max-width:680px){.companion-roster-grid{grid-template-columns:1fr}}
 @media(max-width:420px){.companion-roster-card{grid-template-columns:76px minmax(0,1fr);gap:10px;padding:10px}.companion-roster-art{min-height:96px;font-size:33px}.companion-roster-copy h3{font-size:14px}}
+
+
+/* Phase 2.9 — active companion profile and selection */
+.active-companion-profile{position:relative;display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;gap:14px;margin:15px 0;padding:14px;border:1px solid #dcece1;border-radius:17px;background:radial-gradient(circle at 8% 20%,rgba(116,201,166,.16),transparent 12rem),linear-gradient(120deg,#f4fbf3,#fffaf0)}
+.active-companion-portrait{position:relative;display:grid;place-items:center;width:70px;height:70px;border:1px solid #f0dfc5;border-radius:22px;background:linear-gradient(145deg,#fff,#f9e8d5);box-shadow:inset 0 2px 8px rgba(255,255,255,.9);font-size:37px}
+.active-companion-portrait i{position:absolute;top:4px;right:6px;color:#d6a64f;font-size:13px;font-style:normal}
+.active-companion-details{min-width:0}
+.active-companion-details .eyebrow{margin:0 0 3px;color:#7ca28d;font-size:8px;letter-spacing:1.3px}
+.active-companion-details h3{margin:0 0 3px;color:#294354;font-size:17px}
+.active-companion-details>p:not(.eyebrow){margin:0;color:#849087;font-size:9px;line-height:1.5}
+.active-companion-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.active-companion-tags span{padding:4px 7px;border:1px solid #e2eade;border-radius:99px;background:rgba(255,255,255,.7);color:#668374;font-size:8px;font-weight:700}
+.active-companion-status{align-self:start;padding:6px 8px;border:1px solid #d5eadb;border-radius:99px;background:#eaf7ed;color:#448b69;font-size:8px;font-weight:900;letter-spacing:.06em}
+.companion-roster-card.is-active{border-color:#a9d8bc;box-shadow:0 0 0 2px rgba(104,181,137,.12)}
+.companion-roster-card.is-active .companion-roster-art{background:radial-gradient(circle at 50% 35%,#fff,#e5f5e8 76%)}
+.companion-select-button{width:100%;min-height:33px;margin-top:9px;padding:7px 9px;border:1px solid #d8e7db;border-radius:9px;background:#f0f8f0;color:#477c61;font-size:8px;font-weight:850;touch-action:manipulation}
+.companion-select-button:disabled{border-color:#e9e8e1;background:#f5f4f0;color:#9c9a91;cursor:default}
+.companion-roster-card.is-active .companion-select-button{border-color:#cfe6d5;background:#e9f5eb;color:#4a8b65}
+@media(max-width:560px){.active-companion-profile{grid-template-columns:58px minmax(0,1fr);gap:10px;padding:11px}.active-companion-portrait{width:56px;height:56px;border-radius:17px;font-size:30px}.active-companion-status{grid-column:2;justify-self:start;grid-row:2;margin-top:-4px}}
